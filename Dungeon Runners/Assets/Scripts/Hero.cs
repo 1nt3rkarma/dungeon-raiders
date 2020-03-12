@@ -9,16 +9,22 @@ public class Hero : MonoBehaviour
     public int line { get => block.GetLineIndex(); }
     public int lineView;
 
+    public Enemy enemy;
     public Block block;
-    public Player player;
+    public Block nextBlock { get => GetNextBlock(); }
+    //public Player player;
 
     public float shiftDuration = 0.25f;
+    public bool isFloating = false;
     public bool isMoving = true;
+    public bool isBusy = false;
 
-    public Animator animator;
+    public Animator animator { get => animHandler.animator; }
     public HeroAnimationHandler animHandler;
 
     public Coroutine leapRoutine;
+    public Coroutine jumpRoutine;
+    public Coroutine castRoutine;
 
     void Start()
     {
@@ -29,33 +35,160 @@ public class Hero : MonoBehaviour
     void Update()
     {
         lineView = line;
+
+        if (Player.controllEnabled)
+            CheckFront();
     }
 
-    public void Leap(MoveDirections direction)
+    void CheckFront()
     {
-        if (leapRoutine == null)
+        var objects = nextBlock.ScanObjects();
+        foreach (var obj in objects)
         {
-            if (direction == MoveDirections.Left && line == 0)
-                return;
-            if (direction == MoveDirections.Right && line == 2)
-                return;
+            if (this.enemy == null)
+            {
+                var searchEnemy = obj.GetComponent<Enemy>();
+                if (searchEnemy != null)
+                    enemy = searchEnemy;
+            }
+        }
 
-            leapRoutine = StartCoroutine(LeapRoutine(direction));
+        if (enemy != null)
+        {
+            if (isMoving)
+                Stop();
+        }
+        else
+        {
+            if (!isBusy && !isMoving)
+                Move();
         }
     }
 
-    IEnumerator LeapRoutine(MoveDirections direction)
+    void Stop()
     {
+        Debug.Log("Остановились");
+        animHandler.SetMoveFlag(false);
+        isMoving = false;
+        Player.StopMoving();
+    }
+
+    void Move()
+    {
+        Debug.Log("Пошли дальше");
+        animHandler.SetMoveFlag(true);
+        isMoving = true;
+        Player.ContinueMoving();
+    }
+
+    public Block GetNextBlock()
+    {
+        return Level.GetBlock(row+1,line);
+    }
+
+    public void MeleeAttack()
+    {
+        if (!isBusy)
+            if (castRoutine == null)
+            {
+                castRoutine = StartCoroutine(MeleeAttackRoutine());
+            }
+    }
+
+    IEnumerator MeleeAttackRoutine()
+    {
+        isBusy = true;
+        Stop();
+
+        animHandler.PlayAnimation("attack");
+
+        // Ждем событие анимации - начало анимации
+        while (!animHandler.animEventCastStart)
+            yield return null;
+        animHandler.animEventCastStart = false;
+
+        // Ждем событие анимации - применение
+        while (!animHandler.animEventCast)
+            yield return null;
+        animHandler.animEventCast = false;
+        CastMeleeDamage();
+
+        // Ждем событие анимации - окончание анимации
+        while (!animHandler.animEventCastEnd)
+            yield return null;
+        animHandler.animEventCastEnd = false;
+
+        castRoutine = null;
+        isBusy = false;
+
+        yield return null;
+    }
+
+    public void CastMeleeDamage()
+    {
+        if (enemy)
+            enemy.TakeDamage();
+    }
+
+    public void Jump()
+    {
+        if (!isBusy)
+            if (jumpRoutine == null)
+            {
+                jumpRoutine = StartCoroutine(JumpRoutine());
+            }
+    }
+
+    IEnumerator JumpRoutine()
+    {
+        isBusy = true;
+
+        animHandler.PlayAnimation("jump");
+
+        // Ждем событие анимации - прыжок
+        while (!animHandler.animEventJumpStart)
+            yield return null;
+        animHandler.animEventJumpStart = false;
+
+        isFloating = true;
+
+        // Ждем событие анимации - прыжок закончен
+        while (!animHandler.animEventJumpEnd)
+            yield return null;
+        animHandler.animEventJumpEnd = false;
+
+        isFloating = false;
+
+        isBusy = false;
+        jumpRoutine = null;
+    }
+
+    public void Leap(LeapDirections direction)
+    {
+        if (!isBusy)
+            if (leapRoutine == null)
+            {
+                if (direction == LeapDirections.Left && line == 0)
+                    return;
+                if (direction == LeapDirections.Right && line == 2)
+                    return;
+
+                leapRoutine = StartCoroutine(LeapRoutine(direction));
+            }
+    }
+
+    IEnumerator LeapRoutine(LeapDirections direction)
+    {
+        isBusy = true;
         var speed = 1 / shiftDuration;
 
-        //animator.speed = speed;
-        if (direction == MoveDirections.Left)
-            animator.SetTrigger("leapL");
-        if (direction == MoveDirections.Right)
-            animator.SetTrigger("leapR");
+        if (direction == LeapDirections.Left)
+            animHandler.PlayAnimation("leapL");
+        if (direction == LeapDirections.Right)
+            animHandler.PlayAnimation("leapR");
 
         int sign;
-        if (direction == MoveDirections.Left)
+        if (direction == LeapDirections.Left)
             sign = -1;
         else
             sign = 1;
@@ -64,9 +197,9 @@ public class Hero : MonoBehaviour
         var distance = Mathf.Abs(transform.position.x - targetPosition.x);
 
         // Ждем событие анимации - прыжок
-        while (!animHandler.eventLeap)
+        while (!animHandler.animEventLeap)
             yield return null;
-        animHandler.eventLeap = false;
+        animHandler.animEventLeap = false;
 
         while (distance > 0.1)
         {
@@ -75,9 +208,10 @@ public class Hero : MonoBehaviour
             yield return null;
         }
 
-        //animator.speed = 1;
         transform.position = targetPosition;
         leapRoutine = null;
+        isBusy = false;
+        enemy = null;
     }
 
     void OnDrawGizmosSelected()
@@ -85,9 +219,9 @@ public class Hero : MonoBehaviour
         if (block != null)
         {
             Gizmos.color = Color.yellow;
-            var center = block.transform.position + new Vector3(0.5f, 0, 0.5f);
-            var size = Vector3.one / 2;
-            Gizmos.DrawWireCube(center, size);
+            var center = block.transform.position; ;
+            var size = 0.5f;
+            Gizmos.DrawWireSphere(center, size);
         }
     }
 }

@@ -13,7 +13,7 @@ public class Level : MonoBehaviour
     public Coin coinPref;
     public Row rowPref;
 
-    public bool hasStopped = false;
+    public bool isMoving = true;
 
     public List<Row> rows;
 
@@ -32,7 +32,7 @@ public class Level : MonoBehaviour
 
     void Update()
     {
-        if (!hasStopped && animationRoutine == null)
+        if (isMoving && animationRoutine == null)
             animationRoutine = StartCoroutine(FlowRoutine());
     }
 
@@ -60,6 +60,7 @@ public class Level : MonoBehaviour
         // Плавно сдвигаем ряды
         while (z > -1)
         {
+
             z -= moveSpeed * Time.deltaTime;
             SetRowsPosition(z);
             yield return null;
@@ -78,7 +79,7 @@ public class Level : MonoBehaviour
         //Выравнивам новую позицию блоков
         SetRowsPosition(0);
 
-        if (hasStopped)
+        if (!isMoving)
             animationRoutine = null;
         else
             animationRoutine = StartCoroutine(FlowRoutine());
@@ -120,7 +121,7 @@ public class Level : MonoBehaviour
         {
             foreach (var block in row.blocks)
             {
-                var sqrDistance = Vector3.SqrMagnitude(serachPosition - block.checkPoint.position);
+                var sqrDistance = Vector3.SqrMagnitude(serachPosition - block.scanAreaPoint.position);
                 if (sqrDistance < sqrDistanceMin)
                 {
                     wanted = block;
@@ -146,5 +147,15 @@ public class Level : MonoBehaviour
     public static Block GetBlock(int row, int line)
     {
         return singlton.rows[row].blocks[line];
+    }
+
+    public static void StopFlow()
+    {
+        singlton.isMoving = false;
+    }
+
+    public static void RunFlow()
+    {
+        singlton.isMoving = true;
     }
 }

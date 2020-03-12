@@ -6,7 +6,8 @@ public class Block : MonoBehaviour
 {
     public Row parent;
 
-    public Transform checkPoint;
+    public Transform scanAreaPoint;
+    public Vector3 scanAreaSize;
 
     public int GetLineIndex()
     {
@@ -18,10 +19,29 @@ public class Block : MonoBehaviour
         return Level.GetBlockRow(this);
     }
 
+    public GameObject[] ScanObjects()
+    {
+        List<GameObject> objects = new List<GameObject>() ;
+        var colliders = Physics.OverlapBox(scanAreaPoint.position, scanAreaSize / 2);
+
+        foreach (var collider in colliders)
+        {
+            if (collider.gameObject != gameObject)
+                objects.Add(collider.gameObject);
+        }
+        return objects.ToArray();
+    }
+
     void OnTriggerEnter(Collider other)
     {
         Hero hero = other.GetComponent<Hero>();
         if (hero != null)
             hero.block = this;
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireCube(scanAreaPoint.position, scanAreaSize);
     }
 }

@@ -1,17 +1,19 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
-public class Player : MonoBehaviour
+public class Player : MonoBehaviourExtended
 {
     static Player singlton;
 
     public Hero hero;
 
-    public bool controllEnabled = true;
+    public static bool controllEnabled = false;
 
     public int steps = 0;
     public int coins = 0;
+
+    #region Реакции на события
+
+    #region События движка Unity
 
     void Awake()
     {
@@ -19,25 +21,80 @@ public class Player : MonoBehaviour
             Destroy(singlton.gameObject);
         singlton = this;
 
-        hero.player = this;
+        SubsribeToGameEvents();
     }
 
-    void Start()
+    void OnDestroy()
     {
-        
+        UnsubsribeToGameEvents();
     }
 
-    void Update()
+    #endregion
+
+    #region Игровые события
+
+    protected override void OnTapPress()
     {
-        
+
     }
 
-    public void OrderLeapHero(MoveDirections direction)
+    protected override void OnTapRelease()
+    {
+
+    }
+
+    protected override void OnSingleTap()
+    {
+        OrderJump();
+    }
+
+    protected override void OnDoubleTap()
+    {
+        OrderAttack();
+    }
+
+    protected override void OnTapHold()
+    {
+
+    }
+
+    protected override void OnSwipe(SwipeDirections direction)
+    {
+        switch (direction)  
+        {
+            case SwipeDirections.Right:
+                OrderLeap(LeapDirections.Right);
+                break;
+            case SwipeDirections.Left:
+                OrderLeap(LeapDirections.Left);
+                break;
+            default:
+                break;
+        }
+    }
+
+    #endregion
+
+    #endregion
+
+    #region Методы
+
+    public void OrderAttack()
+    {
+        hero.MeleeAttack();
+    }
+
+    public void OrderJump()
+    {
+        hero.Jump();
+    }
+
+    public void OrderLeap(LeapDirections direction)
     {
         hero.Leap(direction);
     }
 
-    public void CountStep()
+    public static void CountStep()
     {
 
     }
@@ -47,6 +104,21 @@ public class Player : MonoBehaviour
         singlton.coins += amount;
     }
 
+    public static void StopMoving()
+    {
+        Level.StopFlow();
+    }
+
+    public static void ContinueMoving()
+    {
+        Level.RunFlow();
+    }
+
+
+    #endregion
+
 }
 
-public enum MoveDirections { None = 0, Right = 1, Left = -1}
+public enum SwipeDirections { None, Right, Left, Up, Down }
+
+public enum LeapDirections { None = 0, Right = 1, Left = -1}

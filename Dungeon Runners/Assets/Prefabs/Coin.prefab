@@ -61,6 +61,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   price: 1
+  animator: {fileID: 4958898300193115700}
 --- !u!95 &4958898300193115700
 Animator:
   serializedVersion: 3
@@ -123,7 +124,7 @@ Light:
   m_Type: 2
   m_Shape: 0
   m_Color: {r: 1, g: 0.8892391, b: 0, a: 1}
-  m_Intensity: 4
+  m_Intensity: 2
   m_Range: 1.07
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -182,7 +183,7 @@ PrefabInstance:
     - target: {fileID: -4216859302048453862, guid: 5d3bd9d52bbc51f42ba2068a637404d7,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -4216859302048453862, guid: 5d3bd9d52bbc51f42ba2068a637404d7,
         type: 3}
