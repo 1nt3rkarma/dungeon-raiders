@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Hero : MonoBehaviour
+public class Hero : Unit
 {
-    public int row { get => block.GetRowIndex(); }
+    [Header("Hero properties")]
+
     public int rowView;
-    public int line { get => block.GetLineIndex(); }
+    public int row { get => block.GetRowIndex(); }
     public int lineView;
+    public int line { get => block.GetLineIndex(); }
 
     public Enemy enemy;
     public Block block;
@@ -17,10 +19,6 @@ public class Hero : MonoBehaviour
     public float shiftDuration = 0.25f;
     public bool isFloating = false;
     public bool isMoving = true;
-    public bool isBusy = false;
-
-    public Animator animator { get => animHandler.animator; }
-    public HeroAnimationHandler animHandler;
 
     public Coroutine leapRoutine;
     public Coroutine jumpRoutine;
@@ -36,7 +34,7 @@ public class Hero : MonoBehaviour
     {
         lineView = line;
 
-        if (Player.controllEnabled)
+        if (Player.controllEnabled && isAlive)
             CheckFront();
     }
 
@@ -67,7 +65,6 @@ public class Hero : MonoBehaviour
 
     void Stop()
     {
-        Debug.Log("Остановились");
         animHandler.SetMoveFlag(false);
         isMoving = false;
         Player.StopMoving();
@@ -75,7 +72,6 @@ public class Hero : MonoBehaviour
 
     void Move()
     {
-        Debug.Log("Пошли дальше");
         animHandler.SetMoveFlag(true);
         isMoving = true;
         Player.ContinueMoving();
@@ -127,7 +123,7 @@ public class Hero : MonoBehaviour
     public void CastMeleeDamage()
     {
         if (enemy)
-            enemy.TakeDamage();
+            enemy.TakeDamage(1);
     }
 
     public void Jump()
@@ -187,31 +183,78 @@ public class Hero : MonoBehaviour
         if (direction == LeapDirections.Right)
             animHandler.PlayAnimation("leapR");
 
-        int sign;
-        if (direction == LeapDirections.Left)
-            sign = -1;
-        else
-            sign = 1;
-
+        int sign = (int)direction;
         var targetPosition = transform.position + sign * transform.right;
-        var distance = Mathf.Abs(transform.position.x - targetPosition.x);
 
         // Ждем событие анимации - прыжок
         while (!animHandler.animEventLeap)
             yield return null;
         animHandler.animEventLeap = false;
 
-        while (distance > 0.1)
-        {
-            transform.position += sign * transform.right * speed * Time.deltaTime;
-            distance = Mathf.Abs(transform.position.x - targetPosition.x);
-            yield return null;
-        }
+        if (direction == LeapDirections.Left)
+            while (transform.position.x > targetPosition.x)
+            {
+                transform.position -= transform.right * speed * Time.deltaTime;
+                yield return null;
+            }
+        else if (direction == LeapDirections.Right)
+            while (transform.position.x < targetPosition.x)
+            {
+                transform.position += transform.right * speed * Time.deltaTime;
+                yield return null;
+            }
+
 
         transform.position = targetPosition;
         leapRoutine = null;
         isBusy = false;
         enemy = null;
+    }
+
+    public override void TakeDamage(float damage)
+    {
+        base.TakeDamage(damage);
+
+        if (health > 0)
+            StartCoroutine(HitRoutine());
+    }
+
+    IEnumerator HitRoutine()
+    {
+        isBusy = true;
+
+        if (jumpRoutine != null)
+            StopCoroutine(jumpRoutine);
+        if (castRoutine != null)
+            StopCoroutine(castRoutine);
+
+        animHandler.PlayAnimation("hit");
+
+        // Ждем событие анимации - начало анимации
+        yield return WaitForAnimationEvent(AnimationEvents.start);
+
+        // Ждем событие анимации - конец анимации
+        yield return WaitForAnimationEvent(AnimationEvents.end);
+
+        isBusy = false;
+    }
+
+    public override void Die()
+    {
+        Stop();
+        isAlive = false;
+        Player.Defeat();
+
+        animHandler.PlayAnimation("die");
+        animHandler.ReleaseBodyparts();
+    }
+
+    public void SwitchBlockTo(Block block)
+    {
+        if (block.GetRowIndex() > this.block.GetRowIndex())
+            Player.steps++;
+
+        this.block = block;
     }
 
     void OnDrawGizmosSelected()

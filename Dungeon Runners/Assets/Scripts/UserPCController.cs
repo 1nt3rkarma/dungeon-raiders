@@ -15,11 +15,6 @@ public class UserPCController : MonoBehaviour
     public bool tapHold2 = false;
     public bool tapRelease2 = false;
 
-    void Start()
-    {
-        tapHoldTimer = tapHoldLimit;
-    }
-
     void Update()
     {
         #region Имитация свайпа

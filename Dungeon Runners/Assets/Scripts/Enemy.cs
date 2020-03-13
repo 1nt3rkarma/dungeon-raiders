@@ -2,26 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Enemy : MonoBehaviour
+public class Enemy : Unit
 {
-    public int health = 1;
-    public int healthMax = 1;
-
-    public bool isAlive = true;
-
-    public void TakeDamage()
+    public override void Die()
     {
-        if (!isAlive)
-            return;
-
-        health--;
-        if (health <= 0)
-            Die();
-    }
-
-    public void Die()
-    {
-        isAlive = false;
+        base.Die();
 
         StartCoroutine(DieRoutine());
     }

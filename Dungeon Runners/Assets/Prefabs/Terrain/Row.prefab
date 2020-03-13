@@ -171,6 +171,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isPopedUp: 0
+  animate: 0
   blocks:
   - {fileID: 4846283897560131239}
   - {fileID: 8180494739568096651}

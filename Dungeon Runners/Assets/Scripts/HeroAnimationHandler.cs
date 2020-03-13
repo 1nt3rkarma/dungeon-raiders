@@ -9,6 +9,9 @@ public class HeroAnimationHandler : MonoBehaviour
 
     public AnimationClipGroup jumpClips;
 
+    [Tooltip("Части тела персонажа, которые отвалятся, например, при анимации смерти")]
+    public List<Rigidbody> bodyparts;
+
     public bool animEventStart = false;
     public bool animEventEnd = false;
 
@@ -101,6 +104,15 @@ public class HeroAnimationHandler : MonoBehaviour
         animator.SetBool("isMoving", flag);
     }
 
+    public void ReleaseBodyparts()
+    {
+        foreach (var part in bodyparts)
+        {
+            part.transform.SetParent(null);
+            part.isKinematic = false;
+        }
+    }
+
     public void EnableWeaponTrail()
     {
         weaponTrail.emitting = true;
@@ -111,6 +123,8 @@ public class HeroAnimationHandler : MonoBehaviour
         weaponTrail.emitting = false;
     }
 }
+
+public enum AnimationEvents { start, end, leap, jumpStart, jumpEnd, castStart, cast, castEnd }
 
 [System.Serializable]
 public class AnimationClipGroup : object

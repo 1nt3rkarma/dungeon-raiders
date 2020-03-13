@@ -8,19 +8,15 @@ public class Level : MonoBehaviour
 
     Coroutine animationRoutine;
 
-    [Range(1,100)]
-    public int coinChance = 40;
-    public Coin coinPref;
-    public Row rowPref;
-
     public bool isMoving = true;
 
+    public Row rowPref;
     public List<Row> rows;
 
     public float moveSpeed = 1;
     public float distancePerCycle = 1;
 
-    public Player player;
+    public LevelGenerator generator;
 
     void Awake()
     {
@@ -98,18 +94,61 @@ public class Level : MonoBehaviour
         row.SetPosition(rows.Count);
         rows.Add(row);
 
-        GenerateRandomObjects(row);
+        if (generator.enabled)
+            GenerateRandomObjects(row);
     }
 
     void GenerateRandomObjects(Row row)
     {
-        var roll = Random.Range(1, 100);
-        if (roll <= coinChance)
-            return;
+        generator.coinSpawnCounter++;
+        if (generator.coinSpawnCounter >= generator.coinMinInterval
+            && generator.coinSpawnCounter <= generator.coinMaxInterval)
+        {
+            var delta = Mathf.Abs(generator.coinMaxInterval - -generator.coinMinInterval);
+            var temp = Mathf.Abs(generator.coinSpawnCounter - generator.coinMinInterval);
+            var chance = generator.coinBasicChance + temp / delta;
+            var roll = Random.Range(0f, 1f);
 
-        int l = Random.Range(0, row.blocks.Count);
-        var coin = Instantiate(coinPref, row.blocks[l].transform);
-        coin.transform.localPosition = Vector3.zero;
+            if (chance >= roll)
+            {
+                int l = Random.Range(0, row.blocks.Count);
+                var coin = Instantiate(generator.coinPref, row.blocks[l].transform);
+                coin.transform.localPosition = Vector3.zero;
+                generator.coinSpawnCounter = 0;
+            }
+        }
+        else if (generator.coinSpawnCounter > generator.coinMaxInterval)
+        {
+            int l = Random.Range(0, row.blocks.Count);
+            var coin = Instantiate(generator.coinPref, row.blocks[l].transform);
+            coin.transform.localPosition = Vector3.zero;
+            generator.coinSpawnCounter = 0;
+        }
+
+        generator.trapSpawnCounter++;
+        if (generator.trapSpawnCounter >= generator.trapMinInterval
+            && generator.trapSpawnCounter <= generator.trapMaxInterval)
+        {
+            var delta = Mathf.Abs(generator.trapMaxInterval - -generator.trapMinInterval);
+            var temp = Mathf.Abs(generator.trapSpawnCounter - generator.trapMinInterval);
+            var chance = generator.trapBasicChance + temp / delta;
+            var roll = Random.Range(0f, 1f);
+
+            if (chance >= roll)
+            {
+                int l = Random.Range(0, row.blocks.Count);
+                var trap = Instantiate(generator.spikeTrapPref, row.blocks[l].transform);
+                trap.transform.localPosition = Vector3.zero;
+                generator.trapSpawnCounter = 0;
+            }
+        }
+        else if (generator.trapSpawnCounter > generator.trapMaxInterval)
+        {
+            int l = Random.Range(0, row.blocks.Count);
+            var trap = Instantiate(generator.spikeTrapPref, row.blocks[l].transform);
+            trap.transform.localPosition = Vector3.zero;
+            generator.trapSpawnCounter = 0;
+        }
     }
 
     public static Block GetNearestBlock(Vector3 serachPosition)
@@ -158,4 +197,24 @@ public class Level : MonoBehaviour
     {
         singlton.isMoving = true;
     }
+}
+
+[System.Serializable]
+public class LevelGenerator : object
+{
+    public bool enabled = true;
+
+    public Coin coinPref;
+    [Range(0,1)]
+    public float coinBasicChance = 0.1f;
+    public int coinMinInterval = 5;
+    public int coinMaxInterval = 9;
+    public int coinSpawnCounter = 0;
+
+    public SpikeTrap spikeTrapPref;
+    [Range(0, 1)]
+    public float trapBasicChance = 0.2f;
+    public int trapMinInterval = 4;
+    public int trapMaxInterval = 10;
+    public int trapSpawnCounter = 0;
 }

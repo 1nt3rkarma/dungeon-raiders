@@ -382,7 +382,13 @@ MonoBehaviour:
     count: 2
     allowRepeat: 0
     excluded: -1
+  bodyparts:
+  - {fileID: 1161318256804775993}
+  animEventStart: 0
+  animEventEnd: 0
   animEventLeap: 0
+  animEventJumpStart: 0
+  animEventJumpEnd: 0
   animEventCastStart: 0
   animEventCast: 0
   animEventCastEnd: 0
@@ -1117,6 +1123,21 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8263659711918681892, guid: efdeb6bc302675b4b880dfc3dd4ba341,
+        type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 8263659711918681892, guid: efdeb6bc302675b4b880dfc3dd4ba341,
+        type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 8263659711918681892, guid: efdeb6bc302675b4b880dfc3dd4ba341,
+        type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.01
+      objectReference: {fileID: 0}
     - target: {fileID: 8263659711918681893, guid: efdeb6bc302675b4b880dfc3dd4ba341,
         type: 3}
       propertyPath: m_Name
@@ -1124,6 +1145,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: efdeb6bc302675b4b880dfc3dd4ba341, type: 3}
+--- !u!54 &1161318256804775993 stripped
+Rigidbody:
+  m_CorrespondingSourceObject: {fileID: 4713269604661335075, guid: efdeb6bc302675b4b880dfc3dd4ba341,
+    type: 3}
+  m_PrefabInstance: {fileID: 5869652076459088922}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &2583759757284537150 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8263659711918681892, guid: efdeb6bc302675b4b880dfc3dd4ba341,

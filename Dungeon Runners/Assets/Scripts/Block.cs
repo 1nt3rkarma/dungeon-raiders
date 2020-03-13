@@ -36,7 +36,7 @@ public class Block : MonoBehaviour
     {
         Hero hero = other.GetComponent<Hero>();
         if (hero != null)
-            hero.block = this;
+            hero.SwitchBlockTo(this);
     }
 
     private void OnDrawGizmosSelected()
