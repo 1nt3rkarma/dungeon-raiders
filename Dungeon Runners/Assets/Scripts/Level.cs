@@ -6,17 +6,20 @@ public class Level : MonoBehaviour
 {
     static Level singlton;
 
-    Coroutine animationRoutine;
+    public static int level;
+    public static int levelSteps;
 
     public bool isMoving = true;
-
-    public Row rowPref;
-    public List<Row> rows;
 
     public float moveSpeed = 1;
     public float distancePerCycle = 1;
 
     public LevelGenerator generator;
+
+    public Row rowPref;
+    public List<Row> rows;
+
+    Coroutine animationRoutine;
 
     void Awake()
     {
@@ -24,6 +27,9 @@ public class Level : MonoBehaviour
             Destroy(singlton.gameObject);
 
         singlton = this;
+
+        level = 1;
+        levelSteps = 100;
     }
 
     void Update()
@@ -61,16 +67,9 @@ public class Level : MonoBehaviour
             SetRowsPosition(z);
             yield return null;
         }
-        // Исходная позиция Игрока
-        //var r = player.hero.row;
-        //var l = player.hero.line;
 
         //Удаляем старый ряд
         DestroyRow(0);
-
-        // Засчитываем перемещение Игроку
-        //player.steps++;
-        //player.hero.block = rows[r].blocks[l];
 
         //Выравнивам новую позицию блоков
         SetRowsPosition(0);
@@ -196,6 +195,17 @@ public class Level : MonoBehaviour
     public static void RunFlow()
     {
         singlton.isMoving = true;
+    }
+
+    public static void SwitchLevel()
+    {
+        SwitchLevel(level + 1);
+    }
+
+    public static void SwitchLevel(int level)
+    {
+        Level.level = level;
+        levelSteps = 100 + level * 10;
     }
 }
 

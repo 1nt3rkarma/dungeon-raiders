@@ -129,10 +129,20 @@ public class Hero : Unit
     public void Jump()
     {
         if (!isBusy)
+        {
             if (jumpRoutine == null)
             {
                 jumpRoutine = StartCoroutine(JumpRoutine());
             }
+            else
+            {
+                Debug.Log("Прыжок не произошел, т. к. корутина все еще активна");
+            }
+        }
+        else
+        {
+            Debug.Log("Прыжок не произошел, т. к. Герой занят");
+        }
     }
 
     IEnumerator JumpRoutine()
@@ -225,8 +235,11 @@ public class Hero : Unit
 
         if (jumpRoutine != null)
             StopCoroutine(jumpRoutine);
+        jumpRoutine = null;
+
         if (castRoutine != null)
             StopCoroutine(castRoutine);
+        castRoutine = null;
 
         animHandler.PlayAnimation("hit");
 
@@ -252,7 +265,7 @@ public class Hero : Unit
     public void SwitchBlockTo(Block block)
     {
         if (block.GetRowIndex() > this.block.GetRowIndex())
-            Player.steps++;
+            Player.AddStep();
 
         this.block = block;
     }

@@ -7,7 +7,7 @@ public class UI : MonoBehaviour
     static UI singlton;
 
     public DefeatUI defeatUI;
-    public StatsUI statsUI;
+    public GameObject mainUI;
 
     private void Awake()
     {
@@ -19,11 +19,21 @@ public class UI : MonoBehaviour
         singlton = instance;
     }
 
+    public static void HideMainUI()
+    {
+        singlton.mainUI.SetActive(false);
+    }
+
+    public static void ShowMainUI()
+    {
+        singlton.mainUI.SetActive(true);
+    }
+
     public static void ShowDefeatUI()
     {
         singlton.defeatUI.gameObject.SetActive(true);
         singlton.defeatUI.coinCountText.text = Player.coins.ToString();
-        singlton.defeatUI.stepsText.text = $"YOU HAVE MADE {Player.steps.ToString()} STEPS";
+        singlton.defeatUI.stepsText.text = $"YOU'VE MADE {Player.stepsTotal.ToString()} STEPS";
     }
     public static void HideDefeatUI()
     {

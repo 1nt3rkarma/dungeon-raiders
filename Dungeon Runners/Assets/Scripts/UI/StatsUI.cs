@@ -5,8 +5,6 @@ using UnityEngine.UI;
 
 public class StatsUI : MonoBehaviour
 {
-    public Player player;
-
     public Text coinCounterText;
 
     public ResourceBar healthBar;
@@ -14,9 +12,9 @@ public class StatsUI : MonoBehaviour
 
     void Update()
     {
-        coinCounterText.text = Player.coins.ToString();
-        if (player.hero.isAlive)
-            healthBar.SetValue(player.hero.health / player.hero.healthMax);
+        coinCounterText.text = Player.singlton.hero.ToString();
+        if (Player.singlton.hero.isAlive)
+            healthBar.SetValue(Player.singlton.hero.health / Player.singlton.hero.healthMax);
         else
             healthBar.SetValue(0);
     }

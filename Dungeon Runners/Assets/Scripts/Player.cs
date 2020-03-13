@@ -3,14 +3,15 @@ using UnityEngine.SceneManagement;
 
 public class Player : MonoBehaviourExtended
 {
-    static Player singlton;
+    public static Player singlton;
 
     public Hero hero;
 
     public static bool controllEnabled = true;
 
-    public static int steps = 0;
     public static int coins = 0;
+    public static int stepsOnLevel = 0;
+    public static int stepsTotal = 0;
 
     #region Реакции на события
 
@@ -22,13 +23,16 @@ public class Player : MonoBehaviourExtended
             Destroy(singlton.gameObject);
         singlton = this;
 
+        coins = 0;
+        stepsOnLevel = 0;
+        stepsTotal = 0;
+
         SubsribeToGameEvents();
     }
 
-    void Start()
+    private void Start()
     {
-        steps = 0;
-        coins = 0;
+        CameraController.ResetCamera(1);
     }
 
     void OnDestroy()
@@ -101,9 +105,15 @@ public class Player : MonoBehaviourExtended
         hero.Leap(direction);
     }
 
-    public static void CountStep()
+    public static void AddStep()
     {
-
+        stepsOnLevel++;
+        if (stepsOnLevel == Level.levelSteps)
+        {
+            Level.SwitchLevel();
+            stepsTotal += stepsOnLevel;
+            stepsOnLevel = 0;
+        }
     }
 
     public static void AddCoins(int amount)
@@ -123,7 +133,10 @@ public class Player : MonoBehaviourExtended
 
     public static void Defeat()
     {
+        CameraController.FocusHero(1f);
+        stepsTotal += stepsOnLevel;
         UI.ShowDefeatUI();
+        UI.HideMainUI();
     }
 
     public static void ReloadLevel()
