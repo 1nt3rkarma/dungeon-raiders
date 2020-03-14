@@ -33,7 +33,7 @@ public class UI : MonoBehaviour
     {
         singlton.defeatUI.gameObject.SetActive(true);
         singlton.defeatUI.coinCountText.text = Player.coins.ToString();
-        singlton.defeatUI.stepsText.text = $"YOU'VE MADE {Player.stepsTotal.ToString()} STEPS";
+        singlton.defeatUI.stepsText.text = $"YOU'VE MADE\n{Player.stepsTotal.ToString()} STEPS";
     }
     public static void HideDefeatUI()
     {

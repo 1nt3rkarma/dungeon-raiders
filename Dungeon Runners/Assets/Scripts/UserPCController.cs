@@ -34,10 +34,12 @@ public class UserPCController : MonoBehaviour
 
         #region Имитация нажатия на тач-скрин
 
-        if (Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0))
+        //if (Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0))
+        if (Input.GetKeyDown(KeyCode.Space))
             CatchTapPress();
 
-        if (Input.GetKeyUp(KeyCode.Space) || Input.GetMouseButtonUp(0))
+        if (Input.GetKeyUp(KeyCode.Space))
+            //if (Input.GetKeyUp(KeyCode.Space) || Input.GetMouseButtonUp(0))
             CatchTapRelease();
 
         if (tapHold1)
@@ -93,7 +95,7 @@ public class UserPCController : MonoBehaviour
         tapHold2 = false;
         tapRelease2 = false;
 
-        Debug.Log("Произошел один тап");
+        //Debug.Log("Произошел один тап");
         GameEvent.InvokeSingleTap();
     }
 
@@ -106,7 +108,7 @@ public class UserPCController : MonoBehaviour
         tapHold2 = false;
         tapRelease2 = false;
 
-        Debug.Log("Произошел двойной тап");
+        //Debug.Log("Произошел двойной тап");
         GameEvent.InvokeDoubleTap();
     }
 
@@ -119,7 +121,7 @@ public class UserPCController : MonoBehaviour
         tapHold2 = false;
         tapRelease2 = false;
 
-        Debug.Log("Произошло удержание");
+        //Debug.Log("Произошло удержание");
         GameEvent.InvokeTapHold();
     }
 }

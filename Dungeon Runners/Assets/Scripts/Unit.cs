@@ -13,20 +13,51 @@ public class Unit : MonoBehaviour
 
     public Animator animator { get => animHandler.animator; }
     public HeroAnimationHandler animHandler;
+    public AudioSource audioSource;
 
     public virtual void TakeDamage(float damage)
+    {
+        TakeDamage(damage, DamageSources.common);
+    }
+
+    public virtual void TakeDamage(float damage, DamageSources source)
     {
         if (!isAlive)
             return;
 
         health -= damage;
         if (health <= 0)
-            Die();
+            Die(source);
     }
 
     public virtual void Die()
     {
+        Die(DamageSources.common);
+    }
+
+    public virtual void Die(DamageSources source)
+    {
         isAlive = false;
+
+        animHandler.ClearFalgs();
+        switch (source)
+        {
+            case DamageSources.fall:
+                animHandler.PlayAnimation("dieFall");
+                break;
+            case DamageSources.fire:
+                animHandler.PlayAnimation("dieFire");
+                break;
+            case DamageSources.frost:
+                animHandler.PlayAnimation("dieFrost");
+                break;
+            case DamageSources.electro:
+                animHandler.PlayAnimation("dieElectro");
+                break;
+            default:
+                animHandler.PlayAnimation("die");
+                break;
+        }
     }
 
     protected IEnumerator WaitForAnimationEvent(AnimationEvents eventTag)
@@ -36,18 +67,18 @@ public class Unit : MonoBehaviour
             case AnimationEvents.start:
                 while (!animHandler.animEventStart)
                     yield return null;
-                animHandler.animEventCastStart = false;
+                animHandler.animEventStart = false;
                 break;
             case AnimationEvents.end:
                 while (!animHandler.animEventEnd)
                     yield return null;
                 animHandler.animEventEnd = false;
                 break;
-            case AnimationEvents.leap:
-                while (!animHandler.animEventLeap)
-                    yield return null;
-                animHandler.animEventLeap = false;
-                break;
+            //case AnimationEvents.leap:
+            //    while (!animHandler.animEventLeap)
+            //        yield return null;
+            //    animHandler.animEventLeap = false;
+            //    break;
             case AnimationEvents.jumpStart:
                 while (!animHandler.animEventJumpStart)
                     yield return null;
@@ -75,4 +106,35 @@ public class Unit : MonoBehaviour
                 break;
         }
     }
+
+    public void PlayRandomSound(List<AudioClip> sounds)
+    {
+        if (sounds.Count == 0)
+            return;
+
+        var i = Random.Range(0, sounds.Count);
+        audioSource.PlayOneShot(sounds[i]);
+    }
+
+    public Transform GetUnitPoint(UnitBodyPoints point)
+    {
+        switch (point)  
+        {
+            case UnitBodyPoints.chest:
+                return animHandler.chestPoint;
+            case UnitBodyPoints.head:
+                return animHandler.headPoint;
+            case UnitBodyPoints.handRight:
+                return animHandler.handRightPoint;
+            case UnitBodyPoints.handLeft:
+                return animHandler.handLeftPoint;
+            case UnitBodyPoints.overhead:
+                return animHandler.overheadPoint;
+            default:
+                return animHandler.transform;
+        }
+    }
 }
+
+
+public enum DamageSources { common, fall, fire, frost, electro }

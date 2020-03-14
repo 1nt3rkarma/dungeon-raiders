@@ -6,6 +6,8 @@ public class Coin : MonoBehaviour
 {
     public int price = 1;
 
+    public List<AudioClip> interactionSounds;
+
     public Animator animator;
 
     void OnTriggerEnter(Collider other)
@@ -13,6 +15,7 @@ public class Coin : MonoBehaviour
         var hero = other.GetComponent<Hero>();
         if (hero != null)
         {
+            hero.PlayRandomSound(interactionSounds);
             Player.AddCoins(price);
             animator.SetTrigger("play");
             Destroy(gameObject, 1);

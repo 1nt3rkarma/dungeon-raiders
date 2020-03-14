@@ -23,6 +23,16 @@ public class Row : MonoBehaviour
         transform.localPosition = new Vector3(0, 0, z);
     }
 
+    public List<Block> GetSolidBlocks()
+    {
+        var returnBlocks = new List<Block>();
+        foreach (var block in blocks)
+            if (!block.isEmpty)
+                returnBlocks.Add(block);
+
+        return returnBlocks;
+    }
+
     public void Fade()
     {
         if (animate)

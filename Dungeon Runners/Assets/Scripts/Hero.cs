@@ -14,7 +14,6 @@ public class Hero : Unit
     public Enemy enemy;
     public Block block;
     public Block nextBlock { get => GetNextBlock(); }
-    //public Player player;
 
     public float shiftDuration = 0.25f;
     public bool isFloating = false;
@@ -65,6 +64,7 @@ public class Hero : Unit
 
     void Stop()
     {
+        Debug.Log("Герой остановился");
         animHandler.SetMoveFlag(false);
         isMoving = false;
         Player.StopMoving();
@@ -84,7 +84,7 @@ public class Hero : Unit
 
     public void MeleeAttack()
     {
-        if (!isBusy)
+        if (!isBusy && isAlive)
             if (castRoutine == null)
             {
                 castRoutine = StartCoroutine(MeleeAttackRoutine());
@@ -128,7 +128,7 @@ public class Hero : Unit
 
     public void Jump()
     {
-        if (!isBusy)
+        if (!isBusy && isAlive)
         {
             if (jumpRoutine == null)
             {
@@ -152,18 +152,14 @@ public class Hero : Unit
         animHandler.PlayAnimation("jump");
 
         // Ждем событие анимации - прыжок
-        while (!animHandler.animEventJumpStart)
-            yield return null;
-        animHandler.animEventJumpStart = false;
-
+        yield return WaitForAnimationEvent(AnimationEvents.jumpStart);
         isFloating = true;
 
-        // Ждем событие анимации - прыжок закончен
-        while (!animHandler.animEventJumpEnd)
-            yield return null;
-        animHandler.animEventJumpEnd = false;
 
+        // Ждем событие анимации - прыжок закончен
+        yield return WaitForAnimationEvent(AnimationEvents.jumpEnd);
         isFloating = false;
+
 
         isBusy = false;
         jumpRoutine = null;
@@ -171,7 +167,7 @@ public class Hero : Unit
 
     public void Leap(LeapDirections direction)
     {
-        if (!isBusy)
+        if (!isBusy && isAlive)
             if (leapRoutine == null)
             {
                 if (direction == LeapDirections.Left && line == 0)
@@ -197,9 +193,7 @@ public class Hero : Unit
         var targetPosition = transform.position + sign * transform.right;
 
         // Ждем событие анимации - прыжок
-        while (!animHandler.animEventLeap)
-            yield return null;
-        animHandler.animEventLeap = false;
+        yield return WaitForAnimationEvent(AnimationEvents.jumpStart);
 
         if (direction == LeapDirections.Left)
             while (transform.position.x > targetPosition.x)
@@ -214,16 +208,15 @@ public class Hero : Unit
                 yield return null;
             }
 
-
         transform.position = targetPosition;
         leapRoutine = null;
         isBusy = false;
         enemy = null;
     }
 
-    public override void TakeDamage(float damage)
+    public override void TakeDamage(float damage, DamageSources source)
     {
-        base.TakeDamage(damage);
+        base.TakeDamage(damage, source);
 
         if (health > 0)
             StartCoroutine(HitRoutine());
@@ -233,13 +226,8 @@ public class Hero : Unit
     {
         isBusy = true;
 
-        if (jumpRoutine != null)
-            StopCoroutine(jumpRoutine);
-        jumpRoutine = null;
-
-        if (castRoutine != null)
-            StopCoroutine(castRoutine);
-        castRoutine = null;
+        InterruptRoutines();
+        animHandler.ClearFalgs();
 
         animHandler.PlayAnimation("hit");
 
@@ -252,14 +240,25 @@ public class Hero : Unit
         isBusy = false;
     }
 
-    public override void Die()
+    public override void Die(DamageSources source)
     {
-        Stop();
-        isAlive = false;
-        Player.Defeat();
+        base.Die(source);
 
-        animHandler.PlayAnimation("die");
-        animHandler.ReleaseBodyparts();
+        InterruptRoutines();
+
+        Stop();
+        Player.Defeat();
+    }
+
+    void InterruptRoutines()
+    {
+        if (jumpRoutine != null)
+            StopCoroutine(jumpRoutine);
+        jumpRoutine = null;
+
+        if (castRoutine != null)
+            StopCoroutine(castRoutine);
+        castRoutine = null;
     }
 
     public void SwitchBlockTo(Block block)

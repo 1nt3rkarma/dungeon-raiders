@@ -4,10 +4,22 @@ using UnityEngine;
 
 public class HeroAnimationHandler : MonoBehaviour
 {
+    public Unit unit;
+
     public Animator animator;
     public TrailRenderer weaponTrail;
 
+    public Transform chestPoint;
+    public Transform headPoint;
+    public Transform handRightPoint;
+    public Transform handLeftPoint;
+    public Transform overheadPoint;
+
     public AnimationClipGroup jumpClips;
+
+    public List<AudioClip> deathSounds;
+
+    public List<AudioClip> fallSounds;
 
     [Tooltip("Части тела персонажа, которые отвалятся, например, при анимации смерти")]
     public List<Rigidbody> bodyparts;
@@ -15,7 +27,7 @@ public class HeroAnimationHandler : MonoBehaviour
     public bool animEventStart = false;
     public bool animEventEnd = false;
 
-    public bool animEventLeap = false;
+    //public bool animEventLeap = false;
 
     public bool animEventJumpStart = false;
     public bool animEventJumpEnd = false;
@@ -35,17 +47,19 @@ public class HeroAnimationHandler : MonoBehaviour
 
     public void EventJumpStart()
     {
+        //Debug.Log("Прыжок начался");
         animEventJumpStart = true;
     }
     public void EventJumpEnd()
     {
+        //Debug.Log("Прыжок окончен");
         animEventJumpEnd = true;
     }
 
-    public void EventLeap()
-    {
-        animEventLeap = true;
-    }
+    //public void EventLeap()
+    //{
+    //    animEventLeap = true;
+    //}
 
     public void EventCastStart()
     {
@@ -62,6 +76,19 @@ public class HeroAnimationHandler : MonoBehaviour
         //Debug.Log("Анимация применения способности ЗАКОНЧИЛАСЬ");
         animEventCastEnd = true;
     }
+
+    public void ClearFalgs()
+    {
+        animEventStart = false;
+        animEventEnd = false;
+        animEventJumpStart = false;
+        animEventJumpEnd = false;
+        //animEventLeap = false;
+        animEventCastStart = false;
+        animEventCast = false;
+        animEventCastEnd = false;
+    }
+
 
     public void PlayAnimation(string tag)
     {
@@ -122,7 +149,19 @@ public class HeroAnimationHandler : MonoBehaviour
     {
         weaponTrail.emitting = false;
     }
+
+    public void PlayFallSound()
+    {
+        unit.PlayRandomSound(fallSounds);
+    }
+
+    public void PlayDeathSound()
+    {
+        unit.PlayRandomSound(deathSounds);
+    }
 }
+
+public enum UnitBodyPoints { origin, chest, head, handRight, handLeft, overhead}
 
 public enum AnimationEvents { start, end, leap, jumpStart, jumpEnd, castStart, cast, castEnd }
 
