@@ -12,7 +12,7 @@ public class LevelProgressUI : MonoBehaviour
     {
         label.text = $"LEVEL {Level.level}";
         var max = Level.levelSteps;
-        var steps = Player.stepsOnLevel;
+        var steps = Player.stepsLevel;
 
         bar.SetValue((float)steps / max);
     }

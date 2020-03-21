@@ -140,7 +140,6 @@ public class Row : MonoBehaviour
     {
         float limit;
         float colorRate;
-        float timer;
 
         Color fadeColor = new Color(0, 0, 0, 0);
         Color fullColor = renderers[0].material.color;

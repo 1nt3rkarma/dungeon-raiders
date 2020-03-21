@@ -15,10 +15,13 @@ public class Coin : MonoBehaviour
         var hero = other.GetComponent<Hero>();
         if (hero != null)
         {
-            hero.PlayRandomSound(interactionSounds);
-            Player.AddCoins(price);
-            animator.SetTrigger("play");
-            Destroy(gameObject, 1);
+            if (hero.isAlive)
+            {
+                hero.PlayRandomSound(interactionSounds);
+                Player.AddCoins(price);
+                animator.SetTrigger("play");
+                Destroy(gameObject, 1);
+            }
         }
     }
 }

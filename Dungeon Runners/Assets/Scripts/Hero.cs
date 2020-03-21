@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class Hero : Unit
 {
+    public static Hero singlton;
+
     [Header("Hero properties")]
 
     public int rowView;
@@ -18,10 +20,18 @@ public class Hero : Unit
     public float shiftDuration = 0.25f;
     public bool isFloating = false;
     public bool isMoving = true;
+    public bool isListening = true;
 
     public Coroutine leapRoutine;
     public Coroutine jumpRoutine;
     public Coroutine castRoutine;
+
+    void Awake()
+    {
+        if (singlton != null)
+            Destroy(singlton.gameObject);
+        singlton = this;
+    }
 
     void Start()
     {
@@ -64,7 +74,6 @@ public class Hero : Unit
 
     void Stop()
     {
-        Debug.Log("Герой остановился");
         animHandler.SetMoveFlag(false);
         isMoving = false;
         Player.StopMoving();
@@ -96,6 +105,7 @@ public class Hero : Unit
         isBusy = true;
         Stop();
 
+        GameEvent.InvokeHeroAttack(this);
         animHandler.PlayAnimation("attack");
 
         // Ждем событие анимации - начало анимации
@@ -116,8 +126,6 @@ public class Hero : Unit
 
         castRoutine = null;
         isBusy = false;
-
-        yield return null;
     }
 
     public void CastMeleeDamage()
@@ -129,26 +137,15 @@ public class Hero : Unit
     public void Jump()
     {
         if (!isBusy && isAlive)
-        {
             if (jumpRoutine == null)
-            {
                 jumpRoutine = StartCoroutine(JumpRoutine());
-            }
-            else
-            {
-                Debug.Log("Прыжок не произошел, т. к. корутина все еще активна");
-            }
-        }
-        else
-        {
-            Debug.Log("Прыжок не произошел, т. к. Герой занят");
-        }
     }
 
     IEnumerator JumpRoutine()
     {
         isBusy = true;
 
+        GameEvent.InvokeHeroJump(this);
         animHandler.PlayAnimation("jump");
 
         // Ждем событие анимации - прыжок
@@ -182,6 +179,7 @@ public class Hero : Unit
     IEnumerator LeapRoutine(LeapDirections direction)
     {
         isBusy = true;
+        GameEvent.InvokeHeroLeap(this, direction);
         var speed = 1 / shiftDuration;
 
         if (direction == LeapDirections.Left)

@@ -5,13 +5,25 @@ using UnityEngine;
 public class UI : MonoBehaviour
 {
     static UI singlton;
+    static bool fisrtLaunch = true;
 
     public DefeatUI defeatUI;
-    public GameObject mainUI;
+    public GameObject gameplayUI;
+    public StartMenuUI startUI;
+    public TutorialUI tutorialUI;
 
     private void Awake()
     {
         InitSinglton(this);
+    }
+
+    private void Start()
+    {
+        if (fisrtLaunch)
+        {
+            startUI.PopUp();
+            fisrtLaunch = false;
+        }
     }
 
     void InitSinglton(UI instance)
@@ -19,35 +31,47 @@ public class UI : MonoBehaviour
         singlton = instance;
     }
 
-    public static void HideMainUI()
+    public static void HideGameplayUI()
     {
-        singlton.mainUI.SetActive(false);
+        singlton.gameplayUI.SetActive(false);
+    }
+    public static void ShowGameplayUI()
+    {
+        singlton.gameplayUI.SetActive(true);
     }
 
-    public static void ShowMainUI()
+    public static void ShowDefeatUI(bool newBest)
     {
-        singlton.mainUI.SetActive(true);
-    }
-
-    public static void ShowDefeatUI()
-    {
-        singlton.defeatUI.gameObject.SetActive(true);
-        singlton.defeatUI.coinCountText.text = Player.coins.ToString();
-        singlton.defeatUI.stepsText.text = $"YOU'VE MADE\n{Player.stepsTotal.ToString()} STEPS";
+        singlton.defeatUI.Show(newBest);
     }
     public static void HideDefeatUI()
     {
-        singlton.defeatUI.gameObject.SetActive(false);
+        singlton.defeatUI.Hide();
     }
 
-    public static void ClickRestart()
+    public void OnClickStart()
+    {
+        CameraController.ResetCamera(1);
+        Player.ContinueMoving();
+        Player.controllEnabled = true;
+        startUI.Fade();
+
+        if (Player.needTutorial || Player.showHints)
+            tutorialUI.Run();
+        else
+        {
+            Destroy(tutorialUI.gameObject);
+            gameplayUI.gameObject.SetActive(true);
+        }
+    }
+
+    public void OnClickRestart()
     {
         Player.ReloadLevel();
     }
 
-    public static void ClickExit()
+    public void OnClickExit()
     {
-        // Вы вышли из игры
+        Player.ExitGame();
     }
-
 }

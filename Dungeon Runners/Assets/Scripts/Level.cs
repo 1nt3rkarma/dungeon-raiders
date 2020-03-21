@@ -165,6 +165,16 @@ public class Level : MonoBehaviour
         Level.level = level;
         levelSteps = 100 + level * 10;
     }
+
+    public static void EnableGeneration()
+    {
+        singlton.generator.enabled = true;
+    }
+
+    public static void DisableGeneration()
+    {
+        singlton.generator.enabled = false;
+    }
 }
 
 [System.Serializable]
@@ -275,7 +285,7 @@ public class LevelGenerator : object
 
                 if (chance >= roll)
                 {
-                    var rollSingle = Random.Range(0, 2) > 1;
+                    var rollSingle = Random.Range(0, 5) > 1;
                     if (rollSingle && allowRowGap)
                     {
                         gapSpawnCounter = 0;
@@ -292,7 +302,7 @@ public class LevelGenerator : object
                         // в длинну на несколько рядов и линий
                         gapTempCounter = Random.Range(gapMinLength, gapMaxLength+1);
                         gapTempWidth = Random.Range(gapMinWigth, gapMaxWigth+1);
-                        var rollSplit = Random.Range(0, 5) > 1;
+                        var rollSplit = Random.Range(0, 8) > 1;
 
                         if (gapTempWidth == 2)
                         {

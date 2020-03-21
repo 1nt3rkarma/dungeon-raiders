@@ -12,9 +12,9 @@ public class StatsUI : MonoBehaviour
 
     void Update()
     {
-        coinCounterText.text = Player.singlton.hero.ToString();
-        if (Player.singlton.hero.isAlive)
-            healthBar.SetValue(Player.singlton.hero.health / Player.singlton.hero.healthMax);
+        coinCounterText.text = Player.coins.ToString();
+        if (Hero.singlton.isAlive)
+            healthBar.SetValue(Hero.singlton.health / Hero.singlton.healthMax);
         else
             healthBar.SetValue(0);
     }

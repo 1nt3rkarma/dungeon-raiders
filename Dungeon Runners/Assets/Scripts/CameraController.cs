@@ -6,7 +6,7 @@ public class CameraController : MonoBehaviour
 {
     public static CameraController singlton;
 
-    public Camera camera;
+    public new Camera camera;
 
     public Vector3 positionDefault;
     public float sizeDefault;
@@ -28,7 +28,7 @@ public class CameraController : MonoBehaviour
     {
         singlton.StopAllCoroutines();
 
-        var lineShift = Vector3.right * (Player.singlton.hero.line - 1);
+        var lineShift = Vector3.right * (Hero.singlton.line - 1);
         var point = singlton.positionFocusHero + lineShift;
         var size = singlton.sizeFocusHero;
 

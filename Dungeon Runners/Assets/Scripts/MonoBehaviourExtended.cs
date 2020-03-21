@@ -21,7 +21,10 @@ public class MonoBehaviourExtended : MonoBehaviour
         GameEvent.onTapPressEvent     += OnTapPress;
         GameEvent.onTapReleaseEvent   += OnTapRelease;
 
-
+        // События игровой логики
+        GameEvent.onHeroLeapEvent     += OnHeroLeap;
+        GameEvent.onHeroJumpEvent     += OnHeroJump;
+        GameEvent.onHeroAttackEvent   += OnHeroAttack;
     }
 
     protected virtual void UnsubsribeToGameEvents()
@@ -35,6 +38,12 @@ public class MonoBehaviourExtended : MonoBehaviour
         GameEvent.onSwipeEvent        -= OnSwipe;
         GameEvent.onTapPressEvent     -= OnTapPress;
         GameEvent.onTapReleaseEvent   -= OnTapRelease;
+
+        // События игровой логики
+        GameEvent.onHeroLeapEvent     -= OnHeroLeap;
+        GameEvent.onHeroJumpEvent     -= OnHeroJump;
+        GameEvent.onHeroAttackEvent   -= OnHeroAttack;
+
     }
 
     #region События пользовательского вввода
@@ -68,6 +77,29 @@ public class MonoBehaviourExtended : MonoBehaviour
     {
 
     }
+
+    #endregion
+
+    #region События игровой логики
+
+    #region Действия героя
+
+    protected virtual void OnHeroLeap(Hero hero, LeapDirections direction)
+    {
+
+    }
+
+    protected virtual void OnHeroJump(Hero hero)
+    {
+
+    }
+
+    protected virtual void OnHeroAttack(Hero hero)
+    {
+
+    }
+
+    #endregion
 
     #endregion
 }
@@ -124,24 +156,31 @@ public static class GameEvent
 
     #region Действия героя
 
-    //public static event Action<Hero, LeapDirections> onHeroLeapEvent;
-    //public static void InvokeHeroLeap(Hero hero, LeapDirections direction)
-    //{
-    //    if (onHeroLeapEvent != null)
-    //        onHeroLeapEvent(hero, direction);
-    //}
-    //public static void InvokeHeroLeap(Hero hero)
-    //{
-    //    if (onHeroLeapEvent != null)
-    //        onHeroLeapEvent(hero, LeapDirections.None);
-    //}
+    public static event Action<Hero, LeapDirections> onHeroLeapEvent;
+    public static void InvokeHeroLeap(Hero hero, LeapDirections direction)
+    {
+        if (onHeroLeapEvent != null)
+            onHeroLeapEvent(hero, direction);
+    }
+    public static void InvokeHeroLeap(Hero hero)
+    {
+        if (onHeroLeapEvent != null)
+            onHeroLeapEvent(hero, LeapDirections.None);
+    }
 
-    //public static event Action<Hero> onHeroJumpEvent;
-    //public static void InvokeHeroJump(Hero hero)
-    //{
-    //    if (onHeroJumpEvent != null)
-    //        onHeroJumpEvent(hero);
-    //}
+    public static event Action<Hero> onHeroJumpEvent;
+    public static void InvokeHeroJump(Hero hero)
+    {
+        if (onHeroJumpEvent != null)
+            onHeroJumpEvent(hero);
+    }
+
+    public static event Action<Hero> onHeroAttackEvent;
+    public static void InvokeHeroAttack(Hero hero)
+    {
+        if (onHeroAttackEvent != null)
+            onHeroAttackEvent(hero);
+    }
 
     #endregion
 

@@ -5,16 +5,23 @@ using UnityEngine.UI;
 
 public class DefeatUI : MonoBehaviour
 {
-    public Text stepsText;
-    public Text coinCountText;
+    public Text newRecordText;
 
-    public void OnClickRestart()
+    public Text stepsText;
+    public Text coinText;
+
+    public void Show(bool showNewRecordLabel)
     {
-        UI.ClickRestart();
+        coinText.text = Player.coins.ToString();
+        stepsText.text = $"YOU'VE MADE\n{Player.stepsSession.ToString()} STEPS";
+
+        newRecordText.gameObject.SetActive(showNewRecordLabel);
+
+        gameObject.SetActive(true);
     }
 
-    public void OnClickExit()
+    public void Hide()
     {
-        UI.ClickExit();
+        gameObject.SetActive(false);
     }
 }

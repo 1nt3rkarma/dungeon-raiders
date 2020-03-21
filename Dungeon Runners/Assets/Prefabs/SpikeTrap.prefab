@@ -66,8 +66,8 @@ MonoBehaviour:
   oneShot: 0
   enableDelay: 2
   activationInterval: 1
-  activationDelay: 0.08
-  activationDuration: 0.52
+  activationDelay: 0.1
+  activationDuration: 0.55
   activationTimer: 0
   damage: 1
   damageInterval: 1
