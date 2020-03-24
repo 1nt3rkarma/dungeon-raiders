@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9927f18986d1ee244a857dfe991acb51, type: 3}
+  m_Name: Level 1
+  m_EditorClassIdentifier: 
+  levelSteps: 75
+  presetsParams:
+  - presetPrefab: {fileID: 2634116897803227888, guid: 739a2c3af56ac524db8c58431267a0ea,
+      type: 3}
+    intervalMin: 5
+    intervalMax: 12
+    basicChance: 0.1
+    infinite: 0
+    count: 1
+    allowItemsGeneration: 0
+  - presetPrefab: {fileID: 174038032974737870, guid: 0b1f61eade25b5e428b30bedd176a033,
+      type: 3}
+    intervalMin: 5
+    intervalMax: 12
+    basicChance: 0.1
+    infinite: 0
+    count: 1
+    allowItemsGeneration: 0
