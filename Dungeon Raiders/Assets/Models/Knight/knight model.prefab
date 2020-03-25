@@ -229,7 +229,6 @@ SkinnedMeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
-  m_RayTracingMode: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -477,7 +476,6 @@ SkinnedMeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
-  m_RayTracingMode: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -854,7 +852,6 @@ TrailRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 0
   m_ReflectionProbeUsage: 0
-  m_RayTracingMode: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -879,7 +876,7 @@ TrailRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Time: 0.3
+  m_Time: 0.15
   m_Parameters:
     serializedVersion: 3
     widthMultiplier: 1
@@ -888,21 +885,21 @@ TrailRenderer:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: 0.2142849
-        inSlope: -0.54711014
-        outSlope: -0.54711014
+        value: 0.56723034
+        inSlope: -0.3312219
+        outSlope: -0.3312219
         tangentMode: 0
         weightedMode: 0
         inWeight: 0.33333334
-        outWeight: 0.2611111
+        outWeight: 0.13333333
       - serializedVersion: 3
         time: 1
         value: 0
-        inSlope: -0.69642866
-        outSlope: -0.69642866
+        inSlope: -0.28374335
+        outSlope: -0.28374335
         tangentMode: 0
         weightedMode: 0
-        inWeight: 0.26666665
+        inWeight: 0.14666665
         outWeight: 0
       m_PreInfinity: 2
       m_PostInfinity: 2
@@ -942,7 +939,7 @@ TrailRenderer:
     textureMode: 0
     shadowBias: 0.5
     generateLightingData: 0
-  m_MinVertexDistance: 0.1
+  m_MinVertexDistance: 0.05
   m_Autodestruct: 0
   m_Emitting: 0
 --- !u!1 &6757416168510781234
@@ -1052,7 +1049,6 @@ SkinnedMeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
-  m_RayTracingMode: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:

@@ -52,6 +52,8 @@ public class Hero : Unit
             CheckGround();
     }
 
+    #region Перемещение
+
     void CheckGround()
     {
         var blockZ = block.transform.position.z;
@@ -105,49 +107,6 @@ public class Hero : Unit
         animHandler.SetMoveFlag(true);
         isMoving = true;
         Player.ContinueMoving();
-    }
-
-    public void MeleeAttack()
-    {
-        if (!isBusy && isAlive)
-            if (castRoutine == null)
-            {
-                castRoutine = StartCoroutine(MeleeAttackRoutine());
-            }
-    }
-
-    IEnumerator MeleeAttackRoutine()
-    {
-        isBusy = true;
-        Stop();
-
-        GameEvent.InvokeHeroAttack(this);
-        animHandler.PlayAnimation("attack");
-
-        // Ждем событие анимации - начало анимации
-        while (!animHandler.animEventCastStart)
-            yield return null;
-        animHandler.animEventCastStart = false;
-
-        // Ждем событие анимации - применение
-        while (!animHandler.animEventCast)
-            yield return null;
-        animHandler.animEventCast = false;
-        CastMeleeDamage();
-
-        // Ждем событие анимации - окончание анимации
-        while (!animHandler.animEventCastEnd)
-            yield return null;
-        animHandler.animEventCastEnd = false;
-
-        castRoutine = null;
-        isBusy = false;
-    }
-
-    public void CastMeleeDamage()
-    {
-        if (enemy)
-            enemy.TakeDamage(1);
     }
 
     public void Jump()
@@ -239,6 +198,58 @@ public class Hero : Unit
         transform.position = targetPosition;
     }
 
+    public void SwitchBlockTo(Block block)
+    {
+        this.block = block;
+    }
+
+    #endregion
+
+    #region Нанесение и получение урона
+
+    public void MeleeAttack()
+    {
+        if (!isBusy && isAlive)
+            if (castRoutine == null)
+            {
+                castRoutine = StartCoroutine(MeleeAttackRoutine());
+            }
+    }
+
+    IEnumerator MeleeAttackRoutine()
+    {
+        isBusy = true;
+        Stop();
+
+        GameEvent.InvokeHeroAttack(this);
+        animHandler.PlayAnimation("attack");
+
+        // Ждем событие анимации - начало анимации
+        while (!animHandler.animEventCastStart)
+            yield return null;
+        animHandler.animEventCastStart = false;
+
+        // Ждем событие анимации - применение
+        while (!animHandler.animEventCast)
+            yield return null;
+        animHandler.animEventCast = false;
+        CastMeleeDamage();
+
+        // Ждем событие анимации - окончание анимации
+        while (!animHandler.animEventCastEnd)
+            yield return null;
+        animHandler.animEventCastEnd = false;
+
+        castRoutine = null;
+        isBusy = false;
+    }
+
+    public void CastMeleeDamage()
+    {
+        if (enemy)
+            enemy.TakeDamage(1);
+    }
+
     public override void TakeDamage(float damage, DamageSources source)
     {
         base.TakeDamage(damage, source);
@@ -276,6 +287,8 @@ public class Hero : Unit
         Player.Defeat();
     }
 
+    #endregion
+
     void InterruptRoutines()
     {
         if (leapRoutine != null)
@@ -291,11 +304,6 @@ public class Hero : Unit
         castRoutine = null;
     }
 
-    public void SwitchBlockTo(Block block)
-    {
-        this.block = block;
-    }
-
     void OnDrawGizmosSelected()
     {
         if (block != null)
@@ -307,3 +315,5 @@ public class Hero : Unit
         }
     }
 }
+
+public enum HeroResources { health, mana }

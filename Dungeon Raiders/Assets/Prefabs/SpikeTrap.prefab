@@ -66,7 +66,7 @@ MonoBehaviour:
   oneShot: 0
   enableDelay: 2
   activationInterval: 1
-  activationDelay: 0.1
+  activationDelay: 0.33
   activationDuration: 0.55
   activationTimer: 0
   damage: 1
@@ -80,7 +80,6 @@ MonoBehaviour:
   - {fileID: 8322239281146985374}
   - {fileID: 8322239279618381911}
   - {fileID: 8322239280557388597}
-  spikeAnimTag: play
 --- !u!65 &3088460398654666688
 BoxCollider:
   m_ObjectHideFlags: 0

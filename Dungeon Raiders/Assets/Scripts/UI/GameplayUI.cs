@@ -6,6 +6,8 @@ public class GameplayUI : MonoBehaviour
 {
     public Animator animator;
 
+    public InventoryUI inventoryUI;
+
     public void PopUp()
     {
         animator.SetTrigger("show");

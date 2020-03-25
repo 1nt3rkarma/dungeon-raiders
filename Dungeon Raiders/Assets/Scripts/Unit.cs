@@ -15,6 +15,22 @@ public class Unit : MonoBehaviour
     public HeroAnimationHandler animHandler;
     public AudioSource audioSource;
 
+    public void DecHealth(float amount)
+    {
+        SetHealth(health - amount);
+    }
+
+    public void AddHealth(float amount)
+    {
+        SetHealth(health + amount);
+    }
+
+    public void SetHealth(float amount)
+    {
+        health = amount;
+        health = Mathf.Clamp(health, 0, healthMax);
+    }
+
     public virtual void TakeDamage(float damage)
     {
         TakeDamage(damage, DamageSources.common);

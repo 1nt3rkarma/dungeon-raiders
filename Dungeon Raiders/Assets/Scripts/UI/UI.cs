@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class UI : MonoBehaviour
 {
@@ -58,6 +59,11 @@ public class UI : MonoBehaviour
         singlton.defeatUI.Hide();
     }
 
+    public static void UpdateInventoryUI()
+    {
+        singlton.gameplayUI.inventoryUI.UpdateUI();
+    }
+
     public void OnClickStart()
     {
         CameraController.ResetCamera(1);
@@ -74,6 +80,22 @@ public class UI : MonoBehaviour
             Destroy(tutorialUI.gameObject);
             gameplayUI.gameObject.SetActive(true);
         }
+    }
+
+    public static GameObject GetUIElement(Vector2 screenPosition)
+    {
+        PointerEventData pointer = new PointerEventData(EventSystem.current);
+
+        pointer.position = screenPosition;
+
+        List<RaycastResult> hitObjects = new List<RaycastResult>();
+
+        EventSystem.current.RaycastAll(pointer, hitObjects);
+
+        if (hitObjects.Count > 0)
+            return hitObjects[0].gameObject;
+        else
+            return null;
     }
 
     public void OnClickRestart()

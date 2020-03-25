@@ -47,10 +47,10 @@ public class Trap : MonoBehaviourExtended
         trapAreaCollider.enabled = true;
         yield return new WaitForSeconds(activationDuration);
         trapAreaCollider.enabled = false;
-        Disactivate();
+        Deactivate();
     }
 
-    public virtual void Disactivate()
+    public virtual void Deactivate()
     {
         isActive = false;
         activationTimer = activationInterval;

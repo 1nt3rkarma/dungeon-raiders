@@ -996,11 +996,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: SpikeFieldD
       objectReference: {fileID: 0}
-    - target: {fileID: 174038032974737868, guid: 0b1f61eade25b5e428b30bedd176a033,
-        type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 174038032974737871, guid: 0b1f61eade25b5e428b30bedd176a033,
         type: 3}
       propertyPath: m_LocalPosition.x

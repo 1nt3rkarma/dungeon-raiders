@@ -1,9 +1,14 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class Player : MonoBehaviourExtended
 {
     public static Player singlton;
+
+    public static List<Item> inventory;
+    public const int inventorySize = 3;
 
     public static bool controllEnabled = false;
 
@@ -53,19 +58,18 @@ public class Player : MonoBehaviourExtended
     public int stepsLevelView;
     public static int stepsSession = 0;
 
+    public GameResources resourceFile;
+
+    public AudioSource audioSourceMusic;
+    public AudioSource audioSourceEffects;
+
     #region Реакции на события
 
     #region События движка Unity
 
     void Awake()
     {
-        if (singlton != null)
-            Destroy(singlton.gameObject);
-        singlton = this;
-
-        coins = 0;
-        stepsLevel = 0;
-        stepsSession = 0;
+        Init(this);
 
         SubsribeToGameEvents();
     }
@@ -82,7 +86,9 @@ public class Player : MonoBehaviourExtended
 
     #endregion
 
-    #region Игровые события
+    #region Расширенные события
+
+    #region События ввода
 
     protected override void OnTapPress()
     {
@@ -131,9 +137,101 @@ public class Player : MonoBehaviourExtended
 
     #endregion
 
+    #region События игровой логики
+
+    #endregion
+
+    #endregion
+
     #endregion
 
     #region Методы
+
+    public static void Init(Player instance)
+    {
+        if (singlton != null)
+            Destroy(singlton.gameObject);
+        singlton = instance;
+
+        coins = 0;
+        stepsLevel = 0;
+        stepsSession = 0;
+
+        LoadInventory();
+    }
+
+    #region Работа с инвентарем
+
+    public static void UseItem(int index)
+    {
+        UseItem(inventory[index]);
+    }
+
+    public static void UseItem(Item item)
+    {
+        item.Use();
+
+        PlaySound(item.useSound);
+
+        if (item.expendable)
+            RemoveItem(item);
+    }
+
+    public static void AddItem(Item item)
+    {
+        if (item != null)
+        {
+            inventory.Add(item);
+            UI.UpdateInventoryUI();
+        }
+    }
+
+    public static void RemoveItem(Item item)
+    {
+        inventory.Remove(item);
+        UI.UpdateInventoryUI();
+    }
+
+    public static void ClearInventory()
+    {
+        inventory.Clear();
+        UI.UpdateInventoryUI();
+    }
+
+    public static void LoadInventory()
+    {
+        inventory = new List<Item>();
+
+        for (int i = 0; i < inventorySize; i++)
+        {
+            var itemID = PlayerPrefs.GetInt($"inventory{i}", -1);
+            if (itemID > -1)
+            {
+                var item = singlton.resourceFile.GetItem(itemID);
+                AddItem(item);
+            }
+        }
+    }
+
+    public static void SaveInventory()
+    {
+        for (int i = 0; i < inventorySize; i++)
+        {
+            if (i < inventory.Count)
+            {
+                var item = inventory[i];
+                var itemID = singlton.resourceFile.GetItemDataID(item);
+
+                PlayerPrefs.SetInt($"inventory{i}", itemID);
+            }
+            else
+            {
+                PlayerPrefs.SetInt($"inventory{i}", -1);
+            }
+        }
+    }
+
+    #endregion
 
     public static void OrderAttack()
     {
@@ -200,6 +298,11 @@ public class Player : MonoBehaviourExtended
             UI.ShowDefeatUI(false);
         }
 
+    }
+
+    public static void PlaySound(AudioClip sound)
+    {
+        singlton.audioSourceEffects.PlayOneShot(sound);
     }
 
     public static void ReloadLevel()

@@ -14,17 +14,20 @@ public class MonoBehaviourExtended : MonoBehaviour
     {
         // События пользовательского ввода
 
-        GameEvent.onSingleTapEvent    += OnSingleTap;
-        GameEvent.onDoubleTapEvent    += OnDoubleTap;
-        GameEvent.onTapHoldEvent      += OnTapHold;
-        GameEvent.onSwipeEvent        += OnSwipe;
-        GameEvent.onTapPressEvent     += OnTapPress;
-        GameEvent.onTapReleaseEvent   += OnTapRelease;
+        GameEvent.onSingleTapEvent      += OnSingleTap;
+        GameEvent.onDoubleTapEvent      += OnDoubleTap;
+        GameEvent.onTapHoldEvent        += OnTapHold;
+        GameEvent.onSwipeEvent          += OnSwipe;
+        GameEvent.onTapPressEvent       += OnTapPress;
+        GameEvent.onTapReleaseEvent     += OnTapRelease;
 
         // События игровой логики
-        GameEvent.onHeroLeapEvent     += OnHeroLeap;
-        GameEvent.onHeroJumpEvent     += OnHeroJump;
-        GameEvent.onHeroAttackEvent   += OnHeroAttack;
+        GameEvent.onHeroLeapEvent       += OnHeroLeap;
+        GameEvent.onHeroJumpEvent       += OnHeroJump;
+        GameEvent.onHeroAttackEvent     += OnHeroAttack;
+        GameEvent.onHeroPicksItem       += OnHeroPicksItem;
+        GameEvent.onPlayerUseItem       += OnPlayerUseItem;
+
     }
 
     protected virtual void UnsubsribeToGameEvents()
@@ -32,17 +35,19 @@ public class MonoBehaviourExtended : MonoBehaviour
 
         // События пользовательского ввода
 
-        GameEvent.onSingleTapEvent    -= OnSingleTap;
-        GameEvent.onDoubleTapEvent    -= OnDoubleTap;
-        GameEvent.onTapHoldEvent      -= OnTapHold;
-        GameEvent.onSwipeEvent        -= OnSwipe;
-        GameEvent.onTapPressEvent     -= OnTapPress;
-        GameEvent.onTapReleaseEvent   -= OnTapRelease;
+        GameEvent.onSingleTapEvent      -= OnSingleTap;
+        GameEvent.onDoubleTapEvent      -= OnDoubleTap;
+        GameEvent.onTapHoldEvent        -= OnTapHold;
+        GameEvent.onSwipeEvent          -= OnSwipe;
+        GameEvent.onTapPressEvent       -= OnTapPress;
+        GameEvent.onTapReleaseEvent     -= OnTapRelease;
 
         // События игровой логики
-        GameEvent.onHeroLeapEvent     -= OnHeroLeap;
-        GameEvent.onHeroJumpEvent     -= OnHeroJump;
-        GameEvent.onHeroAttackEvent   -= OnHeroAttack;
+        GameEvent.onHeroLeapEvent       -= OnHeroLeap;
+        GameEvent.onHeroJumpEvent       -= OnHeroJump;
+        GameEvent.onHeroAttackEvent     -= OnHeroAttack;
+        GameEvent.onHeroPicksItem       -= OnHeroPicksItem;
+        GameEvent.onPlayerUseItem       -= OnPlayerUseItem;
 
     }
 
@@ -95,6 +100,16 @@ public class MonoBehaviourExtended : MonoBehaviour
     }
 
     protected virtual void OnHeroAttack(Hero hero)
+    {
+
+    }
+
+    protected virtual void OnHeroPicksItem(Hero hero, Item item)
+    {
+
+    }
+
+    protected virtual void OnPlayerUseItem(Item item)
     {
 
     }
@@ -180,6 +195,20 @@ public static class GameEvent
     {
         if (onHeroAttackEvent != null)
             onHeroAttackEvent(hero);
+    }
+
+    public static event Action<Hero, Item> onHeroPicksItem;
+    public static void InvokeHeroPicksItem(Hero hero, Item item)
+    {
+        if (onHeroPicksItem != null)
+            onHeroPicksItem(hero, item);
+    }
+
+    public static event Action<Item> onPlayerUseItem;
+    public static void InvokePlayerUseItem(Item item)
+    {
+        if (onPlayerUseItem != null)
+            onPlayerUseItem(item);
     }
 
     #endregion

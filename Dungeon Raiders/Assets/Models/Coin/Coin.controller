@@ -7,7 +7,7 @@ AnimatorState:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Coin Rotate
+  m_Name: Rotate
   m_Speed: 1
   m_CycleOffset: 0
   m_Transitions:
@@ -36,7 +36,7 @@ AnimatorController:
   m_Name: Coin
   serializedVersion: 5
   m_AnimatorParameters:
-  - m_Name: play
+  - m_Name: pick
     m_Type: 9
     m_DefaultFloat: 0
     m_DefaultInt: 0
@@ -69,14 +69,14 @@ AnimatorStateMachine:
     m_Position: {x: 40, y: 70, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 3520978339404887090}
-    m_Position: {x: 40, y: 0, z: 0}
+    m_Position: {x: 40, y: 20, z: 0}
   m_ChildStateMachines: []
   m_AnyStateTransitions: []
   m_EntryTransitions: []
   m_StateMachineTransitions: {}
   m_StateMachineBehaviours: []
-  m_AnyStatePosition: {x: -20, y: -80, z: 0}
-  m_EntryPosition: {x: 50, y: 120, z: 0}
+  m_AnyStatePosition: {x: 60, y: -20, z: 0}
+  m_EntryPosition: {x: 70, y: 120, z: 0}
   m_ExitPosition: {x: 800, y: 120, z: 0}
   m_ParentStateMachinePosition: {x: 800, y: 20, z: 0}
   m_DefaultState: {fileID: -5349196362412804182}
@@ -87,7 +87,7 @@ AnimatorState:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Coin Pick
+  m_Name: Pick
   m_Speed: 1
   m_CycleOffset: 0
   m_Transitions: []
@@ -115,7 +115,7 @@ AnimatorStateTransition:
   m_Name: 
   m_Conditions:
   - m_ConditionMode: 1
-    m_ConditionEvent: play
+    m_ConditionEvent: pick
     m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 3520978339404887090}

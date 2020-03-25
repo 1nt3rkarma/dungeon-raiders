@@ -48,6 +48,17 @@ public class UserStandaloneController : UserController
             //if (Input.GetKeyUp(KeyCode.Space) || Input.GetMouseButtonUp(0))
             CatchTapRelease();
 
+        //if (Input.GetMouseButtonDown(0))
+        //{
+        //    var mousePos = Input.mousePosition;
+        //    var target = UI.GetUIElement(mousePos);
+        //    if (target)
+        //        Debug.Log($"Координаты: {mousePos.x}, {mousePos.y} - {target.name}");
+        //    else
+        //        Debug.Log($"Координаты: {mousePos.x}, {mousePos.y} - [Нет цели]");
+
+        //}
+
         if (tapPress1)
         {
             if (tapHoldTimer < tapHoldThreshold)

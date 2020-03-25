@@ -38,7 +38,7 @@ MonoBehaviour:
     infinite: 0
     count: 2
     allowItemsGeneration: 0
-  - presetPrefab: {fileID: 2634116897803227888, guid: 0b1f61eade25b5e428b30bedd176a033,
+  - presetPrefab: {fileID: 174038032974737870, guid: 0b1f61eade25b5e428b30bedd176a033,
       type: 3}
     intervalMin: 3
     intervalMax: 15

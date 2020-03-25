@@ -7,13 +7,19 @@ public class SpikeTrap : Trap
     [Header("SpikeTrap settings")]
 
     public List<Animator> spikesAnimators;
-    public string spikeAnimTag = "play";
 
     public override void Activate()
     {
         base.Activate();
         foreach (var animator in spikesAnimators)
-            animator.SetTrigger(spikeAnimTag);
+            animator.SetTrigger("activate");
+    }
+
+    public override void Deactivate()
+    {
+        base.Deactivate();
+        foreach (var animator in spikesAnimators)
+            animator.SetTrigger("deactivate");
     }
 
     private void Start()

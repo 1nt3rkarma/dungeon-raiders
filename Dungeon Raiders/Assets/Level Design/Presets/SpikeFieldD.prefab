@@ -347,7 +347,7 @@ PrefabInstance:
     - target: {fileID: 3088460398654666689, guid: 72126328b51620d43b2e0ea795e76441,
         type: 3}
       propertyPath: activationInterval
-      value: 1
+      value: 1.5
       objectReference: {fileID: 0}
     - target: {fileID: 3088460398654666694, guid: 72126328b51620d43b2e0ea795e76441,
         type: 3}

@@ -1,10 +1,11 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class UserMobileController : UserController
 {
+    public bool restricted = false;
+
     public static bool IsoMode = true;
 
     public float doubleTapThreshold = 0.1f;
@@ -26,6 +27,11 @@ public class UserMobileController : UserController
 
     private void Update()
     {
+        OnUpdate();
+    }
+
+    protected override void OnUpdate()
+    {
         if (!Player.controllEnabled)
             return;
 
@@ -34,19 +40,10 @@ public class UserMobileController : UserController
             var touch = Input.GetTouch(0);
 
             if (touch.phase == TouchPhase.Began)
-            {
-                touchPosDown = touch.position;
-                touchPosUp = touch.position;
-
                 CatchTapPress();
-            }
 
             if (touch.phase == TouchPhase.Ended)
-            {
-                touchPosUp = touch.position;
-
                 CatchTapRelease();
-            }
         }
 
         if (tapPress1 && tapRelease1)
@@ -59,38 +56,65 @@ public class UserMobileController : UserController
         else
             tapHoldTimer = 0;
 
-        if (tapHoldTimer >= tapHoldThreshold)
+        if (tapPress1 && !restricted)
         {
-            if (tapPress1 && !tapRelease1)
-                CatchTapHold();
-        }
-        else
-        {
-            if (tapPress1 && tapRelease1)
+            if (tapHoldTimer >= tapHoldThreshold)
             {
-                SwipeDirections direction;
-                if (IsoMode)
-                    direction = GetSwipeDirectionIsometric(touchPosDown, touchPosUp);
-                else
-                    direction = GetSwipeDirection(touchPosDown, touchPosUp);
-
-                if (direction != SwipeDirections.None)
-                    CatchSwipe(direction);
-                else
-                    CatchSingleTap();
+                if (!tapRelease1)
+                    CatchTapHold();
             }
-            else if (tapPress1 && !tapRelease1)
+            else
             {
-                SwipeDirections direction;
-                if (IsoMode)
-                    direction = GetSwipeDirectionIsometric(touchPosDown, touchPosUp);
-                else
-                    direction = GetSwipeDirection(touchPosDown, touchPosUp);
+                if (tapRelease1)
+                {
+                    SwipeDirections direction;
+                    if (IsoMode)
+                        direction = GetSwipeDirectionIsometric(touchPosDown, touchPosUp);
+                    else
+                        direction = GetSwipeDirection(touchPosDown, touchPosUp);
 
-                if (direction != SwipeDirections.None)
-                    CatchSwipe(direction);
+                    if (direction != SwipeDirections.None)
+                        CatchSwipe(direction);
+                    else
+                        CatchSingleTap();
+                }
+                else
+                {
+                    SwipeDirections direction;
+                    if (IsoMode)
+                        direction = GetSwipeDirectionIsometric(touchPosDown, touchPosUp);
+                    else
+                        direction = GetSwipeDirection(touchPosDown, touchPosUp);
+
+                    if (direction != SwipeDirections.None)
+                        CatchSwipe(direction);
+                }
             }
         }
+    }
+
+    protected override void CatchTapPress()
+    {
+        base.CatchTapPress();
+
+        var touch = Input.GetTouch(0);
+
+        touchPosDown = touch.position;
+        touchPosUp = touch.position;
+
+        if (UI.GetUIElement(touch.position) != null)
+            restricted = true;
+    }
+
+    protected override void CatchTapRelease()
+    {
+        base.CatchTapRelease();
+
+        var touch = Input.GetTouch(0);
+
+        touchPosUp = touch.position;
+
+        restricted = false;
     }
 
     SwipeDirections GetSwipeDirection(Vector2 positionDown, Vector2 positionUp)
