@@ -166,6 +166,9 @@ public class Level : MonoBehaviour
                     foreach (var row in preset.rows)
                         Add(row);
 
+                    foreach (var randomObject in preset.randomObjects)
+                        randomObject.Generate();
+
                     Destroy(preset.gameObject);
                 }
                 else
@@ -249,7 +252,10 @@ public class Level : MonoBehaviour
 
     public static Block GetBlock(int row, int line)
     {
-        return singlton.rows[row].blocks[line];
+        if (row >= 0 && row < singlton.rows.Count)
+            if (line >= 0 && line < singlton.rows[row].blocks.Count)
+                return singlton.rows[row].blocks[line];
+        return null;
     }
 
     public static void HaltFlow()

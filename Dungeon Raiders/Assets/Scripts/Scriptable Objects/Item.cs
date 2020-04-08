@@ -9,10 +9,15 @@ public class Item : ScriptableObject
 
     public AudioClip useSound;
 
-    public bool expendable;
+    public int price;
+
+    public bool isExpendable = true;
 
     public virtual void Use()
     {
+        Player.PlaySound(useSound);
 
+        if (isExpendable)
+            Player.RemoveItem(this);
     }
 }

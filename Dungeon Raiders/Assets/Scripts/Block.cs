@@ -65,26 +65,9 @@ public class Block : MonoBehaviour
     {
         Hero hero = collider.GetComponent<Hero>();
         if (hero != null)
-        {
-            //if (!fallRegistered)
-            //{
-            //    if (!hero.isFloating && isEmpty
-            //        && (!hero.isMoving || hero.transform.position.z - this.transform.position.z < 0))
-            //    {
-            //        hero.TakeDamage(hero.health, DamageSources.fall);
-            //        fallRegistered = true;
-            //    }
-            //}
             hero.SwitchBlockTo(this);
-        }
     }
 
-    //void ScanHeroExit(Collider collider)
-    //{
-    //    Hero hero = collider.GetComponent<Hero>();
-    //    if (hero != null)
-    //        heroIsHere = false;
-    //}
 
     private void OnDrawGizmosSelected()
     {

@@ -148,7 +148,6 @@ public class Trap : MonoBehaviourExtended
         var effect = Instantiate(damageEffect, position, Quaternion.identity);
         effect.transform.localEulerAngles = new Vector3(0, 180, 0);
 
-
         if (oneShot)
             isExecuted = true;
         else

@@ -232,8 +232,8 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 4831178947975006482, guid: 0b7e6824e4609e849b129c4955f02cb4, type: 3}
-  - {fileID: -4754298278646448936, guid: 0b7e6824e4609e849b129c4955f02cb4, type: 3}
+  - {fileID: 2100000, guid: 676b9b4bd6234254c9f0df1009b5580a, type: 2}
+  - {fileID: 2100000, guid: 58d0cf5696ba90842b3a6d92d511d230, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -379,6 +379,7 @@ MonoBehaviour:
   unit: {fileID: 0}
   animator: {fileID: 5869652074735045327}
   weaponTrail: {fileID: 4740935912510452409}
+  attackEffectPrefabs: []
   chestPoint: {fileID: 2722534680320381131}
   headPoint: {fileID: 5099315420192356757}
   handRightPoint: {fileID: 6851973704638871528}
@@ -388,6 +389,8 @@ MonoBehaviour:
     count: 2
     allowRepeat: 0
     excluded: -1
+  impactMeleeSounds: []
+  attackSounds: []
   deathSounds:
   - {fileID: 8300000, guid: 7e3ff0b7c7e12fe449845027ec32337e, type: 3}
   fallSounds:
@@ -479,8 +482,8 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 4831178947975006482, guid: 0b7e6824e4609e849b129c4955f02cb4, type: 3}
-  - {fileID: -2061680823039898872, guid: 0b7e6824e4609e849b129c4955f02cb4, type: 3}
+  - {fileID: 2100000, guid: 676b9b4bd6234254c9f0df1009b5580a, type: 2}
+  - {fileID: 2100000, guid: f7ec82a8ba9568245bd954c582743516, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1052,8 +1055,8 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -1010597087810924322, guid: 0b7e6824e4609e849b129c4955f02cb4, type: 3}
-  - {fileID: 4831178947975006482, guid: 0b7e6824e4609e849b129c4955f02cb4, type: 3}
+  - {fileID: 2100000, guid: 0b0a0901e53dba94eb632102e278a7ec, type: 2}
+  - {fileID: 2100000, guid: 676b9b4bd6234254c9f0df1009b5580a, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

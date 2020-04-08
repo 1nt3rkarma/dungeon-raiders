@@ -22,9 +22,9 @@ public class MonoBehaviourExtended : MonoBehaviour
         GameEvent.onTapReleaseEvent     += OnTapRelease;
 
         // События игровой логики
-        GameEvent.onHeroLeapEvent       += OnHeroLeap;
+        GameEvent.onUnitLeapEvent       += OnUnitLeap;
+        GameEvent.onUnitAttackEvent     += OnUnitAttack;
         GameEvent.onHeroJumpEvent       += OnHeroJump;
-        GameEvent.onHeroAttackEvent     += OnHeroAttack;
         GameEvent.onHeroPicksItem       += OnHeroPicksItem;
         GameEvent.onPlayerUseItem       += OnPlayerUseItem;
 
@@ -43,9 +43,9 @@ public class MonoBehaviourExtended : MonoBehaviour
         GameEvent.onTapReleaseEvent     -= OnTapRelease;
 
         // События игровой логики
-        GameEvent.onHeroLeapEvent       -= OnHeroLeap;
+        GameEvent.onUnitLeapEvent       -= OnUnitLeap;
+        GameEvent.onUnitAttackEvent     -= OnUnitAttack;
         GameEvent.onHeroJumpEvent       -= OnHeroJump;
-        GameEvent.onHeroAttackEvent     -= OnHeroAttack;
         GameEvent.onHeroPicksItem       -= OnHeroPicksItem;
         GameEvent.onPlayerUseItem       -= OnPlayerUseItem;
 
@@ -89,17 +89,17 @@ public class MonoBehaviourExtended : MonoBehaviour
 
     #region Действия героя
 
-    protected virtual void OnHeroLeap(Hero hero, LeapDirections direction)
+    protected virtual void OnUnitLeap(Unit unit, LeapDirections direction)
+    {
+
+    }
+
+    protected virtual void OnUnitAttack(Unit unit)
     {
 
     }
 
     protected virtual void OnHeroJump(Hero hero)
-    {
-
-    }
-
-    protected virtual void OnHeroAttack(Hero hero)
     {
 
     }
@@ -171,16 +171,16 @@ public static class GameEvent
 
     #region Действия героя
 
-    public static event Action<Hero, LeapDirections> onHeroLeapEvent;
-    public static void InvokeHeroLeap(Hero hero, LeapDirections direction)
+    public static event Action<Unit, LeapDirections> onUnitLeapEvent;
+    public static void InvokeUnitLeap(Unit unit, LeapDirections direction)
     {
-        if (onHeroLeapEvent != null)
-            onHeroLeapEvent(hero, direction);
+        if (onUnitLeapEvent != null)
+            onUnitLeapEvent(unit, direction);
     }
-    public static void InvokeHeroLeap(Hero hero)
+    public static void InvokeUnitLeap(Unit unit)
     {
-        if (onHeroLeapEvent != null)
-            onHeroLeapEvent(hero, LeapDirections.None);
+        if (onUnitLeapEvent != null)
+            onUnitLeapEvent(unit, LeapDirections.None);
     }
 
     public static event Action<Hero> onHeroJumpEvent;
@@ -190,11 +190,11 @@ public static class GameEvent
             onHeroJumpEvent(hero);
     }
 
-    public static event Action<Hero> onHeroAttackEvent;
-    public static void InvokeHeroAttack(Hero hero)
+    public static event Action<Unit> onUnitAttackEvent;
+    public static void InvokeUnitAttack(Unit unit)
     {
-        if (onHeroAttackEvent != null)
-            onHeroAttackEvent(hero);
+        if (onUnitAttackEvent != null)
+            onUnitAttackEvent(unit);
     }
 
     public static event Action<Hero, Item> onHeroPicksItem;

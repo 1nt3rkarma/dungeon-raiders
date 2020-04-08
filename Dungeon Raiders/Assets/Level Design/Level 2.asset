@@ -21,7 +21,6 @@ MonoBehaviour:
     basicChance: 0.1
     infinite: 0
     count: 1
-    allowItemsGeneration: 0
   - presetPrefab: {fileID: 2634116897803227888, guid: 4842137a6f1a5c243914e93f8a58d3de,
       type: 3}
     intervalMin: 5
@@ -29,7 +28,6 @@ MonoBehaviour:
     basicChance: 0.1
     infinite: 0
     count: 1
-    allowItemsGeneration: 0
   - presetPrefab: {fileID: 2634116897803227888, guid: 739a2c3af56ac524db8c58431267a0ea,
       type: 3}
     intervalMin: 3
@@ -37,7 +35,6 @@ MonoBehaviour:
     basicChance: 0.1
     infinite: 0
     count: 2
-    allowItemsGeneration: 0
   - presetPrefab: {fileID: 174038032974737870, guid: 0b1f61eade25b5e428b30bedd176a033,
       type: 3}
     intervalMin: 3
@@ -45,4 +42,10 @@ MonoBehaviour:
     basicChance: 0.1
     infinite: 0
     count: 2
-    allowItemsGeneration: 0
+  - presetPrefab: {fileID: 3443010147217026440, guid: 63ba3d019ceeca743b638fa8a5b602cc,
+      type: 3}
+    intervalMin: 3
+    intervalMax: 15
+    basicChance: 0.2
+    infinite: 0
+    count: 3

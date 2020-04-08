@@ -27,7 +27,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3088460398654666695}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.5, y: 0, z: 1.5}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1378586839484913014}
@@ -61,13 +61,13 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 66b47ac1ba93b954397ac0d5c59e53fb, type: 3}
   - {fileID: 8300000, guid: 8dd6cdd0953031a4891c56449daf3abb, type: 3}
   - {fileID: 8300000, guid: 3eaea8fb40af0514eb8a55a868479c7c, type: 3}
-  damageEffect: {fileID: 100000, guid: bc98890f6028f444eaa7789bde5e2eeb, type: 3}
+  damageEffect: {fileID: 100000, guid: 9c2e39b1a15801e43ad7436e46d4b17c, type: 3}
   airDamage: 0
   oneShot: 0
   enableDelay: 2
   activationInterval: 1
   activationDelay: 0.33
-  activationDuration: 0.55
+  activationDuration: 0.45
   activationTimer: 0
   damage: 1
   damageInterval: 1
@@ -91,8 +91,8 @@ BoxCollider:
   m_IsTrigger: 1
   m_Enabled: 0
   serializedVersion: 2
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0.5, z: 0}
+  m_Size: {x: 0.7, y: 0.9, z: 0.7}
+  m_Center: {x: 0, y: 0.45, z: 0}
 --- !u!82 &6929232064916731912
 AudioSource:
   m_ObjectHideFlags: 0
@@ -102,10 +102,11 @@ AudioSource:
   m_GameObject: {fileID: 3088460398654666695}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: -2356963802179026255, guid: 70478bc7e3217294ba60085606610504,
+    type: 2}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 0
-  m_Volume: 0.3
+  m_Volume: 0.25
   m_Pitch: 1
   Loop: 0
   Mute: 0

@@ -4,12 +4,7 @@ using UnityEngine;
 
 public class UserMobileController : UserController
 {
-    public bool restricted = false;
-
     public static bool IsoMode = true;
-
-    public float doubleTapThreshold = 0.1f;
-    private float doubleTapTimer = 0;
 
     [Tooltip("Minimum distance of the swipe to count this action")]
     public float swipeSensitivity = 0.1f;
@@ -40,32 +35,36 @@ public class UserMobileController : UserController
             var touch = Input.GetTouch(0);
 
             if (touch.phase == TouchPhase.Began)
+            {
+                touchPosDown = touch.position;
+                touchPosUp = touch.position;
+
                 CatchTapPress();
+            }
+
+            touchPosUp = touch.position;
 
             if (touch.phase == TouchPhase.Ended)
+            {
                 CatchTapRelease();
+            }
         }
 
-        if (tapPress1 && tapRelease1)
-            doubleTapTimer += Time.deltaTime;
-        else
-            doubleTapTimer = 0;
-
-        if (tapPress1 && !tapRelease1)
+        if (tapPress && !tapRelease)
             tapHoldTimer += Time.deltaTime;
         else
             tapHoldTimer = 0;
 
-        if (tapPress1 && !restricted)
+        if (tapPress)
         {
             if (tapHoldTimer >= tapHoldThreshold)
             {
-                if (!tapRelease1)
+                if (!tapRelease)
                     CatchTapHold();
             }
             else
             {
-                if (tapRelease1)
+                if (tapRelease)
                 {
                     SwipeDirections direction;
                     if (IsoMode)
@@ -78,7 +77,7 @@ public class UserMobileController : UserController
                     else
                         CatchSingleTap();
                 }
-                else
+                else if (!tapRelease)
                 {
                     SwipeDirections direction;
                     if (IsoMode)
@@ -98,28 +97,12 @@ public class UserMobileController : UserController
         base.CatchTapPress();
 
         var touch = Input.GetTouch(0);
-
-        touchPosDown = touch.position;
-        touchPosUp = touch.position;
-
         if (UI.GetUIElement(touch.position) != null)
-            restricted = true;
-    }
-
-    protected override void CatchTapRelease()
-    {
-        base.CatchTapRelease();
-
-        var touch = Input.GetTouch(0);
-
-        touchPosUp = touch.position;
-
-        restricted = false;
+            Player.restrictControlls = true;
     }
 
     SwipeDirections GetSwipeDirection(Vector2 positionDown, Vector2 positionUp)
     {
-        DebugMobile.PrintLabel1($"From {(int)positionDown.x}, {(int)positionDown.y} to {(int)positionUp.x}, {(int)positionUp.y}");
         var deltaVertical = Mathf.Abs(positionUp.y - positionDown.y);
         var deltaHorizontal = Mathf.Abs(positionUp.x - positionDown.x);
 
@@ -147,16 +130,12 @@ public class UserMobileController : UserController
 
     SwipeDirections GetSwipeDirectionIsometric(Vector2 positionDown, Vector2 positionUp)
     {
-        DebugMobile.PrintLabel1($"From {(int)positionDown.x}, {(int)positionDown.y} to {(int)positionUp.x}, {(int)positionUp.y}");
-
         var angle = Isometrics.GetSwipeAngle(positionDown, positionUp);
         var sqrDelta = Vector2.SqrMagnitude(positionUp - positionDown);
         var sqrSens = maxPixelDelta * maxPixelDelta * swipeSensitivity;
 
         if (sqrDelta >= sqrSens)
         {
-            DebugMobile.PrintLabel2($"SqrDelta {(int)sqrDelta}");
-
             if (angle >= Isometrics.angleFR && angle <= Isometrics.angleFL)
                 return SwipeDirections.Up;
             else if (angle > Isometrics.angleFL && angle < Isometrics.angleBL)
@@ -168,7 +147,6 @@ public class UserMobileController : UserController
         }
         else
         {
-            DebugMobile.PrintLabel2($"SqrDelta {(int)sqrDelta} (min: {(int)(sqrSens)})");
             return SwipeDirections.None;
         }
 

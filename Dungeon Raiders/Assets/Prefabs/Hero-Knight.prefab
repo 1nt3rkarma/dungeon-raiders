@@ -11,9 +11,9 @@ GameObject:
   - component: {fileID: 6661492324085241569}
   - component: {fileID: 6661492324085241583}
   - component: {fileID: 6661492324085241580}
-  - component: {fileID: 4639206088189719416}
   - component: {fileID: 7888992567495796903}
   - component: {fileID: 2032103464515118141}
+  - component: {fileID: 3185548011916165197}
   m_Layer: 0
   m_Name: Hero-Knight
   m_TagString: Untagged
@@ -33,6 +33,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1803950272990079187}
+  - {fileID: 7739332542683440510}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -50,19 +51,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   health: 3
   healthMax: 3
+  isDecaying: 0
+  decayDelay: 3
+  meleeDamage: 1
+  attackInterval: 0.75
+  attackPoint: {fileID: 7739332542683440510}
+  attackAreaSize: 0.5
+  hitEffect: {fileID: 100000, guid: 7e1081f3e9906724bb127fe593e9610f, type: 3}
+  block: {fileID: 0}
+  leapDuration: 0.43
   isAlive: 1
   isBusy: 0
-  animHandler: {fileID: 6327947337342867982}
-  audioSource: {fileID: 2032103464515118141}
-  rowView: 0
-  lineView: 0
-  enemy: {fileID: 0}
-  block: {fileID: 0}
-  safeEdge: 0.15
-  leapDuration: 0.45
   isFloating: 0
   isLeaping: 0
   isMoving: 0
+  animHandler: {fileID: 6327947337342867982}
+  audioSource: {fileID: 2032103464515118141}
+  safeEdge: 0.15
   isListening: 1
 --- !u!54 &6661492324085241580
 Rigidbody:
@@ -80,20 +85,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!136 &4639206088189719416
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6661492324085241568}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  m_Radius: 0.25555927
-  m_Height: 1.154233
-  m_Direction: 1
-  m_Center: {x: 0, y: 0.6237786, z: 0}
 --- !u!81 &7888992567495796903
 AudioListener:
   m_ObjectHideFlags: 0
@@ -111,7 +102,8 @@ AudioSource:
   m_GameObject: {fileID: 6661492324085241568}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: -2356963802179026255, guid: 70478bc7e3217294ba60085606610504,
+    type: 2}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 0
   m_Volume: 0.3
@@ -198,6 +190,49 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!65 &3185548011916165197
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6661492324085241568}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.54567164, y: 0.52562165, z: 0.32236183}
+  m_Center: {x: 0, y: 0.64889205, z: -0.059145033}
+--- !u!1 &6915662283663308611
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7739332542683440510}
+  m_Layer: 0
+  m_Name: attackPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7739332542683440510
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6915662283663308611}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.5, z: 0.753}
+  m_LocalScale: {x: 0.24710298, y: 0.24710298, z: 0.24710298}
+  m_Children: []
+  m_Father: {fileID: 6661492324085241569}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &938840608764905979
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -507,9 +542,39 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6545432425874822133, guid: 507828f6423ca9d4aa3389cc69151074,
         type: 3}
+      propertyPath: attackSounds.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6545432425874822133, guid: 507828f6423ca9d4aa3389cc69151074,
+        type: 3}
+      propertyPath: impactMeleeSounds.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6545432425874822133, guid: 507828f6423ca9d4aa3389cc69151074,
+        type: 3}
       propertyPath: unit
       value: 
       objectReference: {fileID: 6661492324085241583}
+    - target: {fileID: 6545432425874822133, guid: 507828f6423ca9d4aa3389cc69151074,
+        type: 3}
+      propertyPath: attackSounds.Array.data[0]
+      value: 
+      objectReference: {fileID: 8300000, guid: 21f1b9a492960824682f0593849bbea9, type: 3}
+    - target: {fileID: 6545432425874822133, guid: 507828f6423ca9d4aa3389cc69151074,
+        type: 3}
+      propertyPath: attackSounds.Array.data[1]
+      value: 
+      objectReference: {fileID: 8300000, guid: 9ba7c1ac885c4ac4a9b1f44449c63f41, type: 3}
+    - target: {fileID: 6545432425874822133, guid: 507828f6423ca9d4aa3389cc69151074,
+        type: 3}
+      propertyPath: impactMeleeSounds.Array.data[0]
+      value: 
+      objectReference: {fileID: 8300000, guid: 21f1b9a492960824682f0593849bbea9, type: 3}
+    - target: {fileID: 6545432425874822133, guid: 507828f6423ca9d4aa3389cc69151074,
+        type: 3}
+      propertyPath: impactMeleeSounds.Array.data[1]
+      value: 
+      objectReference: {fileID: 8300000, guid: 9ba7c1ac885c4ac4a9b1f44449c63f41, type: 3}
     - target: {fileID: 6662517740634983664, guid: 507828f6423ca9d4aa3389cc69151074,
         type: 3}
       propertyPath: m_LocalRotation.x

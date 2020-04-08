@@ -11,6 +11,19 @@ public class Potion : Item
 
     public override void Use()
     {
+        // Ограничение на предельный ресурс
+        switch (resource)
+        {
+            case HeroResources.health:
+                if (Hero.singlton.health >= Hero.singlton.healthMax)
+                    return;
+                break;
+            case HeroResources.mana:
+                //if (Hero.singlton.mana == Hero.singlton.manaMax)
+                //    return;
+                break;
+        }
+
         base.Use();
 
         switch (resource)

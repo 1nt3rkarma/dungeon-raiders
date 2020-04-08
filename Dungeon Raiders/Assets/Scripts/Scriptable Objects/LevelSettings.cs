@@ -24,7 +24,6 @@ public class LevelPresetParams : object
 
     public bool infinite = false;
     public int count = 5;
-    public bool allowItemsGeneration = true;
 }
 
 [System.Serializable]

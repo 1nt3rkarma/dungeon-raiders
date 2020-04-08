@@ -5,15 +5,144 @@ using UnityEngine;
 public class Unit : MonoBehaviour
 {
     [Header("Common unit properties")]
+
     public float health = 1;
     public int healthMax = 1;
 
+    public bool isDecaying = false;
+    public float decayDelay = 3;
+
+    public float meleeDamage = 1;
+    public float attackInterval = 3;
+    protected float attackTimer;
+    public Transform attackPoint;
+    public float attackAreaSize;
+    public GameObject hitEffect;
+
+    public Facing facing
+    {
+        get
+        {
+            if (transform.localEulerAngles.y == 0)
+                return Facing.forward;
+            else
+                return Facing.backward;
+        }
+        set
+        {
+            Vector3 newEuler = new Vector3(0, 0, 0);
+            if (value == Facing.backward)
+                newEuler.y = 180;
+            transform.localEulerAngles = newEuler;
+        }
+    }
+    public int row { get => block.GetRowIndex(); }
+    public int line { get => block.GetLineIndex(); }
+
+    public Block block;
+    public Block forwardBlock { get => Level.GetBlock(row + (int)facing, line); }
+    public Block backwardBlock { get => Level.GetBlock(row - (int)facing, line); }
+    public float leapDuration = 0.25f;
+
     public bool isAlive = true;
     public bool isBusy = false;
+    public bool isFloating = false;
+    public bool isLeaping = false;
+    public bool isMoving = true;
 
     public Animator animator { get => animHandler.animator; }
-    public HeroAnimationHandler animHandler;
+    public UnitAnimationHandler animHandler;
     public AudioSource audioSource;
+
+    public Coroutine castRoutine;
+    public Coroutine leapRoutine;
+
+    protected void OnStart()
+    {
+        block = Level.GetNearestBlock(transform.position);
+    }
+
+    #region Перемещение
+
+    public virtual void Stop()
+    {
+        animHandler.SetMoveFlag(false);
+        isMoving = false;
+    }
+
+    public virtual void Leap(LeapDirections direction)
+    {
+        if (!isBusy && isAlive)
+            if (leapRoutine == null)
+            {
+                if (direction == LeapDirections.Left && line == 0)
+                    return;
+                if (direction == LeapDirections.Right && line == 2)
+                    return;
+
+                leapRoutine = StartCoroutine(LeapRoutine(direction));
+                GameEvent.InvokeUnitLeap(this, direction);
+            }
+    }
+
+    protected IEnumerator LeapRoutine(LeapDirections direction)
+    {
+        isBusy = true;
+
+        if (direction == LeapDirections.Left)
+            animHandler.PlayAnimation("leapL");
+        if (direction == LeapDirections.Right)
+            animHandler.PlayAnimation("leapR");
+
+        // Ждем событие анимации - прыжок
+        yield return WaitForAnimationEvent(AnimationEvents.jumpStart);
+        isLeaping = true;
+
+        StartCoroutine(LeapTransitionRoutine(direction));
+
+        // Ждем событие анимации - конец прыжка
+        yield return WaitForAnimationEvent(AnimationEvents.jumpEnd);
+        isLeaping = false;
+
+        leapRoutine = null;
+        isBusy = false;
+
+    }
+
+    protected IEnumerator LeapTransitionRoutine(LeapDirections direction)
+    {
+        var speed = 1 / leapDuration;
+
+        int sign = (int)direction;
+        var targetPosition = transform.position + sign * transform.right;
+
+        if (direction == LeapDirections.Left)
+            while (transform.position.x > targetPosition.x)
+            {
+                transform.position -= transform.right * speed * Time.deltaTime;
+                if (transform.position.x <= targetPosition.x)
+                    break;
+                yield return null;
+            }
+        else if (direction == LeapDirections.Right)
+            while (transform.position.x < targetPosition.x)
+            {
+                transform.position += transform.right * speed * Time.deltaTime;
+                if (transform.position.x >= targetPosition.x)
+                    break;
+                yield return null;
+            }
+        transform.position = targetPosition;
+    }
+
+    public void SwitchBlockTo(Block block)
+    {
+        this.block = block;
+    }
+
+    #endregion
+
+    #region Нанесение и получение урона
 
     public void DecHealth(float amount)
     {
@@ -31,6 +160,67 @@ public class Unit : MonoBehaviour
         health = Mathf.Clamp(health, 0, healthMax);
     }
 
+    public virtual void MeleeAttack()
+    {
+        if (!isBusy && isAlive && attackTimer <= 0)
+            if (castRoutine == null)
+            {
+                Stop();
+                GameEvent.InvokeUnitAttack(this);
+                castRoutine = StartCoroutine(MeleeAttackRoutine());
+                attackTimer = attackInterval;
+            }
+    }
+
+    protected IEnumerator MeleeAttackRoutine()
+    {
+        isBusy = true;
+        animHandler.PlayAnimation("attack");
+
+        // Ждем событие анимации - начало анимации
+        while (!animHandler.animEventCastStart)
+            yield return null;
+        animHandler.animEventCastStart = false;
+
+        // Ждем событие анимации - применение
+        while (!animHandler.animEventCast)
+            yield return null;
+        animHandler.animEventCast = false;
+        CastMeleeDamage();
+
+        // Ждем событие анимации - окончание анимации
+        while (!animHandler.animEventCastEnd)
+            yield return null;
+        animHandler.animEventCastEnd = false;
+
+        castRoutine = null;
+        isBusy = false;
+    }
+
+    protected void CastMeleeDamage()
+    {
+        var objects = Physics.OverlapSphere(attackPoint.position,attackAreaSize);
+        var impact = false;
+        foreach (var obj in objects)
+        {
+            var enemy = obj.GetComponent<Unit>();
+            if (enemy != null && enemy != this)
+                enemy.TakeDamage(meleeDamage);
+
+            if (!impact)
+                impact = enemy != null;
+        }
+        if (impact)
+        {
+            animHandler.PlayImpactMeleeSound();
+            var x = Random.Range(-0.3f, 0.3f);
+            var y = Random.Range(-0.3f, 0.3f);
+            var z = Random.Range(-0.3f, 0.3f);
+            var randomShift = new Vector3(x, y, z);
+            var effect = Instantiate(hitEffect, attackPoint.position + randomShift, Quaternion.identity);
+        }
+    }
+
     public virtual void TakeDamage(float damage)
     {
         TakeDamage(damage, DamageSources.common);
@@ -44,6 +234,25 @@ public class Unit : MonoBehaviour
         health -= damage;
         if (health <= 0)
             Die(source);
+        else
+            StartCoroutine(HitRoutine());
+    }
+
+    protected IEnumerator HitRoutine()
+    {
+        isBusy = true;
+
+        animHandler.ClearFalgs();
+
+        animHandler.PlayAnimation("hit");
+
+        // Ждем событие анимации - начало анимации
+        yield return WaitForAnimationEvent(AnimationEvents.start);
+
+        // Ждем событие анимации - конец анимации
+        yield return WaitForAnimationEvent(AnimationEvents.end);
+
+        isBusy = false;
     }
 
     public virtual void Die()
@@ -74,7 +283,12 @@ public class Unit : MonoBehaviour
                 animHandler.PlayAnimation("die");
                 break;
         }
+
+        if (isDecaying)
+            Destroy(gameObject, decayDelay);
     }
+
+    #endregion
 
     protected IEnumerator WaitForAnimationEvent(AnimationEvents eventTag)
     {
@@ -123,11 +337,22 @@ public class Unit : MonoBehaviour
         }
     }
 
+    protected virtual void InterruptRoutines()
+    {
+        if (castRoutine != null)
+            StopCoroutine(castRoutine);
+        castRoutine = null;
+
+        if (leapRoutine != null)
+            StopCoroutine(leapRoutine);
+        leapRoutine = null;
+    }
+
     public void PlayRandomSound(List<AudioClip> sounds)
     {
         if (sounds.Count == 0)
             return;
-
+        audioSource.Stop();
         var i = Random.Range(0, sounds.Count);
         audioSource.PlayOneShot(sounds[i]);
     }
@@ -152,5 +377,7 @@ public class Unit : MonoBehaviour
     }
 }
 
+
+public enum Facing { forward = 1, backward = -1 }
 
 public enum DamageSources { common, fall, fire, frost, electro }

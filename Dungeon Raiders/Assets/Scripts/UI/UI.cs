@@ -16,6 +16,11 @@ public class UI : MonoBehaviour
     private void Awake()
     {
         InitSinglton(this);
+
+        startUI.gameObject.SetActive(true);
+        gameplayUI.gameObject.SetActive(false);
+        defeatUI.gameObject.SetActive(false);
+        tutorialUI.gameObject.SetActive(false);
     }
 
     private void Start()

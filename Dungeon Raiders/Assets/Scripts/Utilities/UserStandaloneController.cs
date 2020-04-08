@@ -40,42 +40,24 @@ public class UserStandaloneController : UserController
 
         #region Имитация нажатия на тач-скрин
 
-        //if (Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0))
         if (Input.GetKeyDown(KeyCode.Space))
             CatchTapPress();
 
         if (Input.GetKeyUp(KeyCode.Space))
-            //if (Input.GetKeyUp(KeyCode.Space) || Input.GetMouseButtonUp(0))
             CatchTapRelease();
 
-        //if (Input.GetMouseButtonDown(0))
-        //{
-        //    var mousePos = Input.mousePosition;
-        //    var target = UI.GetUIElement(mousePos);
-        //    if (target)
-        //        Debug.Log($"Координаты: {mousePos.x}, {mousePos.y} - {target.name}");
-        //    else
-        //        Debug.Log($"Координаты: {mousePos.x}, {mousePos.y} - [Нет цели]");
-
-        //}
-
-        if (tapPress1)
+        if (tapPress)
         {
             if (tapHoldTimer < tapHoldThreshold)
             {
                 tapHoldTimer += Time.deltaTime;
-
-                if (tapRelease1 && tapPress2)
-                    CatchDoubleTap();
             }
             else
             {
-                if (tapRelease1 && !tapPress2)
+                if (tapRelease)
                     CatchSingleTap();
-                else if (!tapRelease1)
+                else if (!tapRelease)
                     CatchTapHold();
-                else
-                    CatchDoubleTap();
             }
         }
 

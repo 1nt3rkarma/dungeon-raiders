@@ -30,3 +30,19 @@ MonoBehaviour:
     infinite: 0
     count: 1
     allowItemsGeneration: 0
+  - presetPrefab: {fileID: 2898986452370970045, guid: 541ecc4526b1f804c9f70cdd20130b59,
+      type: 3}
+    intervalMin: 3
+    intervalMax: 15
+    basicChance: 0.3
+    infinite: 0
+    count: 1
+    allowItemsGeneration: 0
+  - presetPrefab: {fileID: 3443010147217026440, guid: 63ba3d019ceeca743b638fa8a5b602cc,
+      type: 3}
+    intervalMin: 1
+    intervalMax: 3
+    basicChance: 0.5
+    infinite: 0
+    count: 1
+    allowItemsGeneration: 0

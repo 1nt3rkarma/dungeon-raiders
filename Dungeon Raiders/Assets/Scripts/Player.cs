@@ -1,11 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Audio;
 using UnityEngine.SceneManagement;
 
 public class Player : MonoBehaviourExtended
 {
     public static Player singlton;
+
+    public static bool restrictControlls;
 
     public static List<Item> inventory;
     public const int inventorySize = 3;
@@ -27,7 +30,7 @@ public class Player : MonoBehaviourExtended
 
     public static bool showHints
     {
-        get => PlayerPrefs.GetInt("hints", 1) == 1 ? true : false;
+        get => PlayerPrefs.GetInt("hints", 0) == 1 ? true : false;
 
         set
         {
@@ -46,6 +49,36 @@ public class Player : MonoBehaviourExtended
         set => PlayerPrefs.SetInt("coins", value);
     }
 
+    public static bool musicOn
+    {
+        get => PlayerPrefs.GetInt("music", 1) == 1 ? true : false;
+
+        set
+        {
+            Debug.Log($"Вкл. музыку: {value}");
+            EnableMusic(value);
+            if (value)
+                PlayerPrefs.SetInt("music", 1);
+            else
+                PlayerPrefs.SetInt("music", 0);
+        }
+    }
+
+    public static bool soundsOn
+    {
+        get => PlayerPrefs.GetInt("sounds", 1) == 1 ? true : false;
+
+        set
+        {
+            Debug.Log($"Вкл. звуки эффектов: {value}");
+            EnableSounds(value);
+            if (value)
+                PlayerPrefs.SetInt("sounds", 1);
+            else
+                PlayerPrefs.SetInt("sounds", 0);
+        }
+    }
+
     public static int stepsBest
     {
         get => PlayerPrefs.GetInt("steps", 0);
@@ -58,6 +91,7 @@ public class Player : MonoBehaviourExtended
     public int stepsLevelView;
     public static int stepsSession = 0;
 
+    public AudioMixer audioMixer;
     public GameResources resourceFile;
 
     public AudioSource audioSourceMusic;
@@ -74,12 +108,20 @@ public class Player : MonoBehaviourExtended
         SubsribeToGameEvents();
     }
 
+    void Start()
+    {
+        Debug.Log($"Музыка вкл.: {musicOn}");
+        EnableMusic(musicOn);
+        Debug.Log($"Звуки эффектов вкл.: {soundsOn}");
+        EnableSounds(soundsOn);
+    }
+
     void OnDestroy()
     {
         UnsubsribeToGameEvents();
     }
 
-    private void Update()
+    void Update()
     {
         stepsLevelView = stepsLevel;
     }
@@ -92,7 +134,9 @@ public class Player : MonoBehaviourExtended
 
     protected override void OnTapPress()
     {
-
+        if (controllEnabled && !restrictControlls)
+            OrderJump();
+        restrictControlls = false;
     }
 
     protected override void OnTapRelease()
@@ -102,8 +146,7 @@ public class Player : MonoBehaviourExtended
 
     protected override void OnSingleTap()
     {
-        if (controllEnabled)
-            OrderJump();
+
     }
 
     protected override void OnDoubleTap()
@@ -118,7 +161,7 @@ public class Player : MonoBehaviourExtended
 
     protected override void OnSwipe(SwipeDirections direction)
     {
-        if (controllEnabled)
+        if (controllEnabled && !restrictControlls)
             switch (direction)  
             {
                 case SwipeDirections.Right:
@@ -133,6 +176,7 @@ public class Player : MonoBehaviourExtended
                 default:
                     break;
             }
+        restrictControlls = false;
     }
 
     #endregion
@@ -170,11 +214,6 @@ public class Player : MonoBehaviourExtended
     public static void UseItem(Item item)
     {
         item.Use();
-
-        PlaySound(item.useSound);
-
-        if (item.expendable)
-            RemoveItem(item);
     }
 
     public static void AddItem(Item item)
@@ -232,6 +271,8 @@ public class Player : MonoBehaviourExtended
     }
 
     #endregion
+
+    #region Взаимодействие с Героем и Уровнем
 
     public static void OrderAttack()
     {
@@ -298,6 +339,24 @@ public class Player : MonoBehaviourExtended
             UI.ShowDefeatUI(false);
         }
 
+    }
+
+    #endregion
+
+    static void EnableMusic(bool mode)
+    {
+        if (mode)
+            singlton.audioMixer.SetFloat("MusicVolume", 0);
+        else
+            singlton.audioMixer.SetFloat("MusicVolume", -80);
+    }
+
+    static void EnableSounds(bool mode)
+    {
+        if (mode)
+            singlton.audioMixer.SetFloat("SoundsVolume", 0);
+        else
+            singlton.audioMixer.SetFloat("SoundsVolume", -80);
     }
 
     public static void PlaySound(AudioClip sound)

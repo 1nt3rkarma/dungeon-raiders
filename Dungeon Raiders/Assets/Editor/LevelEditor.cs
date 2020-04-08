@@ -23,9 +23,10 @@ public class LevelEditor : Editor
             {
                 var row = child.GetComponent<Row>();
                 if (row)
+                {
                     level.rows.Add(row);
-
-                row.name = $"Row {level.rows.Count-1}";
+                    row.name = $"Row {level.rows.Count - 1}";
+                }
             }
         }
     }

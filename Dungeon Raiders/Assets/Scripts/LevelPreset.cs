@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class LevelPreset : MonoBehaviour
@@ -9,7 +8,27 @@ public class LevelPreset : MonoBehaviour
 
     public List<Row> rows;
 
-    public void AlignChildren()
+    public List<RandomObject> randomObjects;
+
+    public void UpdateRows()
+    {
+        if (rows == null)
+            rows = new List<Row>();
+        else
+            rows.Clear();
+
+        foreach (Transform child in transform)
+        {
+            var row = child.GetComponent<Row>();
+            if (row)
+            {
+                rows.Add(row);
+                row.name = $"Row {rows.Count - 1}";
+            }
+        }
+    }
+
+    public void UpdateObjects()
     {
         foreach (Transform child in transform)
         {
@@ -18,7 +37,12 @@ public class LevelPreset : MonoBehaviour
             {
                 var block = GetNearestBlock(child.position);
                 child.position = block.transform.position;
-                child.transform.SetParent(block.transform);
+                child.transform.SetParent(block.parent.transform);
+
+                var randomObject = child.GetComponent<RandomObject>();
+                if (randomObject != null)
+                    if (!randomObjects.Contains(randomObject))
+                        randomObjects.Add(randomObject);
             }
         }
     }

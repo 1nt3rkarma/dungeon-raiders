@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+
 
 public class TutorialUI : MonoBehaviourExtended
 {
@@ -9,39 +11,38 @@ public class TutorialUI : MonoBehaviourExtended
 
     public ResourceBar progressBar;
 
-    public List<RectTransform> screensRects;
+    public Text textMain;
+    public Text textNext;
 
-    public int[] actionsPerPhase;
+    public int phaseIndex = -1;
+    public List<TutorialPhase> phases;
+    public TutorialPhase phase { get => phases[phaseIndex]; }
 
-    public Phases phase = (Phases) 1;
-    public int count;
-
-    public int actionsCountMaxView;
-    int actionsCountMax
+    public int actionsCount;
+    public int actionsTotal
     {
         get
         {
             int sum = 0;
-            for (int i = 0; i < actionsPerPhase.Length; i++)
-                sum += actionsPerPhase[i];
-            return sum;
+            for (int i = 0; i < phaseIndex; i++)
+                sum += phases[i].actionsCount;
+            sum += actionsCount;
+            return sum;        
         }
     }
 
-    public int actionsCountView;
-    int actionsCount
+    public int actionsMax
     {
         get
         {
             int sum = 0;
-            for (int i = 0; i < actionsPerPhase.Length; i++)
-                if (i < (int)phase)
-                    sum += actionsPerPhase[i];
-                else if (i == (int)phase)
-                    sum += count;
+            for (int i = 0; i < phases.Count; i++)
+                sum += phases[i].actionsCount;
             return sum;
         }
     }
+
+    public bool isBusy = false;
 
     private void Awake()
     {
@@ -55,104 +56,116 @@ public class TutorialUI : MonoBehaviourExtended
 
     private void Update()
     {
-        actionsCountMaxView = actionsCountMax;
-        actionsCountView = actionsCount;
-        progressBar.SetValue((float)actionsCount / actionsCountMax);
+        progressBar.SetValue((float)actionsTotal / actionsMax);
     }
 
     public void Run()
     {
         gameObject.SetActive(true);
-        Level.DisableGeneration();
-        progressBar.gameObject.SetActive(true);
 
-        Hero.singlton.isListening = false;
-        animatorScreen.SetTrigger("next");
+        Level.DisableGeneration();
+
+        SwitchPhase();
     }
 
     protected override void OnHeroJump(Hero hero)
     {
-        if (phase == Phases.Jumping)
+        if (phase.catchAction == PlayerActions.HeroJumps)
             CountAction();
     }
 
-    protected override void OnHeroLeap(Hero hero, LeapDirections direction)
+    protected override void OnUnitLeap(Unit unit, LeapDirections direction)
     {
-        if (phase == Phases.Leaping)
-            CountAction();
+        if (unit is Hero)
+            if (phase.catchAction == PlayerActions.HeroLeaps)
+                CountAction();
     }
 
-    protected override void OnHeroAttack(Hero hero)
+    protected override void OnUnitAttack(Unit unit)
     {
-        if (phase == Phases.Attacking)
-            CountAction();
+        if (unit is Hero)
+            if (phase.catchAction == PlayerActions.HeroAttacks)
+                CountAction();
     }
 
     protected override void OnSwipe(SwipeDirections direction)
     {
-        if (phase == Phases.Movement)
+        if (phase.catchAction == PlayerActions.AnyInput)
             CountAction();
     }
 
     protected override void OnSingleTap()
     {
-        if (phase == Phases.Movement || phase == Phases.Goodluck)
+        if (phase.catchAction == PlayerActions.AnyInput)
             CountAction();
     }
 
     protected override void OnTapHold()
     {
-        if (phase == Phases.Movement || phase == Phases.Goodluck)
+        if (phase.catchAction == PlayerActions.AnyInput)
             CountAction();
-    }
-
-    public void OnNewScreen()
-    {
-        switch (phase)
-        {
-            case Phases.Movement:
-                Hero.singlton.isListening = false;
-                break;
-            case Phases.Jumping:
-                Hero.singlton.isListening = true;
-                animatorVisualHint.SetTrigger("tap");
-                break;
-            case Phases.Leaping:
-                Hero.singlton.isListening = true;
-                animatorVisualHint.SetTrigger("swipeRL");
-                break;
-            case Phases.Attacking:
-                Hero.singlton.isListening = true;
-                animatorVisualHint.SetTrigger("swipeForward");
-                break;
-            case Phases.Goodluck:
-                Hero.singlton.isListening = false;
-                break;
-            case Phases.FinishTutorial:
-                FinishTutorial();
-                break;
-            default:
-                break;
-        }
     }
 
     void CountAction()
     {
-        Debug.Log($"Засчитали действие в фазе: {phase}");
-        int phaseIndex = (int)phase;
-
-        count++;
-        if (count >= actionsPerPhase[phaseIndex])
-            SwitchScreen();
+        if (!isBusy)
+        {
+            actionsCount++;
+            if (actionsCount >= phases[phaseIndex].actionsCount)
+                SwitchPhase();
+        }
     }
 
-    void SwitchScreen()
+    void SwitchPhase(int index)
     {
-        count = 0;
-        int phaseIndex = (int)phase + 1;
-        phase = (Phases)phaseIndex;
+        actionsCount = 0;
 
-        animatorScreen.SetTrigger("next");
+        isBusy = true;
+
+        phaseIndex = Mathf.Clamp(index, 0, phases.Count);
+
+        if (phaseIndex < phases.Count)
+        {
+            textNext.text = phases[phaseIndex].text;
+            animatorScreen.SetTrigger("switchScreen");
+        }
+        else
+        {
+            FinishTutorial();
+        }
+    }
+
+    void SwitchPhase()
+    {
+        SwitchPhase(phaseIndex + 1);
+    }
+
+    public void OnNewScreen()
+    {
+        isBusy = false;
+
+        textMain.text = phases[phaseIndex].text;
+
+        if (phase.forceHeroIngnorance)
+            Hero.singlton.isListening = false;
+        else
+            Hero.singlton.isListening = true;
+
+        switch (phase.catchAction)
+        {
+            case PlayerActions.HeroJumps:
+                animatorVisualHint.SetTrigger("tap");
+                break;
+            case PlayerActions.HeroLeaps:
+                animatorVisualHint.SetTrigger("swipeRL");
+                break;
+            case PlayerActions.HeroAttacks:
+                animatorVisualHint.SetTrigger("swipeForward");
+                break;
+            case PlayerActions.HeroUseSkill:
+                //animatorVisualHint.SetTrigger("tap");
+                break;
+        }
     }
 
     void FinishTutorial()
@@ -166,7 +179,17 @@ public class TutorialUI : MonoBehaviourExtended
         UI.ShowGameplayUI();
         Destroy(gameObject);
     }
-
-    public enum Phases { Movement = 0, Jumping = 1, Leaping = 2, Attacking = 3, Goodluck = 4, FinishTutorial = 5 }
 }
 
+public enum PlayerActions { AnyInput, HeroJumps, HeroLeaps, HeroAttacks, HeroUseSkill }
+
+[System.Serializable]
+public class TutorialPhase : object
+{
+    public string label;
+    [TextArea]
+    public string text;
+    public int actionsCount;
+    public bool forceHeroIngnorance;
+    public PlayerActions catchAction;
+}

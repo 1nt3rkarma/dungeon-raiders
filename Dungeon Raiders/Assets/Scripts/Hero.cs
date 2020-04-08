@@ -8,48 +8,38 @@ public class Hero : Unit
 
     [Header("Hero properties")]
 
-    public int rowView;
-    public int row { get => block.GetRowIndex(); }
-    public int lineView;
-    public int line { get => block.GetLineIndex(); }
-
-    public Enemy enemy;
-    public Block block;
-    public Block nextBlock { get => Level.GetBlock(row + 1, line); }
-
     public float safeEdge = 0.15f;
-    public float leapDuration = 0.25f;
-    public bool isFloating = false;
-    public bool isLeaping = false;
-    public bool isMoving = true;
+
     public bool isListening = true;
 
-    public Coroutine leapRoutine;
     public Coroutine jumpRoutine;
-    public Coroutine castRoutine;
 
     void Awake()
     {
-        if (singlton != null)
-            Destroy(singlton.gameObject);
-        singlton = this;
+        InitSinglton(this);
     }
 
     void Start()
     {
-        block = Level.GetNearestBlock(transform.position);
-        rowView = row;
+        OnStart();
     }
 
     void Update()
     {
-        lineView = line;
-
         if (Player.controllEnabled && isAlive)
-            CheckMovement();
+            CheckFront();
 
         if (isAlive)
             CheckGround();
+
+        attackTimer -= Time.deltaTime;
+    }
+
+    static void InitSinglton(Hero instance)
+    {
+        if (singlton != null)
+            Destroy(singlton.gameObject);
+        singlton = instance;
     }
 
     #region Перемещение
@@ -70,20 +60,19 @@ public class Hero : Unit
             }
     }
 
-    void CheckMovement()
+    void CheckFront()
     {
-        var objects = nextBlock.ScanObjects();
+        var objects = forwardBlock.ScanObjects();
+        GameObject obstacle = null;
         foreach (var obj in objects)
-        {
-            if (this.enemy == null)
+            if (obstacle == null)
             {
-                var searchEnemy = obj.GetComponent<Enemy>();
+                var searchEnemy = obj.GetComponent<Monster>();
                 if (searchEnemy != null)
-                    enemy = searchEnemy;
+                    obstacle = searchEnemy.gameObject;
             }
-        }
 
-        if (enemy != null)
+        if (obstacle != null)
         {
             if (isMoving)
                 Stop();
@@ -95,10 +84,9 @@ public class Hero : Unit
         }
     }
 
-    void Stop()
+    public override void Stop()
     {
-        animHandler.SetMoveFlag(false);
-        isMoving = false;
+        base.Stop();
         Player.StopMoving();
     }
 
@@ -137,150 +125,24 @@ public class Hero : Unit
         jumpRoutine = null;
     }
 
-    public void Leap(LeapDirections direction)
-    {
-        if (!isBusy && isAlive)
-            if (leapRoutine == null)
-            {
-                if (direction == LeapDirections.Left && line == 0)
-                    return;
-                if (direction == LeapDirections.Right && line == 2)
-                    return;
-
-                leapRoutine = StartCoroutine(LeapRoutine(direction));
-            }
-    }
-
-    IEnumerator LeapRoutine(LeapDirections direction)
-    {
-        isBusy = true;
-        GameEvent.InvokeHeroLeap(this, direction);
-
-        if (direction == LeapDirections.Left)
-            animHandler.PlayAnimation("leapL");
-        if (direction == LeapDirections.Right)
-            animHandler.PlayAnimation("leapR");
-
-        // Ждем событие анимации - прыжок
-        yield return WaitForAnimationEvent(AnimationEvents.jumpStart);
-        isLeaping = true;
-
-        StartCoroutine(LeapTransitionRoutine(direction));
-
-        // Ждем событие анимации - конец прыжка
-        yield return WaitForAnimationEvent(AnimationEvents.jumpEnd);
-        isLeaping = false;
-
-        leapRoutine = null;
-        isBusy = false;
-        enemy = null;
-    }
-
-    IEnumerator LeapTransitionRoutine(LeapDirections direction)
-    {
-        var speed = 1 / leapDuration;
-
-        int sign = (int)direction;
-        var targetPosition = transform.position + sign * transform.right;
-
-        if (direction == LeapDirections.Left)
-            while (transform.position.x > targetPosition.x)
-            {
-                transform.position -= transform.right * speed * Time.deltaTime;
-                yield return null;
-            }
-        else if (direction == LeapDirections.Right)
-            while (transform.position.x < targetPosition.x)
-            {
-                transform.position += transform.right * speed * Time.deltaTime;
-                yield return null;
-            }
-        transform.position = targetPosition;
-    }
-
-    public void SwitchBlockTo(Block block)
-    {
-        this.block = block;
-    }
-
     #endregion
 
     #region Нанесение и получение урона
 
-    public void MeleeAttack()
+    public override void TakeDamage(float damage)
     {
-        if (!isBusy && isAlive)
-            if (castRoutine == null)
-            {
-                castRoutine = StartCoroutine(MeleeAttackRoutine());
-            }
-    }
-
-    IEnumerator MeleeAttackRoutine()
-    {
-        isBusy = true;
-        Stop();
-
-        GameEvent.InvokeHeroAttack(this);
-        animHandler.PlayAnimation("attack");
-
-        // Ждем событие анимации - начало анимации
-        while (!animHandler.animEventCastStart)
-            yield return null;
-        animHandler.animEventCastStart = false;
-
-        // Ждем событие анимации - применение
-        while (!animHandler.animEventCast)
-            yield return null;
-        animHandler.animEventCast = false;
-        CastMeleeDamage();
-
-        // Ждем событие анимации - окончание анимации
-        while (!animHandler.animEventCastEnd)
-            yield return null;
-        animHandler.animEventCastEnd = false;
-
-        castRoutine = null;
-        isBusy = false;
-    }
-
-    public void CastMeleeDamage()
-    {
-        if (enemy)
-            enemy.TakeDamage(1);
+        TakeDamage(damage, DamageSources.common);
     }
 
     public override void TakeDamage(float damage, DamageSources source)
     {
-        base.TakeDamage(damage, source);
-
-        if (health > 0)
-            StartCoroutine(HitRoutine());
-    }
-
-    IEnumerator HitRoutine()
-    {
-        isBusy = true;
-
         InterruptRoutines();
-        animHandler.ClearFalgs();
-
-        animHandler.PlayAnimation("hit");
-
-        // Ждем событие анимации - начало анимации
-        yield return WaitForAnimationEvent(AnimationEvents.start);
-
-        // Ждем событие анимации - конец анимации
-        yield return WaitForAnimationEvent(AnimationEvents.end);
-
-        isBusy = false;
+        base.TakeDamage(damage, source);
     }
 
     public override void Die(DamageSources source)
     {
         base.Die(source);
-
-        InterruptRoutines();
 
         Stop();
 
@@ -289,15 +151,17 @@ public class Hero : Unit
 
     #endregion
 
-    void InterruptRoutines()
+    protected override void InterruptRoutines()
     {
         if (leapRoutine != null)
             StopCoroutine(leapRoutine);
         leapRoutine = null;
+        isLeaping = false;
 
         if (jumpRoutine != null)
             StopCoroutine(jumpRoutine);
         jumpRoutine = null;
+        isFloating = false;
 
         if (castRoutine != null)
             StopCoroutine(castRoutine);
@@ -312,6 +176,12 @@ public class Hero : Unit
             var center = block.transform.position; ;
             var size = 0.5f;
             Gizmos.DrawWireSphere(center, size);
+        }
+
+        if (attackPoint)
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(attackPoint.position, attackAreaSize);
         }
     }
 }

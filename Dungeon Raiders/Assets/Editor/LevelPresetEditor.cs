@@ -16,24 +16,12 @@ public class LevelPresetEditor : Editor
 
         if (GUILayout.Button("Update rows"))
         {
-            if (preset.rows == null)
-                preset.rows = new List<Row>();
-            else
-                preset.rows.Clear();
-
-            foreach (Transform child in preset.transform)
-            {
-                var row = child.GetComponent<Row>();
-                if (row)
-                    preset.rows.Add(row);
-
-                row.name = $"Row {preset.rows.Count - 1}";
-            }
+            preset.UpdateRows();
         }
 
-        if (GUILayout.Button("Align objects"))
+        if (GUILayout.Button("Update objects"))
         {
-            preset.AlignChildren();
+            preset.UpdateObjects();
         }
 
         GUILayout.EndHorizontal();
