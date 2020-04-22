@@ -6,10 +6,9 @@ public class Monster : Unit
 {
     [Header("Monster settings")]
     public bool canWalk;
-    public bool avoidGaps;
     public float moveSpeed;
 
-    public Coroutine moveRoutine;
+    public MonsterAI AI;
 
     private void Start()
     {
@@ -20,71 +19,29 @@ public class Monster : Unit
     private void Update()
     {
         if (isAlive)
-            CheckFront();
-
-        attackTimer -= Time.deltaTime;
-    }
-
-    void CheckFront()
-    {
-        if (forwardBlock != null)
-        {
-            Hero hero = SearchHeroInLine();
-
-            if (hero != null)
-            {
-                var distance = DistanceTo(hero);
-
-                if (distance <= 2 && isMoving)
-                    Stop();
-
-                if (distance <= 1 && hero.isAlive)
-                    MeleeAttack();
-
-                if (distance > 2)
-                    if (canWalk && (!forwardBlock.isEmpty || !avoidGaps))
-                        Move();
-                    else if (isMoving)
-                        Stop();
-            }
-            else if (canWalk && (!forwardBlock.isEmpty || !avoidGaps))
-                Move();
-            else if (isMoving)
-                Stop();
-        }
+            AI.MainRoutine();
     }
 
     public void Move()
     {
         if (!isBusy && isAlive)
-            if (moveRoutine == null)
+        {
+            if (!isMoving)
             {
                 animHandler.SetMoveFlag(true);
                 isMoving = true;
-
-                var direction = (int)facing * Vector3.forward;
-                transform.localPosition += direction * moveSpeed * Time.deltaTime;
-
-                var newBlock = Level.GetNearestBlock(transform.position);
-                if (newBlock != block)
-                {
-                    block = newBlock;
-                    transform.SetParent(block.transform.parent);
-                }
             }
-    }
 
-    public int DistanceTo(Unit unit)
-    {
-        return Mathf.Abs(this.block.GetRowIndex() - unit.block.GetRowIndex());
-    }
+            var direction = (int)facing * Vector3.forward;
+            transform.localPosition += direction * moveSpeed * Time.deltaTime;
 
-    public Hero SearchHeroInLine()
-    {
-        if (Hero.singlton.line == this.line)
-            return Hero.singlton;
-        else
-            return null;
+            var newBlock = Level.GetBlock(transform.position);
+            if (newBlock != block)
+            {
+                block = newBlock;
+                transform.SetParent(block.transform.parent);
+            }
+        }
     }
 
     void OnDrawGizmosSelected()
@@ -101,6 +58,13 @@ public class Monster : Unit
         {
             Gizmos.color = Color.red;
             Gizmos.DrawWireSphere(attackPoint.position, attackAreaSize);
+        }
+
+        if (shootPoint)
+        {
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawWireCube(shootPoint.position, new Vector3(0.3f, 0.3f, 0.3f));
+            Gizmos.DrawLine(shootPoint.position, shootPoint.position + transform.forward);
         }
     }
 }

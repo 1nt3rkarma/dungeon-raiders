@@ -16,14 +16,14 @@ public class CameraControllerEditor : Editor
 
         if (GUILayout.Button("View Deafult"))
         {
-            cameraController.camera.transform.position = cameraController.positionDefault;
-            cameraController.camera.orthographicSize = cameraController.sizeDefault;
+            cameraController.cameraMain.transform.position = cameraController.positionDefault;
+            cameraController.cameraMain.orthographicSize = cameraController.sizeDefault;
         }
 
         if (GUILayout.Button("Set Deafult"))
         {
-            cameraController.positionDefault = cameraController.camera.transform.position;
-            cameraController.sizeDefault = cameraController.camera.orthographicSize;
+            cameraController.positionDefault = cameraController.cameraMain.transform.position;
+            cameraController.sizeDefault = cameraController.cameraMain.orthographicSize;
 
         }
 
@@ -33,14 +33,14 @@ public class CameraControllerEditor : Editor
 
         if (GUILayout.Button("View Hero"))
         {
-            cameraController.camera.transform.position = cameraController.positionFocusHero;
-            cameraController.camera.orthographicSize = cameraController.sizeFocusHero;
+            cameraController.cameraMain.transform.position = cameraController.positionFocusHero;
+            cameraController.cameraMain.orthographicSize = cameraController.sizeFocusHero;
         }
 
         if (GUILayout.Button("Set Hero"))
         {
-            cameraController.positionFocusHero = cameraController.camera.transform.position;
-            cameraController.sizeFocusHero = cameraController.camera.orthographicSize;
+            cameraController.positionFocusHero = cameraController.cameraMain.transform.position;
+            cameraController.sizeFocusHero = cameraController.cameraMain.orthographicSize;
 
         }
 

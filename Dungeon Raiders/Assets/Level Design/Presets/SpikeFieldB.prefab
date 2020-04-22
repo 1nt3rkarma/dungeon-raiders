@@ -55,6 +55,7 @@ MonoBehaviour:
   - {fileID: 5483524857168894012}
   - {fileID: 5483524855431096963}
   - {fileID: 5483524857143738459}
+  randomObjects: []
 --- !u!1001 &2634116897105737790
 PrefabInstance:
   m_ObjectHideFlags: 0

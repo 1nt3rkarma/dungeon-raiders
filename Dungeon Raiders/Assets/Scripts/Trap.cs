@@ -133,18 +133,18 @@ public class Trap : MonoBehaviourExtended
     {
         if (!isExecuted && damageTimer <= 0)
         {
-            Hero hero = collider.GetComponent<Hero>();
-            if (hero)
-                if (!hero.isFloating || airDamage )
-                    CastDamage(hero);
+            Unit target = collider.GetComponent<Unit>();
+            if (target)
+                if (!target.isFloating || airDamage )
+                    CastDamage(target);
         }
     }
 
-    public virtual void CastDamage(Hero hero)
+    public virtual void CastDamage(Unit target)
     {
         //Debug.Log("Ловушка нанесла урон");
         PlayRandomSound(damageSounds);
-        var position = hero.GetUnitPoint(UnitBodyPoints.chest).position;
+        var position = target.GetUnitPoint(UnitBodyPoints.chest).position;
         var effect = Instantiate(damageEffect, position, Quaternion.identity);
         effect.transform.localEulerAngles = new Vector3(0, 180, 0);
 
@@ -153,7 +153,7 @@ public class Trap : MonoBehaviourExtended
         else
             damageTimer += damageInterval;
 
-        hero.TakeDamage(damage);
+        target.TakeDamage(damage, this);
     }
 
     public void PlayRandomSound(List<AudioClip> sounds)

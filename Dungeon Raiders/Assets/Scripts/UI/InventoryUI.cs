@@ -6,6 +6,11 @@ public class InventoryUI : MonoBehaviour
 {
     public List<InventoryButton> slots;
 
+    void Update()
+    {
+        UpdateUI();
+    }
+
     public void UpdateUI()
     {
         for (int i = 0; i < slots.Count; i++)

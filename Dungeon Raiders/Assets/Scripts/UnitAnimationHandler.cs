@@ -10,24 +10,38 @@ public class UnitAnimationHandler : MonoBehaviour
 
     public TrailRenderer weaponTrail;
 
+    public string jumpTag = "jumpStart";
     public AnimationClipGroup jumpClips;
 
     [Header("Sounds")]
 
     public List<AudioClip> impactMeleeSounds;
-
+    public List<AudioClip> impactBlockSounds;
     public List<AudioClip> attackSounds;
+
+    public List<AudioClip> shootSounds;
 
     public List<AudioClip> deathSounds;
 
     public List<AudioClip> fallSounds;
 
+    public List<AudioClip> footstepsSounds;
+
     [Header("Body parts and key points")]
 
     public List<MeshVariationGroup> randomMeshGroups;
 
+    public List<GameObject> ammoView;
+
     [Tooltip("Части тела персонажа, которые отвалятся, например, при анимации смерти")]
     public List<Rigidbody> bodyparts;
+
+    public GameObject remains;
+    public float remainsDecay = 7;
+
+    public List<StickPoint> defendStickPoints;
+    public List<StickPoint> defaultStickPoints;
+    public List<Transform> stickedMissiles;
 
     [Header("Debugging")]
 
@@ -38,56 +52,45 @@ public class UnitAnimationHandler : MonoBehaviour
     public Transform overheadPoint;
 
     public bool animEventStart = false;
-    public bool animEventEnd = false;
-
-    //public bool animEventLeap = false;
-
-    public bool animEventJumpStart = false;
-    public bool animEventJumpEnd = false;
-
     public bool animEventCastStart = false;
     public bool animEventCast= false;
     public bool animEventCastEnd = false;
+    public bool animEventEnd = false;
 
     public void EventStart()
     {
         animEventStart = true;
+    }
+    public void EventCastStart()
+    {
+        animEventCastStart = true;
+    }
+    public void EventCast()
+    {
+        animEventCast = true;
+    }
+    public void EventCastEnd()
+    {
+        animEventCastEnd = true;
     }
     public void EventEnd()
     {
         animEventEnd = true;
     }
 
-    public void EventJumpStart()
-    {
-        //Debug.Log("Прыжок начался");
-        animEventJumpStart = true;
-    }
-    public void EventJumpEnd()
-    {
-        //Debug.Log("Прыжок окончен");
-        animEventJumpEnd = true;
-    }
-
-    public void EventCastStart()
-    {
-        //Debug.Log("НАЧАЛАСЬ анимация применения способности");
-        animEventCastStart = true;
-    }
-    public void EventCast()
-    {
-        //Debug.Log("Анимация применения способности СРАБОТАЛА");
-        animEventCast = true;
-    }
-    public void EventCastEnd()
-    {
-        //Debug.Log("Анимация применения способности ЗАКОНЧИЛАСЬ");
-        animEventCastEnd = true;
-    }
-
     private void Start()
     {
         RandomizeAppearance();
+    }
+
+    public void UpdateAmmoView()
+    {
+        if (ammoView.Count > 0)
+            for (int i = 0; i < ammoView.Count; i++)
+                if (i < unit.ammo)
+                    ammoView[i].SetActive(true);
+                else
+                    ammoView[i].SetActive(false);
     }
 
     void RandomizeAppearance()
@@ -102,20 +105,19 @@ public class UnitAnimationHandler : MonoBehaviour
             var index = MathUtilities.GetRandomIndexFromListOfChances(chances);
 
             foreach (var variation in group.meshes)
-                if (variation == group.meshes[index])
+                if (variation == group.meshes[index] && variation.meshObject != null)
                     variation.meshObject.SetActive(true);
-                else
+                else if (variation.meshObject != null)
                     Destroy(variation.meshObject);
         }
     }
 
-    public void ClearFalgs()
+    public void ClearEventFalgs()
     {
+        DisableWeaponTrail();
+
         animEventStart = false;
         animEventEnd = false;
-        animEventJumpStart = false;
-        animEventJumpEnd = false;
-        //animEventLeap = false;
         animEventCastStart = false;
         animEventCast = false;
         animEventCastEnd = false;
@@ -127,7 +129,7 @@ public class UnitAnimationHandler : MonoBehaviour
 
         switch (tag)    
         {
-            case "jump":
+            case "jumpStart":
                 clips = jumpClips;
                 break;
             default:
@@ -157,17 +159,67 @@ public class UnitAnimationHandler : MonoBehaviour
         animator.SetTrigger(tag);
     }
 
+    private void SetFlag(string flag, bool value)
+    {
+        animator.SetBool(flag, value);
+    }
+    public void SetFlag(string flag)
+    {
+        SetFlag(flag, true);
+    }
+    public void ClearFlag(string flag)
+    {
+        SetFlag(flag, false);
+    }
+
     public void SetMoveFlag(bool flag)
     {
         animator.SetBool("isMoving", flag);
     }
 
+    public void SetDefendFlag(bool flag)
+    {
+        animator.SetBool("isDefending", flag);
+    }
+
+    public void ShowRemains()
+    {
+        if (remains)
+        {
+            remains.gameObject.SetActive(true);
+
+            if (unit is Hero)
+                remains.transform.SetParent(null);
+            else
+                remains.transform.SetParent(unit.block.transform);
+
+            Destroy(remains.gameObject, remainsDecay);
+        }
+    }
+
     public void ReleaseBodyparts()
     {
+        foreach (var sticked in stickedMissiles)
+        {
+            var body = sticked.GetComponent<Rigidbody>();
+            if (body)
+                Destroy(body);
+        }
+
         foreach (var part in bodyparts)
         {
-            part.transform.SetParent(null);
+            if (part == null)
+                continue;
+
+            if (unit is Hero)
+                part.transform.SetParent(null);
+            else
+                part.transform.SetParent(unit.block.transform);
+
             part.isKinematic = false;
+
+            if(unit.isDecaying)
+                Destroy(part.gameObject, remainsDecay);
         }
     }
 
@@ -188,9 +240,24 @@ public class UnitAnimationHandler : MonoBehaviour
         unit.PlayRandomSound(impactMeleeSounds);
     }
 
+    public void PlayBlockSound()
+    {
+        unit.PlayRandomSound(impactBlockSounds);
+    }
+
+    public void PlayFootstepSound()
+    {
+        unit.PlayRandomSound(footstepsSounds);
+    }
+
     public void PlayAttackSound()
     {
         unit.PlayRandomSound(attackSounds);
+    }
+
+    public void PlayShootSound()
+    {
+        unit.PlayRandomSound(shootSounds);
     }
 
     public void PlayFallSound()
@@ -206,7 +273,7 @@ public class UnitAnimationHandler : MonoBehaviour
 
 public enum UnitBodyPoints { origin, chest, head, handRight, handLeft, overhead}
 
-public enum AnimationEvents { start, end, leap, jumpStart, jumpEnd, castStart, cast, castEnd }
+public enum AnimationEvents { start, end, castStart, cast, castEnd, none }
 
 [System.Serializable]
 public class AnimationClipGroup : object

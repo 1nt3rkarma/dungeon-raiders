@@ -12,15 +12,21 @@ public class UI : MonoBehaviour
     public GameplayUI gameplayUI;
     public StartMenuUI startUI;
     public TutorialUI tutorialUI;
+    public SettingsUI settingsUI;
+    public ShopUI shopUI;
 
     private void Awake()
     {
         InitSinglton(this);
 
         startUI.gameObject.SetActive(true);
+
         gameplayUI.gameObject.SetActive(false);
         defeatUI.gameObject.SetActive(false);
         tutorialUI.gameObject.SetActive(false);
+        settingsUI.gameObject.SetActive(false);
+        shopUI.gameObject.SetActive(false);
+
     }
 
     private void Start()
@@ -64,17 +70,11 @@ public class UI : MonoBehaviour
         singlton.defeatUI.Hide();
     }
 
-    public static void UpdateInventoryUI()
-    {
-        singlton.gameplayUI.inventoryUI.UpdateUI();
-    }
-
     public void OnClickStart()
     {
         CameraController.ResetCamera(1);
         Player.ContinueMoving();
         Player.controllEnabled = true;
-        startUI.Fade();
 
         if (Player.needTutorial || Player.showHints)
         {
@@ -85,6 +85,10 @@ public class UI : MonoBehaviour
             Destroy(tutorialUI.gameObject);
             gameplayUI.gameObject.SetActive(true);
         }
+
+        startUI.Fade();
+        Destroy(settingsUI.gameObject);
+        Destroy(shopUI.gameObject);
     }
 
     public static GameObject GetUIElement(Vector2 screenPosition)
@@ -110,6 +114,7 @@ public class UI : MonoBehaviour
 
     public void OnClickExit()
     {
+        Player.SaveInventory();
         Player.ExitGame();
     }
 }

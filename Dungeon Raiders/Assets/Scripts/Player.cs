@@ -55,7 +55,7 @@ public class Player : MonoBehaviourExtended
 
         set
         {
-            Debug.Log($"Вкл. музыку: {value}");
+            //Debug.Log($"Вкл. музыку: {value}");
             EnableMusic(value);
             if (value)
                 PlayerPrefs.SetInt("music", 1);
@@ -86,10 +86,11 @@ public class Player : MonoBehaviourExtended
         set => PlayerPrefs.SetInt("steps", value);
     }
 
+    public static int steps = 0;
+    public static int enemies = 0;
     public static int coins = 0;
-    public static int stepsLevel = 0;
-    public int stepsLevelView;
-    public static int stepsSession = 0;
+
+    public static int stepsTotal = 0;
 
     public AudioMixer audioMixer;
     public GameResources resourceFile;
@@ -110,10 +111,15 @@ public class Player : MonoBehaviourExtended
 
     void Start()
     {
-        Debug.Log($"Музыка вкл.: {musicOn}");
+        LoadInventory();
+
         EnableMusic(musicOn);
-        Debug.Log($"Звуки эффектов вкл.: {soundsOn}");
+
         EnableSounds(soundsOn);
+
+        var musicCollection = singlton.resourceFile.music;
+        var rand = Random.Range(0, musicCollection.Count);
+        PlayMusic(musicCollection[rand]);
     }
 
     void OnDestroy()
@@ -123,7 +129,18 @@ public class Player : MonoBehaviourExtended
 
     void Update()
     {
-        stepsLevelView = stepsLevel;
+        if (Input.GetKeyDown(KeyCode.G))
+            AddCoinsTotal(100);
+
+        if (Input.GetKeyDown(KeyCode.T))
+        {
+            if (Time.timeScale == 1)
+                Time.timeScale = 0.5f;
+            else if (Time.timeScale == 0.5f)
+                Time.timeScale = 0.25f;
+            else
+                Time.timeScale = 1f;
+        }
     }
 
     #endregion
@@ -132,31 +149,23 @@ public class Player : MonoBehaviourExtended
 
     #region События ввода
 
-    protected override void OnTapPress()
+    protected override void OnPress()
+    {
+
+    }
+
+    protected override void OnRelease()
     {
         if (controllEnabled && !restrictControlls)
-            OrderJump();
+            OrderBreakJump();
+
         restrictControlls = false;
     }
 
-    protected override void OnTapRelease()
+    protected override void OnStationary()
     {
-
-    }
-
-    protected override void OnSingleTap()
-    {
-
-    }
-
-    protected override void OnDoubleTap()
-    {
-
-    }
-
-    protected override void OnTapHold()
-    {
-
+        if (controllEnabled && !restrictControlls)
+            OrderJump();
     }
 
     protected override void OnSwipe(SwipeDirections direction)
@@ -176,12 +185,20 @@ public class Player : MonoBehaviourExtended
                 default:
                     break;
             }
-        restrictControlls = false;
     }
 
     #endregion
 
     #region События игровой логики
+
+    protected override void OnUnitDie(Unit unit, DamageType type, Object source)
+    {
+        if (unit is Hero)
+            Player.Defeat();
+
+        if (unit is Monster && source is Hero)
+            enemies++;
+    }
 
     #endregion
 
@@ -197,11 +214,10 @@ public class Player : MonoBehaviourExtended
             Destroy(singlton.gameObject);
         singlton = instance;
 
+        steps = 0;
+        enemies = 0;
         coins = 0;
-        stepsLevel = 0;
-        stepsSession = 0;
-
-        LoadInventory();
+        stepsTotal = 0;
     }
 
     #region Работа с инвентарем
@@ -219,26 +235,22 @@ public class Player : MonoBehaviourExtended
     public static void AddItem(Item item)
     {
         if (item != null)
-        {
             inventory.Add(item);
-            UI.UpdateInventoryUI();
-        }
     }
 
     public static void RemoveItem(Item item)
     {
         inventory.Remove(item);
-        UI.UpdateInventoryUI();
     }
 
     public static void ClearInventory()
     {
         inventory.Clear();
-        UI.UpdateInventoryUI();
     }
 
     public static void LoadInventory()
     {
+        //Debug.Log("Инвентарь загружен");
         inventory = new List<Item>();
 
         for (int i = 0; i < inventorySize; i++)
@@ -247,6 +259,7 @@ public class Player : MonoBehaviourExtended
             if (itemID > -1)
             {
                 var item = singlton.resourceFile.GetItem(itemID);
+                //Debug.Log($" > {item.name} ID: {itemID}");
                 AddItem(item);
             }
         }
@@ -254,6 +267,7 @@ public class Player : MonoBehaviourExtended
 
     public static void SaveInventory()
     {
+        //Debug.Log("Инвентарь сохранен:");
         for (int i = 0; i < inventorySize; i++)
         {
             if (i < inventory.Count)
@@ -261,13 +275,29 @@ public class Player : MonoBehaviourExtended
                 var item = inventory[i];
                 var itemID = singlton.resourceFile.GetItemDataID(item);
 
+                //Debug.Log($" > {item.name} ID: {itemID}");
                 PlayerPrefs.SetInt($"inventory{i}", itemID);
             }
             else
             {
+                //Debug.Log($" > Empty slot");
                 PlayerPrefs.SetInt($"inventory{i}", -1);
             }
         }
+    }
+
+    public static ShopFeedback BuyItem(Item item)
+    {
+        if (coinsTotal < item.price)
+            return ShopFeedback.NotEnoughMoney;
+
+        if (inventory.Count >= inventorySize)
+            return ShopFeedback.InventoryIsFull;
+
+        AddItem(item);
+        coinsTotal -= item.price;
+        PlaySound(singlton.resourceFile.sellSound);
+        return ShopFeedback.Success;
     }
 
     #endregion
@@ -277,13 +307,22 @@ public class Player : MonoBehaviourExtended
     public static void OrderAttack()
     {
         if (Hero.singlton.isListening)
-            Hero.singlton.MeleeAttack();
+            Hero.singlton.Attack();
     }
 
     public static void OrderJump()
     {
+        //Debug.Log("Приказали прыгать");
         if (Hero.singlton.isListening)
             Hero.singlton.Jump();
+    }
+
+    public static void OrderBreakJump()
+    {
+        //Debug.Log("Приказали отменить прыжок");
+
+        if (Hero.singlton.isListening)
+            Hero.singlton.BreakJump();
     }
 
     public static void OrderLeap(LeapDirections direction)
@@ -294,13 +333,18 @@ public class Player : MonoBehaviourExtended
 
     public static void AddStep()
     {
-        stepsLevel++;
-        if (stepsLevel == Level.levelSteps)
+        steps++;
+        if (steps == Level.levelSteps)
         {
             Level.SwitchLevel();
-            stepsSession += stepsLevel;
-            stepsLevel = 0;
+            stepsTotal += steps;
+            steps = 0;
         }
+    }
+
+    public static void AddCoinsTotal(int amount)
+    {
+        coinsTotal += amount;
     }
 
     public static void AddCoins(int amount)
@@ -320,25 +364,25 @@ public class Player : MonoBehaviourExtended
 
     public static void Defeat()
     {
+        ClearInventory();
+        SaveInventory();
+
         controllEnabled = false;
         CameraController.FocusHero(1f);
 
         coinsTotal += coins;
 
-        stepsSession += stepsLevel;
+        stepsTotal += steps;
 
         UI.SlideAwayMainUI();
 
-        if (stepsSession > stepsBest)
-        {
-            stepsBest = stepsSession;
-            UI.ShowDefeatUI(true);
-        }
-        else
-        {
-            UI.ShowDefeatUI(false);
-        }
+        var newBest = stepsTotal > stepsBest;
+        if (newBest)
+            stepsBest = stepsTotal;
 
+        StopMusic();
+        UI.ShowDefeatUI(newBest);
+        PlayMusicOneShot(singlton.resourceFile.defeatSound);
     }
 
     #endregion
@@ -357,6 +401,24 @@ public class Player : MonoBehaviourExtended
             singlton.audioMixer.SetFloat("SoundsVolume", 0);
         else
             singlton.audioMixer.SetFloat("SoundsVolume", -80);
+    }
+
+    public static void StopMusic()
+    {
+        singlton.audioSourceMusic.Stop();
+    }
+
+    public static void PlayMusic(AudioClip clip)
+    {
+        singlton.audioSourceMusic.loop = true;
+        singlton.audioSourceMusic.clip = clip;
+        singlton.audioSourceMusic.Play();
+    }
+
+    public static void PlayMusicOneShot(AudioClip clip)
+    {
+        singlton.audioSourceMusic.loop = false;
+        singlton.audioSourceMusic.PlayOneShot(clip);
     }
 
     public static void PlaySound(AudioClip sound)
@@ -378,5 +440,3 @@ public class Player : MonoBehaviourExtended
     #endregion
 
 }
-
-public enum LeapDirections { None = 0, Right = 1, Left = -1}

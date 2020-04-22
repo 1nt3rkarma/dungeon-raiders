@@ -10,7 +10,7 @@ public class StartMenuUI : MonoBehaviour
     public Text coinsTotalText;
     public Text stepsBestsText;
 
-    private void Start()
+    private void Update()
     {
         coinsTotalText.text = Player.coinsTotal.ToString();
         stepsBestsText.text = Player.stepsBest.ToString() + " STEPS";

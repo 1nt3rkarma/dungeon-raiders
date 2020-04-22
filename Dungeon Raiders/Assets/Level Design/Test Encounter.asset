@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9927f18986d1ee244a857dfe991acb51, type: 3}
+  m_Name: Test Encounter
+  m_EditorClassIdentifier: 
+  levelSteps: 10000
+  generationSettings:
+    coinBasicChance: 0.1
+    coinArgentChance: 0.1
+    coinMinInterval: 5
+    coinMaxInterval: 9
+    gapBasicChance: 0.1
+    allowRowGap: 1
+    gapRowChance: 0.5
+    gapMinInterval: 11
+    gapMaxInterval: 13
+    gapMinLength: 2
+    gapMaxLength: 3
+    gapMinWigth: 1
+    gapMaxWigth: 2
+  presetsParams:
+  - presetPrefab: {fileID: 3443010147217026440, guid: 1ab910b70dedcc44a947fcc12f915e7c,
+      type: 3}
+    intervalMin: 10
+    intervalMax: 15
+    basicChance: 1
+    infinite: 1
+    count: 1

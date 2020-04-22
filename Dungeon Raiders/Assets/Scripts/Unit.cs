@@ -12,12 +12,44 @@ public class Unit : MonoBehaviour
     public bool isDecaying = false;
     public float decayDelay = 3;
 
+    public float leapDuration = 0.25f;   
+
+    [Space][Header("Attack settings")]
+
     public float meleeDamage = 1;
     public float attackInterval = 3;
-    protected float attackTimer;
     public Transform attackPoint;
     public float attackAreaSize;
     public GameObject hitEffect;
+    public float attackRange { get => Mathf.Abs(attackPoint.localPosition.z); }
+
+    public Missile missilePref;
+    public Transform shootPoint;
+    public int ammoMax;
+    public int ammo;
+    public bool unlimitedAmmo;
+
+    [Space][Header("Components")]
+    public UnitAnimationHandler animHandler;
+    public Animator animator { get => animHandler.animator; }
+    public AudioSource audioSource;
+    public Collider collider;
+
+    public List<Skill> skills;
+    [HideInInspector]
+    public Attack attackSkill;
+    [HideInInspector]
+    public Shoot shootSkill;
+    [HideInInspector]
+    public Jump jumpSkill;
+    [HideInInspector]
+    public Leap leapSkill;
+
+    [Header("Debugging")]
+    public Block block;
+    public Block forwardBlock { get => Level.GetBlock(row + (int)facing, line); }
+    public Block backwardBlock { get => Level.GetBlock(row - (int)facing, line); }
+    public Vector3 position { get => transform.position; }
 
     public Facing facing
     {
@@ -39,105 +71,83 @@ public class Unit : MonoBehaviour
     public int row { get => block.GetRowIndex(); }
     public int line { get => block.GetLineIndex(); }
 
-    public Block block;
-    public Block forwardBlock { get => Level.GetBlock(row + (int)facing, line); }
-    public Block backwardBlock { get => Level.GetBlock(row - (int)facing, line); }
-    public float leapDuration = 0.25f;
-
     public bool isAlive = true;
     public bool isBusy = false;
+    public bool isDefending = false;
     public bool isFloating = false;
     public bool isLeaping = false;
     public bool isMoving = true;
 
-    public Animator animator { get => animHandler.animator; }
-    public UnitAnimationHandler animHandler;
-    public AudioSource audioSource;
-
-    public Coroutine castRoutine;
-    public Coroutine leapRoutine;
-
     protected void OnStart()
     {
-        block = Level.GetNearestBlock(transform.position);
+        SetBlockPosition(Level.GetBlock(transform.position));
+
+        foreach (var skill in skills)
+        {
+            skill.caster = this;
+
+            if (skill is Attack)
+                attackSkill = (Attack) skill;
+
+            if (skill is Shoot)
+                shootSkill = (Shoot)skill;
+
+            if (skill is Jump)
+                jumpSkill = (Jump) skill;
+
+            if (skill is Leap)
+                leapSkill = (Leap) skill;
+        }
+
+        ammo = ammoMax;
     }
 
     #region Перемещение
+
+    public void SwitchBlockTo(Block block)
+    {
+        this.block = block;
+    }
+
+    public void SetBlockPosition(Block block)
+    {
+        SwitchBlockTo(block);
+        transform.position = block.transform.position;
+    }
 
     public virtual void Stop()
     {
         animHandler.SetMoveFlag(false);
         isMoving = false;
+        //Debug.Log($"{name} остановился");
     }
 
-    public virtual void Leap(LeapDirections direction)
+    public void Leap(LeapDirections direction)
     {
-        if (!isBusy && isAlive)
-            if (leapRoutine == null)
-            {
-                if (direction == LeapDirections.Left && line == 0)
-                    return;
-                if (direction == LeapDirections.Right && line == 2)
-                    return;
+        if (!isBusy && isAlive && leapSkill != null)
+        {
+            if (direction == LeapDirections.Left && line == 0)
+                return;
+            if (direction == LeapDirections.Right && line == 2)
+                return;
 
-                leapRoutine = StartCoroutine(LeapRoutine(direction));
-                GameEvent.InvokeUnitLeap(this, direction);
-            }
+            leapSkill.direction = direction;
+            leapSkill.Use();
+        }
     }
 
-    protected IEnumerator LeapRoutine(LeapDirections direction)
+    public void Jump()
     {
-        isBusy = true;
-
-        if (direction == LeapDirections.Left)
-            animHandler.PlayAnimation("leapL");
-        if (direction == LeapDirections.Right)
-            animHandler.PlayAnimation("leapR");
-
-        // Ждем событие анимации - прыжок
-        yield return WaitForAnimationEvent(AnimationEvents.jumpStart);
-        isLeaping = true;
-
-        StartCoroutine(LeapTransitionRoutine(direction));
-
-        // Ждем событие анимации - конец прыжка
-        yield return WaitForAnimationEvent(AnimationEvents.jumpEnd);
-        isLeaping = false;
-
-        leapRoutine = null;
-        isBusy = false;
-
+        //Debug.Log($"{name} получил приказ прыгнуть");
+        if (!isBusy && isAlive && jumpSkill != null)
+            jumpSkill.Use();
     }
 
-    protected IEnumerator LeapTransitionRoutine(LeapDirections direction)
+    public void BreakJump()
     {
-        var speed = 1 / leapDuration;
-
-        int sign = (int)direction;
-        var targetPosition = transform.position + sign * transform.right;
-
-        if (direction == LeapDirections.Left)
-            while (transform.position.x > targetPosition.x)
-            {
-                transform.position -= transform.right * speed * Time.deltaTime;
-                if (transform.position.x <= targetPosition.x)
-                    break;
-                yield return null;
-            }
-        else if (direction == LeapDirections.Right)
-            while (transform.position.x < targetPosition.x)
-            {
-                transform.position += transform.right * speed * Time.deltaTime;
-                if (transform.position.x >= targetPosition.x)
-                    break;
-                yield return null;
-            }
-        transform.position = targetPosition;
-    }
-
-    public void SwitchBlockTo(Block block)
-    {
-        this.block = block;
+        if (isAlive && jumpSkill != null)
+            if (jumpSkill.state == SkillStates.casting)
+                jumpSkill.Cancel();
     }
 
     #endregion
@@ -160,55 +170,39 @@ public class Unit : MonoBehaviour
         health = Mathf.Clamp(health, 0, healthMax);
     }
 
-    public virtual void MeleeAttack()
+    public void Heal(float amount)
     {
-        if (!isBusy && isAlive && attackTimer <= 0)
-            if (castRoutine == null)
-            {
-                Stop();
-                GameEvent.InvokeUnitAttack(this);
-                castRoutine = StartCoroutine(MeleeAttackRoutine());
-                attackTimer = attackInterval;
-            }
-    }
-
-    protected IEnumerator MeleeAttackRoutine()
-    {
-        isBusy = true;
-        animHandler.PlayAnimation("attack");
-
-        // Ждем событие анимации - начало анимации
-        while (!animHandler.animEventCastStart)
-            yield return null;
-        animHandler.animEventCastStart = false;
-
-        // Ждем событие анимации - применение
-        while (!animHandler.animEventCast)
-            yield return null;
-        animHandler.animEventCast = false;
-        CastMeleeDamage();
-
-        // Ждем событие анимации - окончание анимации
-        while (!animHandler.animEventCastEnd)
-            yield return null;
-        animHandler.animEventCastEnd = false;
-
-        castRoutine = null;
-        isBusy = false;
-    }
-
-    protected void CastMeleeDamage()
-    {
-        var objects = Physics.OverlapSphere(attackPoint.position,attackAreaSize);
-        var impact = false;
-        foreach (var obj in objects)
+        AddHealth(amount);
+        foreach (var sticked in animHandler.stickedMissiles)
         {
-            var enemy = obj.GetComponent<Unit>();
-            if (enemy != null && enemy != this)
-                enemy.TakeDamage(meleeDamage);
+            sticked.SetParent(block.transform);
+            var body = sticked.GetComponent<Rigidbody>();
+            if (body)
+                body.isKinematic = false;
+        }
+        animHandler.stickedMissiles.Clear();
+    }
+
+    public void Attack()
+    {
+        if (!isBusy && isAlive && attackSkill != null)
+            attackSkill.Use();
+    }
+
+    public void CastDamage()
+    {
+        GameEvent.InvokeUnitAttack(this);
+
+        var units = GetUnitsInRange();
+
+        var impact = false;
+        foreach (var unit in units)
+        {
+            if (unit.isAlive)
+                unit.TakeDamage(meleeDamage, this);
 
             if (!impact)
-                impact = enemy != null;
+                impact = unit != null;
         }
         if (impact)
         {
@@ -221,30 +215,61 @@ public class Unit : MonoBehaviour
         }
     }
 
-    public virtual void TakeDamage(float damage)
+    public void Shoot()
     {
-        TakeDamage(damage, DamageSources.common);
+        if (!isBusy && isAlive && shootSkill != null && (ammo > 0 || unlimitedAmmo))
+            shootSkill.Use();
     }
 
-    public virtual void TakeDamage(float damage, DamageSources source)
+    public void CastMissile()
+    {
+        var missile = Instantiate(missilePref, shootPoint.position, Quaternion.identity);
+        switch (facing)
+        {
+            case Facing.forward:
+                missile.transform.localEulerAngles = new Vector3(0, 0, 0);
+                break;
+            case Facing.backward:
+                missile.transform.localEulerAngles = new Vector3(0, 180, 0);
+                break;
+        }
+        missile.caster = this;
+
+        ammo--;
+        animHandler.UpdateAmmoView();
+    }
+
+    public virtual void TakeDamage(float damage, Object source)
+    {
+        //Debug.Log($"{name} получает {damage} ед. урона от {source.name} (тип {source.GetType()})");
+
+        TakeDamage(damage, DamageType.common, source);
+    }
+
+    public virtual void TakeDamage(float damage, DamageType type, Object source)
     {
         if (!isAlive)
             return;
 
-        health -= damage;
-        if (health <= 0)
-            Die(source);
-        else
+        if (!(isDefending && source is Unit && type == DamageType.common))
+            DecHealth(damage);
+
+        if (health > 0)
             StartCoroutine(HitRoutine());
+        else
+            Die(type, source);
+
+        GameEvent.InvokeUnitDamage(this, damage, type, source);
     }
 
     protected IEnumerator HitRoutine()
     {
+        InterruptRoutines();
         isBusy = true;
 
-        animHandler.ClearFalgs();
-
+        animHandler.ClearEventFalgs();
         animHandler.PlayAnimation("hit");
+        //Debug.Log("Проигрываем анимацию получения урона");
 
         // Ждем событие анимации - начало анимации
         yield return WaitForAnimationEvent(AnimationEvents.start);
@@ -255,34 +280,32 @@ public class Unit : MonoBehaviour
         isBusy = false;
     }
 
-    public virtual void Die()
+    public virtual void Die(DamageType type, Object source)
     {
-        Die(DamageSources.common);
-    }
-
-    public virtual void Die(DamageSources source)
-    {
+        Stop();
         isAlive = false;
 
-        animHandler.ClearFalgs();
-        switch (source)
+        collider.enabled = false;
+        animHandler.ClearEventFalgs();
+        switch (type)
         {
-            case DamageSources.fall:
+            case DamageType.fall:
                 animHandler.PlayAnimation("dieFall");
                 break;
-            case DamageSources.fire:
+            case DamageType.fire:
                 animHandler.PlayAnimation("dieFire");
                 break;
-            case DamageSources.frost:
+            case DamageType.frost:
                 animHandler.PlayAnimation("dieFrost");
                 break;
-            case DamageSources.electro:
+            case DamageType.electro:
                 animHandler.PlayAnimation("dieElectro");
                 break;
             default:
                 animHandler.PlayAnimation("die");
                 break;
         }
+        GameEvent.InvokeUnitDie(this, type, source);
 
         if (isDecaying)
             Destroy(gameObject, decayDelay);
@@ -304,21 +327,6 @@ public class Unit : MonoBehaviour
                     yield return null;
                 animHandler.animEventEnd = false;
                 break;
-            //case AnimationEvents.leap:
-            //    while (!animHandler.animEventLeap)
-            //        yield return null;
-            //    animHandler.animEventLeap = false;
-            //    break;
-            case AnimationEvents.jumpStart:
-                while (!animHandler.animEventJumpStart)
-                    yield return null;
-                animHandler.animEventJumpStart = false;
-                break;
-            case AnimationEvents.jumpEnd:
-                while (!animHandler.animEventJumpEnd)
-                    yield return null;
-                animHandler.animEventJumpEnd = false;
-                break;
             case AnimationEvents.castStart:
                 while (!animHandler.animEventCastStart)
                     yield return null;
@@ -337,15 +345,11 @@ public class Unit : MonoBehaviour
         }
     }
 
-    protected virtual void InterruptRoutines()
+    protected void InterruptRoutines()
     {
-        if (castRoutine != null)
-            StopCoroutine(castRoutine);
-        castRoutine = null;
-
-        if (leapRoutine != null)
-            StopCoroutine(leapRoutine);
-        leapRoutine = null;
+        foreach (var skill in skills)
+            if (skill.isInterruptable)
+                skill.Interrupt();
     }
 
     public void PlayRandomSound(List<AudioClip> sounds)
@@ -375,9 +379,22 @@ public class Unit : MonoBehaviour
                 return animHandler.transform;
         }
     }
+
+    public List<Unit> GetUnitsInRange()
+    {
+        var units = new List<Unit>();
+        var objects = Physics.OverlapSphere(attackPoint.position, attackAreaSize);
+        foreach (var obj in objects)
+        {
+            var unit = obj.GetComponent<Unit>();
+            if (unit != null && unit != this)
+                units.Add(unit);
+        }
+        return units;
+    }
 }
 
 
 public enum Facing { forward = 1, backward = -1 }
 
-public enum DamageSources { common, fall, fire, frost, electro }
+public enum DamageType { common, fall, fire, frost, electro }

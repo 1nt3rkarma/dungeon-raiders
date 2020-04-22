@@ -12,5 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d722d3e708c3bfa4489fcedd9433095a, type: 3}
   m_Name: Game Resources
   m_EditorClassIdentifier: 
+  sellSound: {fileID: 8300000, guid: bcd6b34300bac6d4bb578b7c43fda013, type: 3}
+  defeatSound: {fileID: 8300000, guid: 5f605b4a68617cf44b7da3ecf98de628, type: 3}
+  music:
+  - {fileID: 8300000, guid: dedb131f35af23a46ab0d33dc2746a11, type: 3}
   itemDatabase:
   - {fileID: 11400000, guid: d44866549fca37042b6fab280251f738, type: 2}
+  - {fileID: 11400000, guid: ad89d5632c415444c976088e23ba718f, type: 2}

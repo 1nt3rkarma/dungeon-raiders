@@ -13,36 +13,52 @@ MonoBehaviour:
   m_Name: Level 1
   m_EditorClassIdentifier: 
   levelSteps: 75
+  generationSettings:
+    coinBasicChance: 0.1
+    coinArgentChance: 0.1
+    coinMinInterval: 7
+    coinMaxInterval: 9
+    gapBasicChance: 0.1
+    allowRowGap: 1
+    gapRowChance: 0.7
+    gapMinInterval: 11
+    gapMaxInterval: 13
+    gapSplitChance: 0.5
+    gapMinLength: 2
+    gapMaxLength: 3
   presetsParams:
   - presetPrefab: {fileID: 2634116897803227888, guid: 739a2c3af56ac524db8c58431267a0ea,
       type: 3}
     intervalMin: 5
     intervalMax: 12
-    basicChance: 0.1
+    basicChance: 0.35
     infinite: 0
     count: 1
-    allowItemsGeneration: 0
   - presetPrefab: {fileID: 174038032974737870, guid: 0b1f61eade25b5e428b30bedd176a033,
       type: 3}
     intervalMin: 5
     intervalMax: 12
-    basicChance: 0.1
+    basicChance: 0.35
     infinite: 0
     count: 1
-    allowItemsGeneration: 0
   - presetPrefab: {fileID: 2898986452370970045, guid: 541ecc4526b1f804c9f70cdd20130b59,
       type: 3}
     intervalMin: 3
     intervalMax: 15
-    basicChance: 0.3
+    basicChance: 0.6
     infinite: 0
-    count: 1
-    allowItemsGeneration: 0
-  - presetPrefab: {fileID: 3443010147217026440, guid: 63ba3d019ceeca743b638fa8a5b602cc,
+    count: 2
+  - presetPrefab: {fileID: 3443010147217026440, guid: 89b231dadca49af4c838952b862f0d6b,
       type: 3}
-    intervalMin: 1
-    intervalMax: 3
-    basicChance: 0.5
+    intervalMin: 2
+    intervalMax: 6
+    basicChance: 0.4
+    infinite: 0
+    count: 2
+  - presetPrefab: {fileID: 3443010147217026440, guid: ce59dba77619de940a2d19ab7e51a26d,
+      type: 3}
+    intervalMin: 2
+    intervalMax: 9
+    basicChance: 0.05
     infinite: 0
     count: 1
-    allowItemsGeneration: 0

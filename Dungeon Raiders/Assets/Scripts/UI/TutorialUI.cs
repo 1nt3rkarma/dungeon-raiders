@@ -68,10 +68,11 @@ public class TutorialUI : MonoBehaviourExtended
         SwitchPhase();
     }
 
-    protected override void OnHeroJump(Hero hero)
+    protected override void OnUnitJump(Unit unit)
     {
-        if (phase.catchAction == PlayerActions.HeroJumps)
-            CountAction();
+        if (unit is Hero)
+            if (phase.catchAction == PlayerActions.HeroJumps)
+                CountAction();
     }
 
     protected override void OnUnitLeap(Unit unit, LeapDirections direction)
@@ -94,13 +95,7 @@ public class TutorialUI : MonoBehaviourExtended
             CountAction();
     }
 
-    protected override void OnSingleTap()
-    {
-        if (phase.catchAction == PlayerActions.AnyInput)
-            CountAction();
-    }
-
-    protected override void OnTapHold()
+    protected override void OnStationary()
     {
         if (phase.catchAction == PlayerActions.AnyInput)
             CountAction();
@@ -174,8 +169,8 @@ public class TutorialUI : MonoBehaviourExtended
         Level.EnableGeneration();
         PlayerPrefs.SetInt("tutorial", 0);
         Player.needTutorial = false;
-        Player.stepsSession = 0;
-        Player.stepsLevel = 0;
+        Player.stepsTotal = 0;
+        Player.steps = 0;
         UI.ShowGameplayUI();
         Destroy(gameObject);
     }

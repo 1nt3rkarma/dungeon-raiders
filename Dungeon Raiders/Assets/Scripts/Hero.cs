@@ -31,8 +31,6 @@ public class Hero : Unit
 
         if (isAlive)
             CheckGround();
-
-        attackTimer -= Time.deltaTime;
     }
 
     static void InitSinglton(Hero instance)
@@ -51,37 +49,25 @@ public class Hero : Unit
 
         if (!isLeaping && !isFloating && block.isEmpty)
             if (heroZ > (blockZ - 0.5f + safeEdge) && heroZ < (blockZ + 0.5f - safeEdge))
-            {
-                Debug.Log($"Hero z: {heroZ}");
-                Debug.Log($"Block z: {blockZ}");
-                TakeDamage(health, DamageSources.fall);
-                if (blockZ < heroZ)
-                    Level.HaltFlow();
-            }
+                TakeDamage(health, DamageType.fall, null);
     }
 
     void CheckFront()
     {
-        var objects = forwardBlock.ScanObjects();
-        GameObject obstacle = null;
-        foreach (var obj in objects)
-            if (obstacle == null)
-            {
-                var searchEnemy = obj.GetComponent<Monster>();
-                if (searchEnemy != null)
-                    obstacle = searchEnemy.gameObject;
-            }
+        bool obstacle = false;
+        var units = GetUnitsInRange();
 
-        if (obstacle != null)
+        foreach (var unit in units)
         {
-            if (isMoving)
-                Stop();
+            var distance = Mathf.Abs(this.position.z - unit.position.z);
+            if (distance <= (attackRange + attackAreaSize) && !obstacle)
+                obstacle = true;
         }
-        else
-        {
-            if (!isBusy && !isMoving)
-                Move();
-        }
+
+        if (obstacle && isMoving)
+            Stop();
+        else if (!obstacle && !isBusy && !isMoving)
+            RequireMove();
     }
 
     public override void Stop()
@@ -90,83 +76,14 @@ public class Hero : Unit
         Player.StopMoving();
     }
 
-    void Move()
+    void RequireMove()
     {
         animHandler.SetMoveFlag(true);
         isMoving = true;
         Player.ContinueMoving();
     }
 
-    public void Jump()
-    {
-        if (!isBusy && isAlive)
-            if (jumpRoutine == null)
-                jumpRoutine = StartCoroutine(JumpRoutine());
-    }
-
-    IEnumerator JumpRoutine()
-    {
-        isBusy = true;
-
-        GameEvent.InvokeHeroJump(this);
-        animHandler.PlayAnimation("jump");
-
-        // Ждем событие анимации - прыжок
-        yield return WaitForAnimationEvent(AnimationEvents.jumpStart);
-        isFloating = true;
-
-
-        // Ждем событие анимации - прыжок закончен
-        yield return WaitForAnimationEvent(AnimationEvents.jumpEnd);
-        isFloating = false;
-
-
-        isBusy = false;
-        jumpRoutine = null;
-    }
-
     #endregion
-
-    #region Нанесение и получение урона
-
-    public override void TakeDamage(float damage)
-    {
-        TakeDamage(damage, DamageSources.common);
-    }
-
-    public override void TakeDamage(float damage, DamageSources source)
-    {
-        InterruptRoutines();
-        base.TakeDamage(damage, source);
-    }
-
-    public override void Die(DamageSources source)
-    {
-        base.Die(source);
-
-        Stop();
-
-        Player.Defeat();
-    }
-
-    #endregion
-
-    protected override void InterruptRoutines()
-    {
-        if (leapRoutine != null)
-            StopCoroutine(leapRoutine);
-        leapRoutine = null;
-        isLeaping = false;
-
-        if (jumpRoutine != null)
-            StopCoroutine(jumpRoutine);
-        jumpRoutine = null;
-        isFloating = false;
-
-        if (castRoutine != null)
-            StopCoroutine(castRoutine);
-        castRoutine = null;
-    }
 
     void OnDrawGizmosSelected()
     {

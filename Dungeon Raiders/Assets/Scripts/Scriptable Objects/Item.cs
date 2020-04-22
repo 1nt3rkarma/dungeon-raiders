@@ -13,6 +13,8 @@ public class Item : ScriptableObject
 
     public bool isExpendable = true;
 
+    public bool canBeSold = true;
+
     public virtual void Use()
     {
         Player.PlaySound(useSound);

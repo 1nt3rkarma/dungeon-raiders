@@ -9,19 +9,8 @@ public class Level : MonoBehaviour
     public static int level;
     public static int levelSteps;
 
-    public bool isMoving = true;
-
-    public float moveSpeed = 1;
-    public float distancePerCycle = 1;
-
-    public Row rowPref;
-    public List<Row> rows;
-
     public static bool generationEnabled = true;
-    public LevelGenerationSettings generator;
     public static int generationCount;
-
-    public List<LevelSettings> settings;
     public static LevelSettings activeSettings
     {
         get
@@ -34,7 +23,19 @@ public class Level : MonoBehaviour
                 return singlton.settings[level - 1];
         }
     }
+
+    public bool isMoving = true;
+
+    public float moveSpeed = 1;
+    private float shift = 0;
+
+    public Row rowPref;
+    public List<Row> rows;
+    public LevelGenerator generator;
+
+    public List<LevelSettings> settings;
     public int[] presetCounters;
+    public LevelPreset lastPreset;
 
     public int generationCountView;
     public bool generationEnabledView;
@@ -46,15 +47,31 @@ public class Level : MonoBehaviour
         InitSinglton(this);
     }
 
-    private void Start()
+    void Start()
     {
         SwitchLevel(1);
     }
 
     void Update()
     {
-        if (isMoving && flowRoutine == null)
-            flowRoutine = StartCoroutine(FlowRoutine());
+        //if (isMoving && flowRoutine == null)
+        //    flowRoutine = StartCoroutine(FlowRoutine());
+
+        if (isMoving)
+        {
+            if (shift > -1)
+            {
+                shift -= moveSpeed * Time.deltaTime;
+            }
+            else
+            {
+                GenerateNext();
+                DestroyRow(0);
+                shift += 1;
+                Player.AddStep();
+            }
+            SetRowsPosition(shift);
+        }
 
         generationCountView = generationCount;
         generationEnabledView = generationEnabled;
@@ -80,44 +97,6 @@ public class Level : MonoBehaviour
             rows[i].transform.localPosition = newPosition;
             rows[i].name = $"Row [{i}]";
         }
-    }
-
-    IEnumerator FlowRoutine()
-    {
-        var z = 0f;
-
-        // Создаем новый ряд
-        GenerateNext();
-
-        // Плавно сдвигаем ряды
-        while (z > -1)
-        {
-            z -= moveSpeed * Time.deltaTime;
-            SetRowsPosition(z);
-            yield return null;
-        }
-
-        //Удаляем старый ряд
-        DestroyRow(0);
-
-        //Выравнивам новую позицию блоков
-        SetRowsPosition(0);
-
-        // Засчитываем шаг
-        Player.AddStep();
-
-        StartFlow();
-    }
-
-    void StartFlow()
-    {
-        if (flowRoutine != null)
-            StopCoroutine(FlowRoutine());
-
-        if (!isMoving)
-            flowRoutine = null;
-        else
-            flowRoutine = StartCoroutine(FlowRoutine());
     }
 
     void DestroyRow(int index)
@@ -151,11 +130,20 @@ public class Level : MonoBehaviour
             {
                 var presetParams = GetPossiblePresets(generationCount);
 
+                if (lastPreset != null && presetParams.Count > 1)
+                {
+                    var checkRepeat = new List<LevelPresetParams>(presetParams);
+                    foreach (var param in checkRepeat)
+                        if (param.presetPrefab == lastPreset)
+                            presetParams.Remove(param);
+                }
+
                 if (presetParams.Count > 0)
                 {
                     var random = Random.Range(0, presetParams.Count);
                     var presetParam = presetParams[random];
                     var preset = Instantiate(presetParam.presetPrefab);
+                    lastPreset = presetParam.presetPrefab;
 
                     int index = activeSettings.presetsParams.IndexOf(presetParam);
                     if (!presetParam.infinite)
@@ -218,7 +206,7 @@ public class Level : MonoBehaviour
         return presetsPossible;
     }
 
-    public static Block GetNearestBlock(Vector3 serachPosition)
+    public static Block GetBlock(Vector3 serachPosition)
     {
         Block wanted = singlton.rows[1].blocks[1];
         var sqrDistanceMin = 100f;
@@ -258,13 +246,6 @@ public class Level : MonoBehaviour
         return null;
     }
 
-    public static void HaltFlow()
-    {
-        StopFlow();
-        if (singlton.flowRoutine != null)
-            singlton.StopCoroutine(singlton.flowRoutine);
-    }
-
     public static void StopFlow()
     {
         singlton.isMoving = false;
@@ -300,5 +281,112 @@ public class Level : MonoBehaviour
     public static void DisableGeneration()
     {
         generationEnabled = false;
+    }
+}
+
+[System.Serializable]
+public class LevelGenerator : object
+{
+    public LevelGenerationSettings generationSettings { get => Level.activeSettings.generationSettings; }
+
+    public Coin coinPref;
+    public Coin coinArgentPref;
+
+    public int coinSpawnCounter = 0;
+
+    public int gapSpawnCounter = 0;
+    public int gapTempCounter = 0;
+    public int gapTempWidth = 1;
+    public int[] gapTempLineIndexes;
+
+    public void GenerateRandomObjects(Row row)
+    {
+        coinSpawnCounter++;
+
+        var blocks = row.GetSolidBlocks();
+        if (blocks.Count == 0)
+            return;
+
+        if (coinSpawnCounter >= generationSettings.coinMinInterval
+            && coinSpawnCounter <= generationSettings.coinMaxInterval)
+        {
+            var delta = Mathf.Abs(generationSettings.coinMaxInterval - generationSettings.coinMinInterval);
+            var temp = Mathf.Abs(coinSpawnCounter - generationSettings.coinMinInterval);
+            var chance = generationSettings.coinBasicChance + (float)temp / delta;
+            var roll = Random.Range(0f, 0.99f);
+
+            if (chance >= roll)
+            {
+                int rand = Random.Range(0, blocks.Count);
+                var block = blocks[rand];
+
+                chance = generationSettings.coinArgentChance;
+                roll = Random.Range(0f, 0.99f);
+                Coin coin;
+                if (chance >= roll)
+                    coin = Object.Instantiate(coinArgentPref, block.transform);
+                else
+                    coin = Object.Instantiate(coinPref, block.transform);
+
+                coin.transform.localPosition = Vector3.zero;
+                coinSpawnCounter = 0;
+            }
+        }
+    }
+
+    public void GenerateGaps(Row row)
+    {
+        if (gapTempCounter == 0)
+        {
+            gapSpawnCounter++;
+            if (gapSpawnCounter >= generationSettings.gapMinInterval
+                && gapSpawnCounter <= generationSettings.gapMaxInterval)
+            {
+                var delta = Mathf.Abs(generationSettings.gapMaxInterval - generationSettings.gapMinInterval);
+                var temp = Mathf.Abs(gapSpawnCounter - generationSettings.gapMinInterval);
+                var chance = generationSettings.gapBasicChance + temp / delta;
+                var roll = Random.Range(0f, 0.99f);
+
+                if (chance >= roll)
+                {
+                    var rollRowGap = generationSettings.gapRowChance > Random.Range(0, 0.99f);
+                    if (rollRowGap && generationSettings.allowRowGap)
+                    {
+                        gapSpawnCounter = 0;
+
+                        // Генерация одного пустого ряда
+                        foreach (var block in row.blocks)
+                            block.MakeEmpty();
+                    }
+                    else
+                    {
+                        gapSpawnCounter = 0;
+
+                        // Установка параметров генерации пропасти
+                        // в длинну на несколько рядов и линий
+                        gapTempCounter = Random.Range(generationSettings.gapMinLength, 
+                                                      generationSettings.gapMaxLength + 1);
+
+                        var rollSplit = generationSettings.gapSplitChance > Random.Range(0, 0.99f);
+
+                        if (rollSplit)
+                            gapTempLineIndexes = new int[] { 0, 2 };
+                        else
+                            gapTempLineIndexes = new int[] { 1 };
+                    }
+                }
+            }
+        }
+        else
+        {
+            // Генерация очередного ряда
+            // пропасти по заданным параметрам
+            gapTempCounter--;
+            for (int i = 0; i < gapTempLineIndexes.Length; i++)
+            {
+                int index = gapTempLineIndexes[i];
+                row.blocks[index].MakeEmpty();
+            }
+        }
     }
 }

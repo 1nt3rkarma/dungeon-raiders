@@ -6,7 +6,9 @@ public class CameraController : MonoBehaviour
 {
     public static CameraController singlton;
 
-    public new Camera camera;
+    public Camera cameraMain;
+    public Camera cameraMainRender;
+    public Camera cameraIntro;
 
     public Vector3 positionDefault;
     public float sizeDefault;
@@ -39,8 +41,8 @@ public class CameraController : MonoBehaviour
         }
         else
         {
-            singlton.camera.transform.position = point;
-            singlton.camera.orthographicSize = size;
+            singlton.cameraMain.transform.position = point;
+            singlton.cameraMain.orthographicSize = size;
         }
     }
     
@@ -63,39 +65,37 @@ public class CameraController : MonoBehaviour
         }
         else
         {
-            singlton.camera.transform.position = point;
-            singlton.camera.orthographicSize = size;
+            singlton.cameraMain.transform.position = point;
+            singlton.cameraMain.orthographicSize = size;
         }
     }
 
     IEnumerator MoveCameraOverTimeLerpRoutine(float time, Vector3 point)
     {
         var timer = 0f;
-        var speed = Vector3.Magnitude(point - camera.transform.position) / time;
+        var speed = Vector3.Magnitude(point - cameraMain.transform.position) / time;
 
-        while (Vector3.Distance(camera.transform.position, point) > 0.05f)
+        while (Vector3.Distance(cameraMain.transform.position, point) > 0.05f)
         {
             timer += Time.deltaTime;
-            camera.transform.position = Vector3.Lerp(camera.transform.position, point, speed * Time.deltaTime);
+            cameraMain.transform.position = Vector3.Lerp(cameraMain.transform.position, point, speed * Time.deltaTime);
             yield return null;
         }
-        camera.transform.position = point;
-        //Debug.Log($"Заданное время: {time}");
-        //Debug.Log($"Исполнение заняло: {timer}");
+        cameraMain.transform.position = point;
     }
 
     IEnumerator SetCameraSizeOverTimeLerpRoutine(float time, float size)
     {
-        var delta = Mathf.Abs(camera.orthographicSize - size);
+        var delta = Mathf.Abs(cameraMain.orthographicSize - size);
         var speed = delta / time;
 
         while (delta > 0.1)
         {
-            camera.orthographicSize = Mathf.Lerp(camera.orthographicSize, size, speed * Time.deltaTime);
-            delta = Mathf.Abs(camera.orthographicSize - size);
+            cameraMain.orthographicSize = Mathf.Lerp(cameraMain.orthographicSize, size, speed * Time.deltaTime);
+            delta = Mathf.Abs(cameraMain.orthographicSize - size);
             yield return null;
         }
-        camera.orthographicSize = size;
+        cameraMain.orthographicSize = size;
     }
 
 }

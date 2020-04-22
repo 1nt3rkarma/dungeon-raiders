@@ -102,7 +102,6 @@ public class Isometrics : MonoBehaviour
         Vector2 axisDirection = axisPos - positionDown;
 
         var angle = Vector2.SignedAngle(axisDirection, direction);
-        DebugMobile.PrintLabel3($"Swipe angle: {angle}");
         return angle;
     }
 

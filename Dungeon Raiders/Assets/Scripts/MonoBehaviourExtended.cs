@@ -14,18 +14,21 @@ public class MonoBehaviourExtended : MonoBehaviour
     {
         // События пользовательского ввода
 
-        GameEvent.onSingleTapEvent      += OnSingleTap;
-        GameEvent.onDoubleTapEvent      += OnDoubleTap;
-        GameEvent.onTapHoldEvent        += OnTapHold;
-        GameEvent.onSwipeEvent          += OnSwipe;
-        GameEvent.onTapPressEvent       += OnTapPress;
-        GameEvent.onTapReleaseEvent     += OnTapRelease;
+        GameEvent.onStationaryEvent  += OnStationary;
+        GameEvent.onSwipeEvent       += OnSwipe;
+        GameEvent.onPressEvent       += OnPress;
+        GameEvent.onReleaseEvent     += OnRelease;
 
         // События игровой логики
+        // Действия Юнита
         GameEvent.onUnitLeapEvent       += OnUnitLeap;
         GameEvent.onUnitAttackEvent     += OnUnitAttack;
-        GameEvent.onHeroJumpEvent       += OnHeroJump;
+        GameEvent.onUnitDamageEvent     += OnUnitDamage;
+        GameEvent.onUnitDieEvent        += OnUnitDie;
+        GameEvent.onUnitJumpEvent       += OnUnitJump;
+        // Действия Героя
         GameEvent.onHeroPicksItem       += OnHeroPicksItem;
+        // Действия Игрока
         GameEvent.onPlayerUseItem       += OnPlayerUseItem;
 
     }
@@ -35,45 +38,38 @@ public class MonoBehaviourExtended : MonoBehaviour
 
         // События пользовательского ввода
 
-        GameEvent.onSingleTapEvent      -= OnSingleTap;
-        GameEvent.onDoubleTapEvent      -= OnDoubleTap;
-        GameEvent.onTapHoldEvent        -= OnTapHold;
-        GameEvent.onSwipeEvent          -= OnSwipe;
-        GameEvent.onTapPressEvent       -= OnTapPress;
-        GameEvent.onTapReleaseEvent     -= OnTapRelease;
+        GameEvent.onStationaryEvent  -= OnStationary;
+        GameEvent.onSwipeEvent       -= OnSwipe;
+        GameEvent.onPressEvent       -= OnPress;
+        GameEvent.onReleaseEvent     -= OnRelease;
 
         // События игровой логики
+        // Действия Юнита
         GameEvent.onUnitLeapEvent       -= OnUnitLeap;
         GameEvent.onUnitAttackEvent     -= OnUnitAttack;
-        GameEvent.onHeroJumpEvent       -= OnHeroJump;
+        GameEvent.onUnitDamageEvent     -= OnUnitDamage;
+        GameEvent.onUnitDieEvent        -= OnUnitDie;
+        GameEvent.onUnitJumpEvent       -= OnUnitJump;
+        // Действия Героя
         GameEvent.onHeroPicksItem       -= OnHeroPicksItem;
+        // Действия Игрока
         GameEvent.onPlayerUseItem       -= OnPlayerUseItem;
 
     }
 
     #region События пользовательского вввода
 
-    protected virtual void OnTapPress()
+    protected virtual void OnPress()
     {
 
     }
 
-    protected virtual void OnTapRelease()
+    protected virtual void OnRelease()
     {
 
     }
 
-    protected virtual void OnSingleTap()
-    {
-
-    }
-
-    protected virtual void OnDoubleTap()
-    {
-
-    }
-
-    protected virtual void OnTapHold()
+    protected virtual void OnStationary()
     {
 
     }
@@ -87,7 +83,7 @@ public class MonoBehaviourExtended : MonoBehaviour
 
     #region События игровой логики
 
-    #region Действия героя
+    #region Действия Юнита
 
     protected virtual void OnUnitLeap(Unit unit, LeapDirections direction)
     {
@@ -99,20 +95,38 @@ public class MonoBehaviourExtended : MonoBehaviour
 
     }
 
-    protected virtual void OnHeroJump(Hero hero)
+    protected virtual void OnUnitDamage(Unit unit, float damage, DamageType type, UnityEngine.Object source)
     {
 
     }
+
+    protected virtual void OnUnitDie(Unit unit, DamageType type, UnityEngine.Object source)
+    {
+
+    }
+
+    protected virtual void OnUnitJump(Unit unit)
+    {
+
+    }
+
+    #region Действия Героя
 
     protected virtual void OnHeroPicksItem(Hero hero, Item item)
     {
 
     }
 
+    #endregion
+
+    #region Действия Игрока
+
     protected virtual void OnPlayerUseItem(Item item)
     {
 
     }
+
+    #endregion
 
     #endregion
 
@@ -123,53 +137,46 @@ public static class GameEvent
 {
     #region События пользовательского ввода
 
+    public static event Action onPressEvent;
+    public static void InvokePress()
+    {
+        //Debug.Log("Заметили НАЖАТИЕ");
+
+        if (onPressEvent != null)
+            onPressEvent();
+    }
+
+    public static event Action onReleaseEvent;
+    public static void InvokeRelease()
+    {
+        //Debug.Log("Заметили ОТПУСКАНИЕ");
+        if (onReleaseEvent != null)
+            onReleaseEvent();
+    }
+
     public static event Action<SwipeDirections> onSwipeEvent;
     public static void InvokeSwipe(SwipeDirections direction)
     {
+        //Debug.Log("Произошел СВАЙП");
+
         if (onSwipeEvent != null)
             onSwipeEvent(direction);
     }
 
-    public static event Action onTapPressEvent;
-    public static void InvokeTapPress()
+    public static event Action onStationaryEvent;
+    public static void InvokeStationary()
     {
-        if (onTapPressEvent != null)
-            onTapPressEvent();
-    }
+        //Debug.Log("Произошло УДЕРЖАНИЕ");
 
-    public static event Action onTapReleaseEvent;
-    public static void InvokeTapRelease()
-    {
-        if (onTapReleaseEvent != null)
-            onTapReleaseEvent();
-    }
-
-    public static event Action onSingleTapEvent;
-    public static void InvokeSingleTap()
-    {
-        if (onSingleTapEvent != null)
-            onSingleTapEvent();
-    }
-
-    public static event Action onDoubleTapEvent;
-    public static void InvokeDoubleTap()
-    {
-        if (onDoubleTapEvent != null)
-            onDoubleTapEvent();
-    }
-
-    public static event Action onTapHoldEvent;
-    public static void InvokeTapHold()
-    {
-        if (onTapHoldEvent != null)
-            onTapHoldEvent();
+        if (onStationaryEvent != null)
+            onStationaryEvent();
     }
 
     #endregion
 
     #region События игровой логики
 
-    #region Действия героя
+    #region Действия Юнита
 
     public static event Action<Unit, LeapDirections> onUnitLeapEvent;
     public static void InvokeUnitLeap(Unit unit, LeapDirections direction)
@@ -183,13 +190,6 @@ public static class GameEvent
             onUnitLeapEvent(unit, LeapDirections.None);
     }
 
-    public static event Action<Hero> onHeroJumpEvent;
-    public static void InvokeHeroJump(Hero hero)
-    {
-        if (onHeroJumpEvent != null)
-            onHeroJumpEvent(hero);
-    }
-
     public static event Action<Unit> onUnitAttackEvent;
     public static void InvokeUnitAttack(Unit unit)
     {
@@ -197,12 +197,41 @@ public static class GameEvent
             onUnitAttackEvent(unit);
     }
 
+    public static event Action<Unit, float, DamageType, UnityEngine.Object> onUnitDamageEvent;
+    public static void InvokeUnitDamage(Unit unit, float damage, DamageType type, UnityEngine.Object source)
+    {
+        if (onUnitDamageEvent != null)
+            onUnitDamageEvent(unit, damage, type, source);
+    }
+
+    public static event Action<Unit, DamageType, UnityEngine.Object> onUnitDieEvent;
+    public static void InvokeUnitDie(Unit unit, DamageType type, UnityEngine.Object source)
+    {
+        if (onUnitDieEvent != null)
+            onUnitDieEvent(unit, type, source);
+    }
+
+    public static event Action<Unit> onUnitJumpEvent;
+    public static void InvokeUnitJump(Unit unit)
+    {
+        if (onUnitJumpEvent != null)
+            onUnitJumpEvent(unit);
+    }
+
+    #endregion
+
+    #region Действия Героя
+
     public static event Action<Hero, Item> onHeroPicksItem;
     public static void InvokeHeroPicksItem(Hero hero, Item item)
     {
         if (onHeroPicksItem != null)
             onHeroPicksItem(hero, item);
     }
+
+    #endregion
+
+    #region Действия Игрока
 
     public static event Action<Item> onPlayerUseItem;
     public static void InvokePlayerUseItem(Item item)
@@ -214,5 +243,4 @@ public static class GameEvent
     #endregion
 
     #endregion
-
 }

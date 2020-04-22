@@ -30,9 +30,9 @@ public class Potion : Item
         {
             case HeroResources.health:
                 if (full)
-                    Hero.singlton.AddHealth(10);
+                    Hero.singlton.Heal(10);
                 else
-                    Hero.singlton.AddHealth(1);
+                    Hero.singlton.Heal(1);
                 break;
             case HeroResources.mana:
                 break;

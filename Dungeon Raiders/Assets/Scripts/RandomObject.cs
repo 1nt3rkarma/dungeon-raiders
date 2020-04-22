@@ -4,63 +4,69 @@ using UnityEngine;
 
 public class RandomObject : MonoBehaviour
 {
-    [HideInInspector]
-    public List<RandomObject> affects;
-    [HideInInspector]
-    public List<bool> exclude;
-    [HideInInspector]
-    public List<bool> decrease;
-    [HideInInspector]
-    public List<float> decreaseRate;
-    [HideInInspector]
-    public List<bool> increase;
-    [HideInInspector]
-    public List<float> increaseRate;
+    public RandomObjectLineBehaviours lineBehaviour;
 
+    public List<RandomObjectType> typesList;
 
-    [HideInInspector]
-    public List<GameObject> types;
-    [HideInInspector]
-    public List<float> chances;
-    [HideInInspector]
-    public List<bool> randomLines;
+    public List<float> chances
+    {
+        get
+        {
+            var chances = new List<float>();
+            foreach (var t in typesList)
+                chances.Add(t.chance);
+            return chances;
+        }
+    }
 
     public void Generate()
     {
         var index = MathUtilities.GetRandomIndexFromListOfChances(chances);
         if (index >= 0)
         {
-            var type = types[index];
+            var randomType = typesList[index];
 
-            int count = affects.Count;
-            for (int i = 0; i < count; i++)
+            if (randomType != null)
             {
-                var affectedTypeIndex = affects[i].types.IndexOf(type);
-                if (affectedTypeIndex != -1)
+                // Влияем на указанные объекты
+                foreach (var affected in randomType.affectedObjects)
                 {
-                    if (increase[i])
-                        affects[i].IncreaseChance(affectedTypeIndex, increaseRate[i]);
-
-                    if (decrease[i])
-                        affects[i].DecreaseChance(affectedTypeIndex, decreaseRate[i]);
-
-                    if (exclude[i])
-                        affects[i].SetChance(affectedTypeIndex, 0);
+                    foreach (var t in affected.randomObject.typesList)
+                    {
+                        if (t.prefab == randomType.prefab)
+                            switch (affected.affectionBehaviour)
+                            {
+                                case RandomObjectAffectBehaviours.exclude:
+                                    t.SetChance(0);
+                                    break;
+                                case RandomObjectAffectBehaviours.decrease:
+                                    t.IncreaseChance(affected.increaseRate);
+                                    break;
+                                case RandomObjectAffectBehaviours.increase:
+                                    t.DecreaseChance(affected.decreaseRate);
+                                    break;
+                            }
+                    }
                 }
-            }
 
-            if (type != null)
-            {
+                // Покидаем квантовую суперпозицию
                 var position = transform.position;
 
-                if (randomLines[index])
+                if (lineBehaviour == RandomObjectLineBehaviours.random)
                 {
                     var localPosition = transform.localPosition;
                     position -= localPosition;
                     position += Vector3.right * Random.Range(0, 3);
                 }
 
-                var obj = Instantiate(type, position, Quaternion.identity);
+                if (lineBehaviour == RandomObjectLineBehaviours.mimic)
+                {
+                    var localPosition = transform.localPosition;
+                    position -= localPosition;
+                    position += Vector3.right * Hero.singlton.line;
+                }
+
+                var obj = Instantiate(randomType.prefab, position, Quaternion.identity);
 
                 obj.transform.SetParent(transform.parent);
             }
@@ -69,46 +75,85 @@ public class RandomObject : MonoBehaviour
         Destroy(this.gameObject);
     }
 
-    void IncreaseChance(int index, float value)
+    List<float> GetChances()
     {
-        SetChance(index, chances[index] += value);
-    }
-
-    void DecreaseChance(int index, float value)
-    {
-        SetChance(index, chances[index] -= value);
-    }
-
-    void SetChance(int index, float value)
-    {
-        chances[index] = value;
-        chances[index] = Mathf.Clamp(chances[index], 0, 1);
+        var chances = new List<float>();
+        foreach (var t in typesList)
+            chances.Add(t.chance);
+        return chances;
     }
 
     private void OnDrawGizmosSelected()
     {
-
-        for (int i = 0; i < affects.Count; i++)
+        foreach (var type in typesList)
         {
-            if (affects[i] == null)
-                continue;
+            foreach (var affected in type.affectedObjects)
+            {
+                if (affected.randomObject == null)
+                    continue;
 
-            if (increase[i])
-                Gizmos.color = Color.green;
-            if (decrease[i])
-                Gizmos.color = Color.yellow;
-            if (exclude[i])
-                Gizmos.color = Color.red;
+                var direction = affected.randomObject.transform.position - this.transform.position;
+                direction.Normalize();
 
-            var direction = affects[i].transform.position - this.transform.position;
-            direction.Normalize();
-            var shift = 1f;
+                var center = this.transform.position + 2 * Vector3.up;
+                var target = affected.randomObject.transform.position + Vector3.up;
 
-            var center = this.transform.position + 2*Vector3.up;
-            var target = affects[i].transform.position + Vector3.up;
-
-            Gizmos.DrawWireSphere(center, 0.15f);
-            Gizmos.DrawLine(center, target);
+                switch (affected.affectionBehaviour)
+                {
+                    case RandomObjectAffectBehaviours.exclude:
+                        Gizmos.color = Color.red;
+                        break;
+                    case RandomObjectAffectBehaviours.decrease:
+                        Gizmos.color = Color.yellow;
+                        break;
+                    case RandomObjectAffectBehaviours.increase:
+                        Gizmos.color = Color.green;
+                        break;
+                }
+                Gizmos.DrawWireSphere(center, 0.15f);
+                Gizmos.DrawLine(center, target);
+            }
         }
     }
 }
+
+[System.Serializable]
+public class RandomObjectType : object
+{
+    public GameObject prefab;
+    [Range(0.01f, 1)]
+    public float chance;
+
+    public List<RandomObjectAffected> affectedObjects;
+
+    public void IncreaseChance(float value)
+    {
+        SetChance(chance += value);
+    }
+
+    public void DecreaseChance(float value)
+    {
+        SetChance(chance -= value);
+    }
+
+    public void SetChance(float value)
+    {
+        chance = Mathf.Clamp(value, 0, 1);
+    }
+}
+
+public enum RandomObjectLineBehaviours { none, random, mimic }
+
+[System.Serializable]
+public class RandomObjectAffected : object
+{
+    public RandomObject randomObject;
+
+    public float decreaseRate;
+    public float increaseRate;
+
+    public RandomObjectAffectBehaviours affectionBehaviour;
+}
+
+public enum RandomObjectAffectBehaviours { exclude, decrease, increase }
+
