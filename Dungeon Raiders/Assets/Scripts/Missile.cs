@@ -37,9 +37,13 @@ public class Missile : MonoBehaviour
         if (unit)
             if (unit.isAlive && unit != caster)
             {
-                Player.PlaySound(hitSound);
                 var effect = Instantiate(hitEffect,
                     unit.GetUnitPoint(UnitBodyPoints.chest).position, transform.rotation);
+
+                var audioSource = effect.GetComponent<AudioSource>();
+                if (audioSource && hitSound != null && !unit.isDefending)
+                    audioSource.PlayOneShot(hitSound);
+
 
                 if (sticks)
                     StickTo(unit);
@@ -77,9 +81,6 @@ public class Missile : MonoBehaviour
             SetRandomPosition(model, targetPoint.randomPositionDeltas);
             unit.animHandler.stickedMissiles.Add(model.transform);
         }
-        else
-            Debug.Log("Не удалось обнаружить точки прикрепления");
-
     }
 
     void DecreaseSize(GameObject model)

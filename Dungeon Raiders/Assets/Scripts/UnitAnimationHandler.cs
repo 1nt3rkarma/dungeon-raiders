@@ -39,7 +39,9 @@ public class UnitAnimationHandler : MonoBehaviour
     public GameObject remains;
     public float remainsDecay = 7;
 
+    [Tooltip("Points to which missiles stick when unit is defended by shield for example")]
     public List<StickPoint> defendStickPoints;
+    [Tooltip("Points to which missiles stick")]
     public List<StickPoint> defaultStickPoints;
     public List<Transform> stickedMissiles;
 
@@ -221,6 +223,18 @@ public class UnitAnimationHandler : MonoBehaviour
             if(unit.isDecaying)
                 Destroy(part.gameObject, remainsDecay);
         }
+    }
+
+    public void ReleaseSticked()
+    {
+        foreach (var sticked in stickedMissiles)
+        {
+            sticked.SetParent(unit.block.transform);
+            var body = sticked.GetComponent<Rigidbody>();
+            if (body)
+                body.isKinematic = false;
+        }
+        stickedMissiles.Clear();
     }
 
     public void EnableWeaponTrail()

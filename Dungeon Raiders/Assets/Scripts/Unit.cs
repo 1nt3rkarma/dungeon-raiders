@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Unit : MonoBehaviour
+public class Unit : MonoBehaviour, IObstacle
 {
     [Header("Common unit properties")]
 
@@ -122,6 +122,10 @@ public class Unit : MonoBehaviour
         //Debug.Log($"{name} остановился");
     }
 
+    #endregion
+
+    #region Взаимодействие со способностями
+
     public void Leap(LeapDirections direction)
     {
         if (!isBusy && isAlive && leapSkill != null)
@@ -138,16 +142,25 @@ public class Unit : MonoBehaviour
 
     public void Jump()
     {
-        //Debug.Log($"{name} получил приказ прыгнуть");
-        if (!isBusy && isAlive && jumpSkill != null)
-            jumpSkill.Use();
+        Use(jumpSkill);
     }
 
     public void BreakJump()
     {
-        if (isAlive && jumpSkill != null)
-            if (jumpSkill.state == SkillStates.casting)
-                jumpSkill.Cancel();
+        Cancel(jumpSkill);
+    }
+
+    public void Use(Skill skill)
+    {
+        if (!isBusy && isAlive && skills.Contains(skill))
+            skill.Use();
+    }
+
+    public void Cancel(Skill skill)
+    {
+        if (isAlive && skills.Contains(skill))
+            if (skill.state == SkillStates.casting)
+                skill.Cancel();
     }
 
     #endregion
@@ -173,14 +186,8 @@ public class Unit : MonoBehaviour
     public void Heal(float amount)
     {
         AddHealth(amount);
-        foreach (var sticked in animHandler.stickedMissiles)
-        {
-            sticked.SetParent(block.transform);
-            var body = sticked.GetComponent<Rigidbody>();
-            if (body)
-                body.isKinematic = false;
-        }
-        animHandler.stickedMissiles.Clear();
+
+        animHandler.ReleaseSticked();
     }
 
     public void Attack()
@@ -195,23 +202,36 @@ public class Unit : MonoBehaviour
 
         var units = GetUnitsInRange();
 
+        var withSound = true;
         var impact = false;
         foreach (var unit in units)
         {
             if (unit.isAlive)
+            {
                 unit.TakeDamage(meleeDamage, this);
 
-            if (!impact)
-                impact = unit != null;
+                if (withSound && unit.isDefending)
+                    withSound = false;
+
+                if (!impact)
+                    impact = unit != null;
+            }
         }
         if (impact)
         {
-            animHandler.PlayImpactMeleeSound();
             var x = Random.Range(-0.3f, 0.3f);
             var y = Random.Range(-0.3f, 0.3f);
             var z = Random.Range(-0.3f, 0.3f);
             var randomShift = new Vector3(x, y, z);
             var effect = Instantiate(hitEffect, attackPoint.position + randomShift, Quaternion.identity);
+
+            var audioSource = effect.GetComponent<AudioSource>();
+            if (audioSource && withSound)
+            {
+                var sound = GetRandomSound(animHandler.impactMeleeSounds);
+                if (sound != null)
+                    audioSource.PlayOneShot(sound);
+            }
         }
     }
 
@@ -269,7 +289,8 @@ public class Unit : MonoBehaviour
 
         animHandler.ClearEventFalgs();
         animHandler.PlayAnimation("hit");
-        //Debug.Log("Проигрываем анимацию получения урона");
+        if (isDefending)
+            PlayRandomSound(animHandler.impactBlockSounds);
 
         // Ждем событие анимации - начало анимации
         yield return WaitForAnimationEvent(AnimationEvents.start);
@@ -352,13 +373,20 @@ public class Unit : MonoBehaviour
                 skill.Interrupt();
     }
 
-    public void PlayRandomSound(List<AudioClip> sounds)
+    public AudioClip GetRandomSound(List<AudioClip> sounds)
     {
         if (sounds.Count == 0)
-            return;
-        audioSource.Stop();
+            return null;
+
         var i = Random.Range(0, sounds.Count);
-        audioSource.PlayOneShot(sounds[i]);
+        return sounds[i];
+    }
+
+    public void PlayRandomSound(List<AudioClip> sounds)
+    {
+        var sound = GetRandomSound(sounds);
+        if (sound != null)
+            audioSource.PlayOneShot(sound);
     }
 
     public Transform GetUnitPoint(UnitBodyPoints point)
@@ -392,9 +420,25 @@ public class Unit : MonoBehaviour
         }
         return units;
     }
+
+    public List<GameObject> GetObstaclesInRange()
+    {
+        var obstacles = new List<GameObject>();
+
+        var colliders = Physics.OverlapSphere(attackPoint.position, attackAreaSize);
+        foreach (var collider in colliders)
+        {
+            var obstacle = collider.GetComponent<IObstacle>();
+            if (obstacle != null && collider != this.gameObject)
+                obstacles.Add(collider.gameObject);
+        }
+        return obstacles;
+    }
 }
 
 
 public enum Facing { forward = 1, backward = -1 }
 
 public enum DamageType { common, fall, fire, frost, electro }
+
+public interface IObstacle { }

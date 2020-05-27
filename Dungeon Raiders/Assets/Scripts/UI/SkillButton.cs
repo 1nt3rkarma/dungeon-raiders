@@ -6,6 +6,7 @@ using UnityEngine.UI;
 public class SkillButton : MonoBehaviour
 {
     public Skill skill;
+    public Unit caster;
 
     public RectTransform rect;
     public float heightDefaut;
@@ -25,9 +26,35 @@ public class SkillButton : MonoBehaviour
 
     public bool isPressed = false;
 
-    public void Init(Skill skill, float w, float h)
+    private void Start()
+    {
+        Init();
+    }
+
+    private void Init()
+    {
+        icon.sprite = skill.icon;
+        iconDisabled.sprite = skill.iconDisabled;
+
+        icon.enabled = true;
+        background.enabled = true;
+
+        iconDisabled.enabled = false;
+        backgroundDisabled.enabled = false;
+
+        frame.color = frameNormal;
+        frame.fillAmount = 1;
+
+        heightDefaut = rect.sizeDelta.x;
+        widthDefaut = rect.sizeDelta.x;
+
+        ResetSize();
+    }
+
+    public void Init(Unit caster, Skill skill, float w, float h)
     {
         this.skill = skill;
+        this.caster = caster;
 
         icon.sprite = skill.icon;
         iconDisabled.sprite = skill.iconDisabled;
@@ -49,6 +76,10 @@ public class SkillButton : MonoBehaviour
 
     void Update()
     {
+
+        if (isPressed && skill.state == SkillStates.idling)
+            caster.Use(skill);
+
         if (skill.state == SkillStates.idling && skill.cooldown > 0 && skill.cooldownTimer > 0)
         {
             icon.enabled = false;
@@ -83,13 +114,13 @@ public class SkillButton : MonoBehaviour
 
     public void OnPress()
     {
-        skill.Use();
+        caster.Use(skill);
         isPressed = true;
     }
 
     public void OnRelease()
     {
-        skill.Cancel();
+        caster.Cancel(skill);
         isPressed = false;
     }
 

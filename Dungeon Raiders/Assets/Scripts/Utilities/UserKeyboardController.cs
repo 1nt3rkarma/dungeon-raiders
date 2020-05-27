@@ -10,20 +10,66 @@ public class UserKeyboardController : MonoBehaviour
     public float holdThreshold = 0.1f;
     public float holdTimer = 0;
 
+    public KeyCode swipeUpKey = KeyCode.W;
+    public KeyCode swipeDownKey = KeyCode.S;
+    public KeyCode swipeLeftKey = KeyCode.A;
+    public KeyCode swipeRightKey = KeyCode.D;
+    public KeyCode tapKey = KeyCode.Space;
+
+    [Space]
+    public KeyCode item1Key = KeyCode.Alpha1;
+    public KeyCode item2Key = KeyCode.Alpha2;
+    public KeyCode item3Key = KeyCode.Alpha3;
+
+    [Space]
+    public SkillUI skillUI;
+    public KeyCode skillKey = KeyCode.E;
+
     [Header("Debugging")]
 
     public bool pressCaptured;
     public bool actionCaptured;
 
+    public bool AnyKey()
+    {
+        if (Input.GetKey(swipeUpKey))
+            return true;
+        if (Input.GetKey(swipeDownKey))
+            return true;
+        if (Input.GetKey(swipeLeftKey))
+            return true;
+        if (Input.GetKey(swipeRightKey))
+            return true;
+        if (Input.GetKey(tapKey))
+            return true;
+
+        return false;
+    }
+
+    public bool AnyKeyDown()
+    {
+        if (Input.GetKeyDown(swipeUpKey))
+            return true;
+        if (Input.GetKeyDown(swipeDownKey))
+            return true;
+        if (Input.GetKeyDown(swipeLeftKey))
+            return true;
+        if (Input.GetKeyDown(swipeRightKey))
+            return true;
+        if (Input.GetKeyDown(tapKey))
+            return true;
+
+        return false;
+    }
 
     void Update()
     {
         if (!Player.controllEnabled)
             return;
 
-        if (Input.anyKey && !Input.GetMouseButton(0) && !Input.GetMouseButton(1))
+        if (AnyKey())
         {
-            if (Input.anyKeyDown && !Input.GetMouseButtonDown(0) && !Input.GetMouseButtonDown(1))
+            if (AnyKeyDown())
                 CatchPress();
             else
             {
@@ -36,9 +82,9 @@ public class UserKeyboardController : MonoBehaviour
                     else
                     {
                         var dirHorizontal = 0;
-                        if (Input.GetKey(KeyCode.A))
+                        if (Input.GetKey(swipeLeftKey))
                             dirHorizontal -= 1;
-                        if (Input.GetKey(KeyCode.D))
+                        if (Input.GetKey(swipeRightKey))
                             dirHorizontal += 1;
 
                         if (dirHorizontal == 1)
@@ -47,9 +93,9 @@ public class UserKeyboardController : MonoBehaviour
                             CatchSwipe(SwipeDirections.Left);
 
                         var dirVertical = 0;
-                        if (Input.GetKey(KeyCode.W))
+                        if (Input.GetKey(swipeUpKey))
                             dirVertical += 1;
-                        if (Input.GetKey(KeyCode.S))
+                        if (Input.GetKey(swipeDownKey))
                             dirVertical -= 1;
 
                         if (dirVertical == 1)
@@ -63,6 +109,17 @@ public class UserKeyboardController : MonoBehaviour
         else
             CatchRelease();
 
+        if (Input.GetKeyDown(item1Key))
+            Player.UseItem(0);
+        if (Input.GetKeyDown(item2Key))
+            Player.UseItem(1);
+        if (Input.GetKeyDown(item3Key))
+            Player.UseItem(2);
+
+        if (Input.GetKeyDown(skillKey))
+            skillUI.mainButton.OnPress();
+        else if (Input.GetKeyUp(skillKey))
+            skillUI.mainButton.OnRelease();
     }
 
     void CatchPress()

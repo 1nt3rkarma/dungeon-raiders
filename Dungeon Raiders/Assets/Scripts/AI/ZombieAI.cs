@@ -11,35 +11,23 @@ public class ZombieAI : MonsterAI
         if (monster.forwardBlock != null)
         {
             Hero hero = SearchHeroInLine();
-            bool obstacle = false;
+            bool thereIsAnObstacle = false;
 
-            var units = zombie.GetUnitsInRange();
+            var obstacles = zombie.GetObstaclesInRange();
 
-            foreach (var unit in units)
-            {
-                var distance = Mathf.Abs(zombie.position.z - unit.position.z);
-                if (distance <= (zombie.attackRange + zombie.attackAreaSize) && !obstacle)
-                    obstacle = true;
-            }
+            if (!thereIsAnObstacle && obstacles.Count > 0)
+                thereIsAnObstacle = true;
 
             if (hero != null)
-            {
-                var delta = MathUtilities.LineDelta(zombie, hero);
-                var distance = Mathf.Abs(zombie.position.z - hero.position.z);
+                if (hero.isAlive && obstacles.Contains(hero.gameObject))
+                    OrderAttack();
 
-                if (delta > -1 && distance <= (zombie.attackRange + zombie.attackAreaSize))
-                {
-                    obstacle = true;
 
-                    if (hero.isAlive)
-                        OrderAttack();
-                }
-            }
-
-            if (monster.canWalk && !obstacle && (!monster.forwardBlock.isEmpty || !avoidGaps))
+            if (monster.canWalk && !thereIsAnObstacle && (!monster.forwardBlock.isEmpty || !avoidGaps))
                 OrderMove();
             else if (monster.isMoving)
                 OrderStop();
+
         }
     }
 }

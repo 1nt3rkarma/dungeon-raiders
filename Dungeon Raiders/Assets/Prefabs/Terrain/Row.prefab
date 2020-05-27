@@ -54,7 +54,6 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
-  m_RayTracingMode: 2
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -103,7 +102,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6510996518251171073}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.5, y: 0, z: -0.5}
+  m_LocalPosition: {x: -0.5, y: 1, z: -0.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 7305801811894195092}
@@ -156,8 +155,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ea57df37ba79c348b3b8fd8a8912bac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isPopedUp: 0
-  animate: 0
   blocks:
   - {fileID: 4846283897560131239}
   - {fileID: 8180494739568096651}
@@ -167,7 +164,6 @@ MonoBehaviour:
   - {fileID: 5807034653075779087}
   - {fileID: 7026876237876265078}
   - {fileID: 1561155704653799557}
-  fadeSpeed: 1.5
 --- !u!1001 &4903065771382176045
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -54,19 +54,15 @@ public class Hero : Unit
 
     void CheckFront()
     {
-        bool obstacle = false;
-        var units = GetUnitsInRange();
+        bool therIsAnObstacle = false;
+        var obstacles = GetObstaclesInRange();
 
-        foreach (var unit in units)
-        {
-            var distance = Mathf.Abs(this.position.z - unit.position.z);
-            if (distance <= (attackRange + attackAreaSize) && !obstacle)
-                obstacle = true;
-        }
+        if (!therIsAnObstacle && obstacles.Count > 0)
+            therIsAnObstacle = true;
 
-        if (obstacle && isMoving)
+        if (therIsAnObstacle && isMoving)
             Stop();
-        else if (!obstacle && !isBusy && !isMoving)
+        else if (!therIsAnObstacle && !isBusy && !isMoving)
             RequireMove();
     }
 

@@ -57,7 +57,14 @@ MonoBehaviour:
     count: 2
   - presetPrefab: {fileID: 3443010147217026440, guid: ce59dba77619de940a2d19ab7e51a26d,
       type: 3}
-    intervalMin: 2
+    intervalMin: 7
+    intervalMax: 9
+    basicChance: 0.05
+    infinite: 0
+    count: 1
+  - presetPrefab: {fileID: 6398052157361785386, guid: 14ccd830124537f43afe47cc0e706d2f,
+      type: 3}
+    intervalMin: 7
     intervalMax: 9
     basicChance: 0.05
     infinite: 0

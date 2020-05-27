@@ -33,6 +33,7 @@ public class UI : MonoBehaviour
     {
         if (fisrtLaunch)
         {
+            CameraController.FocusHero();
             startUI.PopUp();
             fisrtLaunch = false;
         }
@@ -79,11 +80,12 @@ public class UI : MonoBehaviour
         if (Player.needTutorial || Player.showHints)
         {
             tutorialUI.Run();
+            ShowGameplayUI();
         }
         else
         {
             Destroy(tutorialUI.gameObject);
-            gameplayUI.gameObject.SetActive(true);
+            ShowGameplayUI();
         }
 
         startUI.Fade();

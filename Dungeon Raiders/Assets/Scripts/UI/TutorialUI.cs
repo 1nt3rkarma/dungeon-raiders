@@ -6,10 +6,10 @@ using UnityEngine.UI;
 
 public class TutorialUI : MonoBehaviourExtended
 {
+    public Image tintGameplay;
+
     public Animator animatorScreen;
     public Animator animatorVisualHint;
-
-    public ResourceBar progressBar;
 
     public Text textMain;
     public Text textNext;
@@ -52,11 +52,6 @@ public class TutorialUI : MonoBehaviourExtended
     private void OnDestroy()
     {
         UnsubsribeToGameEvents();
-    }
-
-    private void Update()
-    {
-        progressBar.SetValue((float)actionsTotal / actionsMax);
     }
 
     public void Run()
@@ -146,21 +141,16 @@ public class TutorialUI : MonoBehaviourExtended
         else
             Hero.singlton.isListening = true;
 
-        switch (phase.catchAction)
-        {
-            case PlayerActions.HeroJumps:
-                animatorVisualHint.SetTrigger("tap");
-                break;
-            case PlayerActions.HeroLeaps:
-                animatorVisualHint.SetTrigger("swipeRL");
-                break;
-            case PlayerActions.HeroAttacks:
-                animatorVisualHint.SetTrigger("swipeForward");
-                break;
-            case PlayerActions.HeroUseSkill:
-                //animatorVisualHint.SetTrigger("tap");
-                break;
-        }
+        if (phase.needTint)
+            tintGameplay.enabled = true;
+        else
+            tintGameplay.enabled = false;
+
+        if (phase.hintAnimationTag != "")
+            animatorVisualHint.SetTrigger(phase.hintAnimationTag);
+        else
+            animatorVisualHint.SetTrigger("none");
+
     }
 
     void FinishTutorial()
@@ -187,4 +177,7 @@ public class TutorialPhase : object
     public int actionsCount;
     public bool forceHeroIngnorance;
     public PlayerActions catchAction;
+
+    public string hintAnimationTag;
+    public bool needTint;
 }

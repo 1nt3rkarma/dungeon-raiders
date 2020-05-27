@@ -23,12 +23,11 @@ MonoBehaviour:
     gapRowChance: 0.5
     gapMinInterval: 11
     gapMaxInterval: 13
+    gapSplitChance: 0.5
     gapMinLength: 2
     gapMaxLength: 3
-    gapMinWigth: 1
-    gapMaxWigth: 2
   presetsParams:
-  - presetPrefab: {fileID: 3443010147217026440, guid: 1ab910b70dedcc44a947fcc12f915e7c,
+  - presetPrefab: {fileID: 6398052157361785386, guid: 14ccd830124537f43afe47cc0e706d2f,
       type: 3}
     intervalMin: 10
     intervalMax: 15

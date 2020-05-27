@@ -90,3 +90,10 @@ MonoBehaviour:
     basicChance: 0.5
     infinite: 0
     count: 1
+  - presetPrefab: {fileID: 6398052157361785386, guid: 14ccd830124537f43afe47cc0e706d2f,
+      type: 3}
+    intervalMin: 3
+    intervalMax: 15
+    basicChance: 0.5
+    infinite: 0
+    count: 2

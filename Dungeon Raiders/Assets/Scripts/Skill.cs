@@ -45,7 +45,7 @@ public class Skill : MonoBehaviourExtended
 
     [HideInInspector]
     public Unit caster;
-    [HideInInspector]
+    //[HideInInspector]
     public SkillStates state;
 
     // Не забудь скопировать потомкам
@@ -85,7 +85,10 @@ public class Skill : MonoBehaviourExtended
                 {
                     case SkillModes.singleAnimation:
                         if (CatchAnimationFlag(AnimationEvents.castEnd))
+                        {
+                            CastEnded();
                             FinishScenario();
+                        }
                         break;
                     case SkillModes.controlledTime:
                         if (((castTimer >= castTimeMax && !unlimited) || (castTimer >= castTimeMin && isCanceled)) && !isExpired)

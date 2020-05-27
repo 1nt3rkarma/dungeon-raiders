@@ -94,6 +94,7 @@ public class Player : MonoBehaviourExtended
 
     public AudioMixer audioMixer;
     public GameResources resourceFile;
+    public static GameResources resources { get => singlton.resourceFile; }
 
     public AudioSource audioSourceMusic;
     public AudioSource audioSourceEffects;
@@ -179,9 +180,6 @@ public class Player : MonoBehaviourExtended
                 case SwipeDirections.Left:
                     OrderLeap(LeapDirections.Left);
                     break;
-                case SwipeDirections.Up:
-                    OrderAttack();
-                    break;
                 default:
                     break;
             }
@@ -224,12 +222,14 @@ public class Player : MonoBehaviourExtended
 
     public static void UseItem(int index)
     {
-        UseItem(inventory[index]);
+        if (index < inventory.Count && inventory.Count != 0)
+            UseItem(inventory[index]);
     }
 
     public static void UseItem(Item item)
     {
-        item.Use();
+        if (item != null)
+            item.Use();
     }
 
     public static void AddItem(Item item)
@@ -387,6 +387,8 @@ public class Player : MonoBehaviourExtended
 
     #endregion
 
+    #region Музыка и звуки
+
     static void EnableMusic(bool mode)
     {
         if (mode)
@@ -425,6 +427,8 @@ public class Player : MonoBehaviourExtended
     {
         singlton.audioSourceEffects.PlayOneShot(sound);
     }
+
+    #endregion
 
     public static void ReloadLevel()
     {

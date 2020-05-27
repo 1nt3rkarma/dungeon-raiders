@@ -8,17 +8,23 @@ public class LevelProgressUI : MonoBehaviour
     public ResourceBar bar;
     public Text label;
 
-    public int m, s;
-
+    public TutorialUI tutorialUI;
 
     private void Update()
     {
-        label.text = $"LEVEL {Level.level}";
-        var max = Level.levelSteps;
-        m = max;
-        var steps = Player.steps;
-        s = steps;
-
-        bar.SetValue((float)steps / max);
+        if (tutorialUI != null)
+        {
+            label.text = $"TUTORIAL";
+            var max = tutorialUI.actionsMax;
+            var steps = tutorialUI.actionsTotal;
+            bar.SetValue((float)steps / max);
+        }
+        else
+        {
+            label.text = $"LEVEL {Level.level}";
+            var max = Level.levelSteps;
+            var steps = Player.steps;
+            bar.SetValue((float)steps / max);
+        }
     }
 }

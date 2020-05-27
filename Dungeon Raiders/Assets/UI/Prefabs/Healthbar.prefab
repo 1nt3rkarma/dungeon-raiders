@@ -60,6 +60,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 0.3301887, b: 0.3301887, a: 0.5019608}
   m_RaycastTarget: 1
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -133,6 +134,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 0.16981131, b: 0.16981131, a: 1}
   m_RaycastTarget: 1
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -157,7 +159,7 @@ GameObject:
   - component: {fileID: 7046376072783505862}
   - component: {fileID: 7046376072783505881}
   m_Layer: 5
-  m_Name: Healthbar
+  m_Name: HealthBar
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -183,7 +185,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
   m_AnchoredPosition: {x: 112, y: 0}
-  m_SizeDelta: {x: 186, y: 186}
+  m_SizeDelta: {x: 172, y: 172}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &7046376072783505881
 MonoBehaviour:
@@ -259,10 +261,11 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 0.40224773, b: 0, a: 0}
   m_RaycastTarget: 1
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: b61099cd81a710846854892cc99f2c0f, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 14030296eac81ea4d9c7005d0bbc5662, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1

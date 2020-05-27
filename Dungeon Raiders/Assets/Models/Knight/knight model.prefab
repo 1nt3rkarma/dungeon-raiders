@@ -274,6 +274,7 @@ SkinnedMeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -366,8 +367,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 007f138df6fe9a941abc6db3b30c5477, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  randomRotationDeltas: {x: 3, y: 4, z: 5}
-  randomPositionDeltas: {x: 0.05, y: 0.05, z: 0.05}
+  randomRotationDeltas: {x: 7, y: 4, z: 5}
+  randomPositionDeltas: {x: 0.02, y: 0.05, z: 0.05}
 --- !u!1 &1966368157102560466
 GameObject:
   m_ObjectHideFlags: 0
@@ -511,12 +512,10 @@ MonoBehaviour:
   handLeftPoint: {fileID: 4552278096915744671}
   overheadPoint: {fileID: 8881953702192746646}
   animEventStart: 0
-  animEventEnd: 0
-  animEventJumpStart: 0
-  animEventJumpEnd: 0
   animEventCastStart: 0
   animEventCast: 0
   animEventCastEnd: 0
+  animEventEnd: 0
 --- !u!1 &2598640964323074812
 GameObject:
   m_ObjectHideFlags: 0
@@ -607,6 +606,7 @@ SkinnedMeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -985,6 +985,7 @@ TrailRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 0
   m_ReflectionProbeUsage: 0
+  m_RayTracingMode: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -1150,8 +1151,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 007f138df6fe9a941abc6db3b30c5477, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  randomRotationDeltas: {x: 3, y: 4, z: 5}
-  randomPositionDeltas: {x: 0.05, y: 0.05, z: 0.05}
+  randomRotationDeltas: {x: 7, y: 4, z: 5}
+  randomPositionDeltas: {x: 0.02, y: 0.05, z: 0.05}
 --- !u!1 &7032804335765576180
 GameObject:
   m_ObjectHideFlags: 0
@@ -1197,6 +1198,7 @@ SkinnedMeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:

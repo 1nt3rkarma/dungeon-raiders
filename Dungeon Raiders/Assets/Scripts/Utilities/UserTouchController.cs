@@ -18,7 +18,6 @@ public class UserTouchController : MonoBehaviour
 
     private Vector2 touchPosDown;
     private Vector2 touchPosUp;
-    private float touchDelta = 0;
 
     [Header("Debugging")]
 

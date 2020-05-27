@@ -32,6 +32,12 @@ public class Leap : Skill
         GameEvent.InvokeUnitLeap(caster, direction);
     }
 
+    protected override void CastEnded()
+    {
+        base.CastEnded();
+        RequestAnimation("leapEnd");
+    }
+
     IEnumerator TransitionRoutine(LeapDirections direction)
     {
         var speed = 1 / caster.leapDuration;
