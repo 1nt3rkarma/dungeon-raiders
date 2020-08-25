@@ -12,9 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 62382c9699923dd4981abfcdbcc6c296, type: 3}
   m_Name: Healing Potion Small
   m_EditorClassIdentifier: 
-  icon: {fileID: 21300000, guid: 421ec3b15ef2d4745b0cf73be498058d, type: 3}
+  icon: {fileID: 21300000, guid: c1f2113f362c88143aa5fe7cda36e418, type: 3}
   useSound: {fileID: 8300000, guid: 38b187c215f0c12459341abf77b04273, type: 3}
   price: 100
   isExpendable: 1
+  canBeSold: 1
   full: 0
   resource: 0

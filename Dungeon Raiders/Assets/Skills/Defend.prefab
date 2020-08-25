@@ -45,13 +45,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mode: 1
   drawUIButton: 1
-  icon: {fileID: 21300000, guid: b3fe18c884bec98408a1a88592049bb1, type: 3}
-  iconDisabled: {fileID: 21300000, guid: e9dd0a3c09970a64188da0eeb7e4171e, type: 3}
+  icon: {fileID: 21300000, guid: 1a58346430c8062468ecd9a5f36a968f, type: 3}
+  iconDisabled: {fileID: 21300000, guid: f467baba1c63c464291122bc3b52631b, type: 3}
   animationTagDelay: 
   animationTagCast: 
-  animEventCastStart: 2
-  animEventCast: 3
-  animEventCastEnd: 4
   isOccupying: 1
   requireStop: 1
   isInterruptable: 0
@@ -64,8 +61,8 @@ MonoBehaviour:
   castTimeMin: 0.3
   castTimeMax: 1.5
   unlimited: 1
-  castTimer: 0
   freeCancel: 1
+  castTimer: 0
   isCanceled: 0
   isExpired: 0
   caster: {fileID: 0}

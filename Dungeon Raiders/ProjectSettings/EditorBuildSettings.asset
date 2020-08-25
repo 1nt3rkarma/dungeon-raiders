@@ -4,5 +4,8 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/IconsCapture/ScreenshotCapture.unity
+    guid: 8505a949790ebc24e9c799cee5e95ef5
   m_configObjects: {}

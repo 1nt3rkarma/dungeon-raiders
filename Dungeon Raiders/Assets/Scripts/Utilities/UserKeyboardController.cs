@@ -23,7 +23,8 @@ public class UserKeyboardController : MonoBehaviour
 
     [Space]
     public SkillUI skillUI;
-    public KeyCode skillKey = KeyCode.E;
+    public KeyCode skill1Key = KeyCode.Q;
+    public KeyCode skill2Key = KeyCode.E;
 
     [Header("Debugging")]
 
@@ -116,10 +117,15 @@ public class UserKeyboardController : MonoBehaviour
         if (Input.GetKeyDown(item3Key))
             Player.UseItem(2);
 
-        if (Input.GetKeyDown(skillKey))
-            skillUI.mainButton.OnPress();
-        else if (Input.GetKeyUp(skillKey))
-            skillUI.mainButton.OnRelease();
+        if (Input.GetKeyDown(skill1Key))
+            skillUI.button1.OnPress();
+        else if (Input.GetKeyUp(skill1Key))
+            skillUI.button1.OnRelease();
+
+        if (Input.GetKeyDown(skill2Key))
+            skillUI.button2.OnPress();
+        else if (Input.GetKeyUp(skill2Key))
+            skillUI.button2.OnRelease();
     }
 
     void CatchPress()

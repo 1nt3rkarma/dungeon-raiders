@@ -45,8 +45,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mode: 0
   drawUIButton: 0
-  icon: {fileID: 21300000, guid: 861c2994a9bc38e45985454c95d8f20c, type: 3}
-  iconDisabled: {fileID: 21300000, guid: baf3927c6e7144f41b7c53f893d07c20, type: 3}
+  icon: {fileID: 21300000, guid: 9451f2fed7ed4014080573aaa985ed04, type: 3}
+  iconDisabled: {fileID: 21300000, guid: 2d30390c360d528409515a5d1cd72acf, type: 3}
   animationTagDelay: 
   animationTagCast: attack
   isOccupying: 1

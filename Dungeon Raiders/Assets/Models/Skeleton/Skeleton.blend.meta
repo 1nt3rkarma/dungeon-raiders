@@ -9,9 +9,34 @@ ModelImporter:
   - first:
       74: -623603649343465320
     second: Scene
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: SkeletonBones
+    second: {fileID: 2100000, guid: d591c64b1aa8e7e489cd4050b203e894, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: SkeletonCuiras
+    second: {fileID: 2100000, guid: 5a89ca6536154c0498267ed6988e9453, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: SkeletonHoles
+    second: {fileID: 2100000, guid: e5fe9c9d888560e4ba47b6c32a4c3c8e, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: SkeletonLeather
+    second: {fileID: 2100000, guid: 38bbba15f2610a04e8bccaecabf88f17, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: SkeletonSteel
+    second: {fileID: 2100000, guid: 5918d22a3772a4e4f9100ae09da3ddc7, type: 2}
   materials:
-    materialImportMode: 1
+    materialImportMode: 0
     materialName: 0
     materialSearch: 1
     materialLocation: 1

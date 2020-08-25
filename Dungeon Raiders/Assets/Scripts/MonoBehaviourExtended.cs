@@ -157,7 +157,7 @@ public static class GameEvent
     public static event Action<SwipeDirections> onSwipeEvent;
     public static void InvokeSwipe(SwipeDirections direction)
     {
-        //Debug.Log("Произошел СВАЙП");
+        //Debug.Log($"Произошел СВАЙП: {direction}");
 
         if (onSwipeEvent != null)
             onSwipeEvent(direction);

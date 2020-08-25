@@ -51,7 +51,7 @@ public class SkillButton : MonoBehaviour
         ResetSize();
     }
 
-    public void Init(Unit caster, Skill skill, float w, float h)
+    public void Init(Unit caster, Skill skill)
     {
         this.skill = skill;
         this.caster = caster;
@@ -67,9 +67,6 @@ public class SkillButton : MonoBehaviour
 
         frame.color = frameNormal;
         frame.fillAmount = 1;
-
-        heightDefaut = h;
-        widthDefaut = w;
 
         ResetSize();
     }
@@ -126,17 +123,11 @@ public class SkillButton : MonoBehaviour
 
     public void DecreaseSize()
     {
-        float w = widthDefaut * (1- sizeDecOnPress);
-        float h = heightDefaut * (1 - sizeDecOnPress);
-
-        rect.sizeDelta = new Vector2(w, h);
+        rect.localScale = new Vector3(1 - sizeDecOnPress, 1 - sizeDecOnPress, 1);
     }
 
     public void ResetSize()
     {
-        float w = widthDefaut;
-        float h = heightDefaut;
-
-        rect.sizeDelta = new Vector2(w, h);
+        rect.localScale = new Vector3(1, 1, 1);
     }
 }

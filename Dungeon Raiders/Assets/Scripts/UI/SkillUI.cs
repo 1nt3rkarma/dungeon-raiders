@@ -7,28 +7,26 @@ public class SkillUI : MonoBehaviour
     public RectTransform rect;
 
     public SkillButton buttonPref;
-    public SkillButton mainButton;
+    public SkillButton button1;
+    public SkillButton button2;
 
-    void Start()
-    {
-        Init(Hero.singlton.skills, Hero.singlton);
-    }
+    //void Start()
+    //{
+    //    Init(Hero.singlton.skills, Hero.singlton);
+    //}
 
-    void Init(List<Skill> skills, Unit unit)
-    {
-        foreach (var skill in skills)
-            if (skill.drawUIButton)
-                mainButton = CreateButton(skill, unit);
-    }
+    //void Init(List<Skill> skills, Unit unit)
+    //{
+    //    foreach (var skill in skills)
+    //        if (skill.drawUIButton)
+    //            mainButton = CreateButton(skill, unit);
+    //}
 
     SkillButton CreateButton(Skill skill, Unit unit)
     {
         SkillButton button = Instantiate(buttonPref, rect);
 
-        var w = buttonPref.rect.sizeDelta.x;
-        var h = buttonPref.rect.sizeDelta.x;
-
-        button.Init(unit, skill, w, h);
+        button.Init(unit, skill);
         return button;
     }
 }
