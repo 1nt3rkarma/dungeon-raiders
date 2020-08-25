@@ -1339,7 +1339,7 @@ MonoBehaviour:
     hintAnimationTag: skills
     needTint: 1
   - label: Attacking
-    text: USE RIGHT SKILL BUTTON TO ATTACK
+    text: USE LEFT SKILL BUTTON TO ATTACK
     actionsCount: 2
     forceHeroIngnorance: 0
     catchAction: 3
