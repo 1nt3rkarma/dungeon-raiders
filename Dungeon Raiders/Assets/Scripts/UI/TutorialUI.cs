@@ -121,7 +121,7 @@ public class TutorialUI : MonoBehaviourExtended
         }
         else
         {
-            FinishTutorial();
+            StartCoroutine(FinishTutorial());
         }
     }
 
@@ -153,8 +153,10 @@ public class TutorialUI : MonoBehaviourExtended
 
     }
 
-    void FinishTutorial()
+    IEnumerator FinishTutorial()
     {
+        yield return new WaitForEndOfFrame();
+
         Hero.singlton.isListening = true;
         Level.EnableGeneration();
         PlayerPrefs.SetInt("tutorial", 0);

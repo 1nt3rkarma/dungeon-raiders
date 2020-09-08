@@ -164,7 +164,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3115648736836994057}
   m_LocalRotation: {x: -0, y: 1, z: -0, w: 0.0000029504295}
-  m_LocalPosition: {x: 0.5, y: 0.35, z: -4.369}
+  m_LocalPosition: {x: 0, y: 0.35, z: -4.369}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 2009559121816632709}
@@ -220,8 +220,12 @@ MonoBehaviour:
   hitEffect: {fileID: 100002, guid: e1b6d2407a88ac446b711af6e72376d9, type: 3}
   hitSound: {fileID: 8300000, guid: 71ca24332dac56f48a6df28f8083fdd2, type: 3}
   model: {fileID: 2518736269890929329}
-  sticks: 1
+  canStick: 1
   stickSizeDecrease: 0.2
+  canBreak: 1
+  shardsPrefab: {fileID: 2437352423936617513, guid: 1573507278736934082ed57c5b9ecf8e,
+    type: 3}
+  breakChance: 1
   caster: {fileID: 0}
 --- !u!1001 &974704363747939730
 PrefabInstance:

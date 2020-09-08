@@ -23,7 +23,7 @@ public class Unit : MonoBehaviour, IObstacle
     public GameObject hitEffect;
     public float attackRange { get => Mathf.Abs(attackPoint.localPosition.z); }
 
-    public Missile missilePref;
+    public Projectile missilePref;
     public Transform shootPoint;
     public int ammoMax;
     public int ammo;

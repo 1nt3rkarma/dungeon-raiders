@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-public class Missile : MonoBehaviour
+public class Projectile : MonoBehaviour
 {
     public float basicHieght = 0.35f;
 
@@ -15,8 +15,14 @@ public class Missile : MonoBehaviour
     public AudioClip hitSound;
 
     public GameObject model;
-    public bool sticks;
+    public bool canStick;
     public float stickSizeDecrease = 0.15f;
+
+    public bool canBreak;
+    public Shards shardsPrefab;
+
+    [Range(0,1f)]
+    public float breakChance = 0.5f;
 
     [HideInInspector]
     public Unit caster;
@@ -44,9 +50,24 @@ public class Missile : MonoBehaviour
                 if (audioSource && hitSound != null && !unit.isDefending)
                     audioSource.PlayOneShot(hitSound);
 
+                if (!unit.isDefending)
+                {
+                    if (canStick)
+                        StickTo(unit);
+                }
+                else
+                {
+                    if (canStick && !canBreak)
+                        StickTo(unit);
+                    if (!canStick && canBreak)
+                        BreakOff(unit);
+                    if (canStick && canBreak)
+                        if (!RandomExtensions.Bool(breakChance))
+                            StickTo(unit);
+                        else
+                            BreakOff(unit);
+                }
 
-                if (sticks)
-                    StickTo(unit);
 
                 unit.TakeDamage(damage, caster);
 
@@ -79,8 +100,15 @@ public class Missile : MonoBehaviour
             model.transform.position = targetPoint.transform.position;
             AddRandomRotation(model, targetPoint.randomRotationDeltas);
             SetRandomPosition(model, targetPoint.randomPositionDeltas);
-            unit.animHandler.stickedMissiles.Add(model.transform);
+            unit.animHandler.stickedProjectiles.Add(model.transform);
         }
+    }
+
+    void BreakOff(Unit unit)
+    {
+        var shards = Instantiate(shardsPrefab, transform.position, transform.rotation);
+        shards.transform.SetParent(unit.block.transform);
+        shards.SimulateExplosion();
     }
 
     void DecreaseSize(GameObject model)

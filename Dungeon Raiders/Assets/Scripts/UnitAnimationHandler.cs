@@ -39,11 +39,11 @@ public class UnitAnimationHandler : MonoBehaviour
     public GameObject remains;
     public float remainsDecay = 7;
 
-    [Tooltip("Points to which missiles stick when unit is defended by shield for example")]
+    [Tooltip("Points to which projectiles stick when unit is defended by shield for example")]
     public List<StickPoint> defendStickPoints;
-    [Tooltip("Points to which missiles stick")]
+    [Tooltip("Points to which projectiles stick")]
     public List<StickPoint> defaultStickPoints;
-    public List<Transform> stickedMissiles;
+    public List<Transform> stickedProjectiles;
 
     [Header("Debugging")]
 
@@ -201,7 +201,7 @@ public class UnitAnimationHandler : MonoBehaviour
 
     public void ReleaseBodyparts()
     {
-        foreach (var sticked in stickedMissiles)
+        foreach (var sticked in stickedProjectiles)
         {
             var body = sticked.GetComponent<Rigidbody>();
             if (body)
@@ -227,14 +227,14 @@ public class UnitAnimationHandler : MonoBehaviour
 
     public void ReleaseSticked()
     {
-        foreach (var sticked in stickedMissiles)
+        foreach (var sticked in stickedProjectiles)
         {
             sticked.SetParent(unit.block.transform);
             var body = sticked.GetComponent<Rigidbody>();
             if (body)
                 body.isKinematic = false;
         }
-        stickedMissiles.Clear();
+        stickedProjectiles.Clear();
     }
 
     public void EnableWeaponTrail()
