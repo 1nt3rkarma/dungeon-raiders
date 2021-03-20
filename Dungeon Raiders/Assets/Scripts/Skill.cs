@@ -109,6 +109,8 @@ public class Skill : MonoBehaviourExtended
 
     public void Use()
     {
+        Debug.LogError($"{transform.root.name} IS TRYING TO USE {name}");
+
         if (charges > 0 && state == SkillStates.idling)
             Activate();
     }
@@ -146,7 +148,7 @@ public class Skill : MonoBehaviourExtended
 
     protected void Activate()
     {
-        //Debug.Log($"{name} активирован");
+        Debug.Log($"{name} IS ACTIVATED");
         if (prepareTime > 0)
         {
             state = SkillStates.preparing;

@@ -10,9 +10,9 @@ MeshCollider:
   m_Material: {fileID: 13400000, guid: 5a626fb33796dad41a0d654d95ce3891, type: 2}
   m_IsTrigger: 0
   m_Enabled: 1
-  serializedVersion: 3
+  serializedVersion: 4
   m_Convex: 1
-  m_CookingOptions: 14
+  m_CookingOptions: 30
   m_Mesh: {fileID: 4686849319519084627, guid: 5d599512b7bd2c34e88363d8deb3c8be, type: 3}
 --- !u!1 &8263659711918681893
 GameObject:
@@ -118,6 +118,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -222,6 +223,16 @@ PrefabInstance:
       propertyPath: m_Materials.Array.data[1]
       value: 
       objectReference: {fileID: 2100000, guid: 31e767ed23a11a34ea7be7c0755a2ad2, type: 2}
+    - target: {fileID: -1504981713932161579, guid: 5d599512b7bd2c34e88363d8deb3c8be,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: f75f6790386e89845b3a90ff94511bc6, type: 2}
+    - target: {fileID: -1504981713932161579, guid: 5d599512b7bd2c34e88363d8deb3c8be,
+        type: 3}
+      propertyPath: m_Materials.Array.data[2]
+      value: 
+      objectReference: {fileID: 2100000, guid: b78fdcebec5a020429aa79ce5533a25d, type: 2}
     - target: {fileID: -927199367670048503, guid: 5d599512b7bd2c34e88363d8deb3c8be,
         type: 3}
       propertyPath: m_Name

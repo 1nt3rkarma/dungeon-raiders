@@ -18,11 +18,11 @@ MonoBehaviour:
     coinArgentChance: 0.1
     coinMinInterval: 5
     coinMaxInterval: 9
-    gapBasicChance: 1
+    gapBasicChance: 0
     allowRowGap: 1
-    gapRowChance: 1
-    gapMinInterval: 3
-    gapMaxInterval: 5
+    gapRowChance: 0
+    gapMinInterval: 50
+    gapMaxInterval: 50
     gapSplitChance: 0.5
     gapMinLength: 2
     gapMaxLength: 3

@@ -17,6 +17,8 @@ public class Attack : Skill
     protected override void BeginScenario()
     {
         base.BeginScenario();
+
+        Debug.Log($"Requesting ATTACK animation");
         RequestAnimation(animationTagCast);
     }
 

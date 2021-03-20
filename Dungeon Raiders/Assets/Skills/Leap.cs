@@ -27,16 +27,20 @@ public class Leap : Skill
 
     protected override void CastStarted()
     {
+        Debug.Log($"Leap {direction} cast started");
+
         caster.isLeaping = true;
         StartCoroutine(TransitionRoutine(direction));
         GameEvent.InvokeUnitLeap(caster, direction);
     }
 
-    protected override void CastEnded()
-    {
-        base.CastEnded();
-        RequestAnimation("leapEnd");
-    }
+    //protected override void CastEnded()
+    //{
+    //    base.CastEnded();
+
+    //    Debug.Log($"Requesting LEAP animation");
+    //    RequestAnimation("leapEnd");
+    //}
 
     IEnumerator TransitionRoutine(LeapDirections direction)
     {
@@ -73,6 +77,8 @@ public class Leap : Skill
     {
         base.Interrupt();
         caster.isLeaping = false;
+
+        Debug.Log($"Leap {direction} cast aborted");
     }
 }
 

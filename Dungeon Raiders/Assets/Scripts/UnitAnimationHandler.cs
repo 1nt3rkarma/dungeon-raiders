@@ -158,16 +158,15 @@ public class UnitAnimationHandler : MonoBehaviour
             animator.SetInteger("index", index);
         }
 
+        Debug.Log($"SETTING {tag} TRIGGER ON ANIMATOR {transform.root.name}");
         animator.SetTrigger(tag);
     }
 
-    private void SetFlag(string flag, bool value)
+    public void SetFlag(string flag, bool value = true)
     {
+        Debug.Log($"SETTING {flag} BOOL to {value} ON ANIMATOR {transform.root.name}");
+
         animator.SetBool(flag, value);
-    }
-    public void SetFlag(string flag)
-    {
-        SetFlag(flag, true);
     }
     public void ClearFlag(string flag)
     {

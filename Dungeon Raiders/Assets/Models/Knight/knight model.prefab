@@ -279,7 +279,7 @@ SkinnedMeshRenderer:
   m_RendererPriority: 0
   m_Materials:
   - {fileID: 2100000, guid: 676b9b4bd6234254c9f0df1009b5580a, type: 2}
-  - {fileID: 2100000, guid: 58d0cf5696ba90842b3a6d92d511d230, type: 2}
+  - {fileID: 2100000, guid: b78fdcebec5a020429aa79ce5533a25d, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -505,7 +505,7 @@ MonoBehaviour:
   - {fileID: 217137150659351543}
   - {fileID: 8321556088409555304}
   - {fileID: 7486429046377142940}
-  stickedMissiles: []
+  stickedProjectiles: []
   chestPoint: {fileID: 2722534680320381131}
   headPoint: {fileID: 5099315420192356757}
   handRightPoint: {fileID: 6851973704638871528}
@@ -1202,7 +1202,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 0b0a0901e53dba94eb632102e278a7ec, type: 2}
+  - {fileID: 2100000, guid: f75f6790386e89845b3a90ff94511bc6, type: 2}
   - {fileID: 2100000, guid: 676b9b4bd6234254c9f0df1009b5580a, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0

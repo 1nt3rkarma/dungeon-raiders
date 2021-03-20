@@ -1,7 +1,7 @@
 fileFormatVersion: 2
 guid: 5baaa790fe0da0241aa23bd309cdf168
 ModelImporter:
-  serializedVersion: 26
+  serializedVersion: 19301
   internalIDToNameTable:
   - first:
       74: 1989289236423521904
@@ -11,12 +11,12 @@ ModelImporter:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: ArrowHead
-    second: {fileID: 2100000, guid: 4e1b8d67efc2abf4fad353cb166d86a6, type: 2}
+    second: {fileID: 2100000, guid: d227f3e2a947e5d4dae879e4bf1e3263, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: ArrowStick
-    second: {fileID: 2100000, guid: 62588d60ea1610d459650fce1e0e84a6, type: 2}
+    second: {fileID: 2100000, guid: bf7731f5554685343953acb8a8dc2c29, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
@@ -48,7 +48,7 @@ ModelImporter:
       name: ZombieShoes
     second: {fileID: 2100000, guid: 452c1917c61ec1a4792d55a8b40a6e25, type: 2}
   materials:
-    importMaterials: 1
+    materialImportMode: 1
     materialName: 0
     materialSearch: 1
     materialLocation: 1
@@ -86,6 +86,7 @@ ModelImporter:
     importBlendShapes: 1
     importCameras: 1
     importLights: 1
+    fileIdsGeneration: 1
     swapUVChannels: 0
     generateSecondaryUV: 0
     useFileUnits: 1
@@ -112,7 +113,6 @@ ModelImporter:
     normalSmoothingSource: 0
   referencedClips: []
   importAnimation: 0
-  copyAvatar: 0
   humanDescription:
     serializedVersion: 3
     human: []
@@ -130,8 +130,10 @@ ModelImporter:
     hasExtraRoot: 0
     skeletonHasParents: 1
   lastHumanDescriptionAvatarSource: {instanceID: 0}
+  autoGenerateAvatarMappingIfUnspecified: 1
   animationType: 2
   humanoidOversampling: 1
+  avatarSetup: 1
   additionalBone: 0
   userData: 
   assetBundleName: 
