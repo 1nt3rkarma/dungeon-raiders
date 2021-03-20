@@ -7,6 +7,12 @@ public class Shoot : Skill
     void Update()
     {
         OnUpdate();
+
+    }
+
+    void OnDestroy()
+    {
+        Deinitialize();
     }
 
     protected override void BeginScenario()

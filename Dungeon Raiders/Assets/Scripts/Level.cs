@@ -4,28 +4,28 @@ using UnityEngine;
 
 public class Level : MonoBehaviour
 {
-    static Level singlton;
+    public static Level singleton;
 
     public static int level;
     public static int levelSteps;
 
     public static bool generationEnabled = true;
     public static int generationCount;
-    public static LevelSettings activeSettings
+    public static LevelSettings ActiveSettings
     {
         get
         {
             if (level <= 0)
-                return singlton.settings[0];
-            else if (level >= singlton.settings.Count)
-                return singlton.settings[singlton.settings.Count - 1];
+                return singleton.settings[0];
+            else if (level >= singleton.settings.Count)
+                return singleton.settings[singleton.settings.Count - 1];
             else
-                return singlton.settings[level - 1];
+                return singleton.settings[level - 1];
         }
     }
 
-    public bool isMoving = true;
-
+    public float moveSpeedDefault = 1;
+    [HideInInspector]
     public float moveSpeed = 1;
     private float shift = 0;
 
@@ -33,18 +33,40 @@ public class Level : MonoBehaviour
     public List<Row> rows;
     public LevelGenerator generator;
 
+    public LevelDecorator decorator;
+
     public List<LevelSettings> settings;
     public int[] presetCounters;
     public LevelPreset lastPreset;
 
+
+    public bool IsMoving => moveSpeed > 0;
     public int generationCountView;
     public bool generationEnabledView;
 
     Coroutine flowRoutine;
+    DoTweenLevelSpeedHandler speedHandler;
 
     void Awake()
     {
-        InitSinglton(this);
+        if (singleton != null)
+            Destroy(singleton.gameObject);
+
+        singleton = this;
+        speedHandler = new DoTweenLevelSpeedHandler(this);
+
+        foreach (var row in rows)
+            decorator.Decorate(row);
+
+
+        moveSpeed = 0;
+        generationCount = 0;
+        generationEnabled = true;
+    }
+
+    void OnDestroy()
+    {
+        speedHandler?.Stop();
     }
 
     void Start()
@@ -52,16 +74,13 @@ public class Level : MonoBehaviour
         SwitchLevel(1);
     }
 
-    void Update()
+    void FixedUpdate()
     {
-        //if (isMoving && flowRoutine == null)
-        //    flowRoutine = StartCoroutine(FlowRoutine());
-
-        if (isMoving)
+        if (!Mathf.Approximately(moveSpeed,0))
         {
             if (shift > -1)
             {
-                shift -= moveSpeed * Time.deltaTime;
+                shift -= moveSpeed * Time.fixedDeltaTime;
             }
             else
             {
@@ -75,17 +94,6 @@ public class Level : MonoBehaviour
 
         generationCountView = generationCount;
         generationEnabledView = generationEnabled;
-    }
-
-    static void InitSinglton(Level instance)
-    {
-        if (singlton != null)
-            Destroy(singlton.gameObject);
-
-        singlton = instance;
-
-        generationCount = 0;
-        generationEnabled = true;
     }
 
     void SetRowsPosition(float z)
@@ -142,35 +150,41 @@ public class Level : MonoBehaviour
                 {
                     var random = Random.Range(0, presetParams.Count);
                     var presetParam = presetParams[random];
-                    var preset = Instantiate(presetParam.presetPrefab);
+                    var instance = Instantiate(presetParam.presetPrefab);
                     lastPreset = presetParam.presetPrefab;
 
-                    int index = activeSettings.presetsParams.IndexOf(presetParam);
+                    int index = ActiveSettings.presetsParams.IndexOf(presetParam);
                     if (!presetParam.infinite)
                         presetCounters[index]--;
 
-                    generationCount = -preset.rows.Count;
+                    generationCount = -instance.rows.Count;
 
-                    foreach (var row in preset.rows)
+                    foreach (var row in instance.rows)
+                    {
                         Add(row);
+                        decorator.Decorate(row);
+                    }
 
-                    foreach (var randomObject in preset.randomObjects)
+                    foreach (var randomObject in instance.randomObjects)
                         randomObject.Generate();
 
-                    Destroy(preset.gameObject);
+                    Destroy(instance.gameObject);
                 }
                 else
                 {
                     var row = CreateRow();
 
-                    generator.GenerateGaps(row);
+                    if (decorator.spawnCounter > -2 || generator.IsLineGapping)
+                        generator.GenerateGaps(row);
                     generator.GenerateRandomObjects(row);
+                    decorator.Decorate(row);
                 }
             }
         }
         else
         {
-            CreateRow();
+            var row = CreateRow();
+            decorator.Decorate(row);
         }
     }
 
@@ -180,7 +194,7 @@ public class Level : MonoBehaviour
     /// </summary>
     List<LevelPresetParams> GetPossiblePresets(int generationCount)
     {
-        var settings = activeSettings;
+        var settings = ActiveSettings;
 
         var presetsPossible = new List<LevelPresetParams>();
 
@@ -208,10 +222,12 @@ public class Level : MonoBehaviour
 
     public static Block GetBlock(Vector3 serachPosition)
     {
-        Block wanted = singlton.rows[1].blocks[1];
+        if (singleton == null) return null;
+
+        Block wanted = singleton.rows[1].blocks[1];
         var sqrDistanceMin = 100f;
 
-        foreach (var row in singlton.rows)
+        foreach (var row in singleton.rows)
         {
             foreach (var block in row.blocks)
             {
@@ -231,8 +247,8 @@ public class Level : MonoBehaviour
 
     public static int GetBlockRow(Block block)
     {
-        for (int i = 0; i < singlton.rows.Count; i++)
-            if (singlton.rows[i].blocks.Contains(block))
+        for (int i = 0; i < singleton.rows.Count; i++)
+            if (singleton.rows[i].blocks.Contains(block))
                 return i;
 
         return -1;
@@ -240,20 +256,28 @@ public class Level : MonoBehaviour
 
     public static Block GetBlock(int row, int line)
     {
-        if (row >= 0 && row < singlton.rows.Count)
-            if (line >= 0 && line < singlton.rows[row].blocks.Count)
-                return singlton.rows[row].blocks[line];
+        if (row >= 0 && row < singleton.rows.Count)
+            if (line >= 0 && line < singleton.rows[row].blocks.Count)
+                return singleton.rows[row].blocks[line];
         return null;
     }
 
-    public static void StopFlow()
+    public static void StopFlow(float overTime = 0)
     {
-        singlton.isMoving = false;
+        //singleton.isMoving = false;
+        if (overTime > 0)
+            singleton.speedHandler.SpeedMove(0, overTime);
+        else
+            singleton.moveSpeed = 0;
     }
 
-    public static void RunFlow()
+    public static void RunFlow(float overTime = 0)
     {
-        singlton.isMoving = true;
+        if (overTime > 0)
+            singleton.speedHandler.SpeedMove(singleton.moveSpeedDefault, overTime);
+        else
+            singleton.moveSpeed = singleton.moveSpeedDefault;
+        //singleton.isMoving = true;
     }
 
     public static void SwitchLevel()
@@ -264,11 +288,11 @@ public class Level : MonoBehaviour
     public static void SwitchLevel(int number)
     {
         level = number;
-        levelSteps = activeSettings.levelSteps;
+        levelSteps = ActiveSettings.levelSteps;
 
-        singlton.presetCounters = new int[activeSettings.presetsParams.Count];
-        for (int i = 0; i < singlton.presetCounters.Length; i++)
-            singlton.presetCounters[i] = activeSettings.presetsParams[i].count;
+        singleton.presetCounters = new int[ActiveSettings.presetsParams.Count];
+        for (int i = 0; i < singleton.presetCounters.Length; i++)
+            singleton.presetCounters[i] = ActiveSettings.presetsParams[i].count;
 
         UI.MarkNewLevel();
     }
@@ -287,7 +311,7 @@ public class Level : MonoBehaviour
 [System.Serializable]
 public class LevelGenerator : object
 {
-    public LevelGenerationSettings generationSettings { get => Level.activeSettings.generationSettings; }
+    public LevelGenerationSettings generationSettings { get => Level.ActiveSettings.generationSettings; }
 
     public Coin coinPref;
     public Coin coinArgentPref;
@@ -298,6 +322,9 @@ public class LevelGenerator : object
     public int gapTempCounter = 0;
     public int gapTempWidth = 1;
     public int[] gapTempLineIndexes;
+
+    public bool IsSplitting => gapTempLineIndexes.Length > 1 && gapTempCounter > 0;
+    public bool IsLineGapping => gapTempLineIndexes.Length == 1 && gapTempCounter > 0;
 
     public void GenerateRandomObjects(Row row)
     {
@@ -388,5 +415,83 @@ public class LevelGenerator : object
                 row.blocks[index].MakeEmpty();
             }
         }
+    }
+}
+
+[System.Serializable] 
+public class LevelDecorator
+{
+    public int spawnCounter = 0;
+
+    public List<TerrainDecoration> decorationsPrefabs;
+
+    public TerrainDecoration lastVariation;
+    public bool repeatsAllowed = false;
+
+    public void Decorate(Row row)
+    {
+        // Инкрементируем счетчик генерации
+        if (spawnCounter < 0)
+            spawnCounter++;
+
+        // Если он все еще меньше 0 (например, последняя декорация
+        // была размером в 2 и более блоков), то ничего не делаем больше
+        if (spawnCounter < 0) return;
+
+        // Определяем предыдущий ряд
+        var thisIndex = Level.singleton.rows.IndexOf(row);
+        var previousIndex = thisIndex - 1;
+        var previousRow = previousIndex > 0 ?Level.singleton.rows[thisIndex - 1] : null;
+        var thisEmpty = row.ContainsEmptyBorder;
+        var previousEmpty = previousRow ? previousRow.ContainsEmptyBorder : false;
+
+        if (previousRow != null && previousEmpty)
+            repeatsAllowed = true;
+
+        // Ищем возможные варианты декораций исходя из условий текущего и предыдущего ряда
+        var options = GetPossibleDecorations(thisEmpty, previousEmpty);
+
+        //Debug.Log($"Decorating a row: thisEmpty: {thisEmpty}, previousEmpty: {previousEmpty}, options: {options.Count} (repeats allowed: {repeatsAllowed})");
+
+        // Если доступных вариантов декораций нет то ничего не делаем
+        if (options.Count <= 0)
+        {
+            spawnCounter = 0;
+            return;
+        }
+
+        // Если есть, то выбираем случайный из них
+        var randomIdex = Random.Range(0, options.Count);
+
+        // Запоминаем параметры последней вариации
+        var variation = options[randomIdex];
+        spawnCounter -= variation.blockSize;
+        repeatsAllowed = variation.allowRepeats;
+        lastVariation = variation;
+
+        // Создаем ее копию, привязываем ее к ряду и рандомизируем внещний облик
+        var instance = GameObject.Instantiate(variation, row.decorationPivot);
+        instance.Randomize();
+        if (!previousEmpty && instance.frontFace != null)
+            GameObject.Destroy(instance.frontFace.gameObject);
+
+        GameObject.Destroy(instance);
+    }
+
+    public List<TerrainDecoration> GetPossibleDecorations(bool thisRowEmpty, bool previousRowEmpty)
+    {
+        var options = new List<TerrainDecoration>(decorationsPrefabs);
+
+        foreach (var option in decorationsPrefabs)
+        {
+            if (option.avoidEmptyRowBorder && thisRowEmpty)
+                options.Remove(option);
+            if (option.avoidEmptyNeighborBorder && previousRowEmpty)
+                options.Remove(option);
+            if (!repeatsAllowed && option == lastVariation)
+                options.Remove(option);
+        }
+
+        return options;
     }
 }

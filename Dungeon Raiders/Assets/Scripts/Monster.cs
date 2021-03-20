@@ -10,6 +10,11 @@ public class Monster : Unit
 
     public MonsterAI AI;
 
+    private void Awake()
+    {
+        OnAwake();
+    }
+
     private void Start()
     {
         OnStart();
@@ -20,6 +25,11 @@ public class Monster : Unit
     {
         if (isAlive)
             AI.MainRoutine();
+    }
+
+    private void FixedUpdate()
+    {
+        OnFixedUpdate();
     }
 
     public void Move()

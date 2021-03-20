@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Audio;
@@ -6,7 +7,7 @@ using UnityEngine.SceneManagement;
 
 public class Player : MonoBehaviourExtended
 {
-    public static Player singlton;
+    public static Player singleton { get; private set; }
 
     public static bool restrictControlls;
 
@@ -15,76 +16,7 @@ public class Player : MonoBehaviourExtended
 
     public static bool controllEnabled = false;
 
-    public static bool needTutorial
-    {
-        get => PlayerPrefs.GetInt("tutorial", 1) == 1 ? true : false;
-
-        set
-        {
-            if (value)
-                PlayerPrefs.SetInt("tutorial", 1);
-            else
-                PlayerPrefs.SetInt("tutorial", 0);
-        }
-    }
-
-    public static bool showHints
-    {
-        get => PlayerPrefs.GetInt("hints", 0) == 1 ? true : false;
-
-        set
-        {
-            Debug.Log($"Показывать подсказки: {value}");
-            if (value)
-                PlayerPrefs.SetInt("hints", 1);
-            else
-                PlayerPrefs.SetInt("hints", 0);
-        }
-    }
-
-    public static int coinsTotal
-    {
-        get => PlayerPrefs.GetInt("coins", 0);
-
-        set => PlayerPrefs.SetInt("coins", value);
-    }
-
-    public static bool musicOn
-    {
-        get => PlayerPrefs.GetInt("music", 1) == 1 ? true : false;
-
-        set
-        {
-            //Debug.Log($"Вкл. музыку: {value}");
-            EnableMusic(value);
-            if (value)
-                PlayerPrefs.SetInt("music", 1);
-            else
-                PlayerPrefs.SetInt("music", 0);
-        }
-    }
-
-    public static bool soundsOn
-    {
-        get => PlayerPrefs.GetInt("sounds", 1) == 1 ? true : false;
-
-        set
-        {
-            Debug.Log($"Вкл. звуки эффектов: {value}");
-            EnableSounds(value);
-            if (value)
-                PlayerPrefs.SetInt("sounds", 1);
-            else
-                PlayerPrefs.SetInt("sounds", 0);
-        }
-    }
-
-    public static int stepsBest
-    {
-        get => PlayerPrefs.GetInt("steps", 0);
-
-        set => PlayerPrefs.SetInt("steps", value);
-    }
+    public static PlayerData Data;
 
     public static int steps = 0;
     public static int enemies = 0;
@@ -94,10 +26,12 @@ public class Player : MonoBehaviourExtended
 
     public AudioMixer audioMixer;
     public GameResources resourceFile;
-    public static GameResources resources { get => singlton.resourceFile; }
-
+    public static GameResources ResourceFile { get => singleton.resourceFile; }
     public AudioSource audioSourceMusic;
     public AudioSource audioSourceEffects;
+
+    [Header("Debugging")]
+    public PlayerData dataView;
 
     #region Реакции на события
 
@@ -110,21 +44,37 @@ public class Player : MonoBehaviourExtended
         SubsribeToGameEvents();
     }
 
+    public static void Init(Player instance)
+    {
+        if (singleton != null)
+            Destroy(singleton.gameObject);
+        singleton = instance;
+
+        Data = PlayerData.Load();
+
+        steps = 0;
+        enemies = 0;
+        coins = 0;
+        stepsTotal = 0;
+    }
+
     void Start()
     {
         LoadInventory();
 
-        EnableMusic(musicOn);
+        EnableMusic(PlayerSettings.MusicOn);
 
-        EnableSounds(soundsOn);
+        EnableSounds(PlayerSettings.SoundsOn);
 
-        var musicCollection = singlton.resourceFile.music;
+        var musicCollection = singleton.resourceFile.music;
         var rand = Random.Range(0, musicCollection.Count);
         PlayMusic(musicCollection[rand]);
     }
 
     void OnDestroy()
     {
+        PlayerData.Save(Data);
+
         UnsubsribeToGameEvents();
     }
 
@@ -142,6 +92,9 @@ public class Player : MonoBehaviourExtended
             else
                 Time.timeScale = 1f;
         }
+
+        if (Data != null && dataView != Data)
+            dataView = Data;
     }
 
     #endregion
@@ -192,7 +145,7 @@ public class Player : MonoBehaviourExtended
     protected override void OnUnitDie(Unit unit, DamageType type, Object source)
     {
         if (unit is Hero)
-            Player.Defeat();
+            Defeat();
 
         if (unit is Monster && source is Hero)
             enemies++;
@@ -205,18 +158,6 @@ public class Player : MonoBehaviourExtended
     #endregion
 
     #region Методы
-
-    public static void Init(Player instance)
-    {
-        if (singlton != null)
-            Destroy(singlton.gameObject);
-        singlton = instance;
-
-        steps = 0;
-        enemies = 0;
-        coins = 0;
-        stepsTotal = 0;
-    }
 
     #region Работа с инвентарем
 
@@ -235,12 +176,16 @@ public class Player : MonoBehaviourExtended
     public static void AddItem(Item item)
     {
         if (item != null)
+        {
             inventory.Add(item);
+            SaveInventory();
+        }
     }
 
     public static void RemoveItem(Item item)
     {
         inventory.Remove(item);
+        SaveInventory();
     }
 
     public static void ClearInventory()
@@ -255,10 +200,10 @@ public class Player : MonoBehaviourExtended
 
         for (int i = 0; i < inventorySize; i++)
         {
-            var itemID = PlayerPrefs.GetInt($"inventory{i}", -1);
+            var itemID = Data.inventoryIDs[i];
             if (itemID > -1)
             {
-                var item = singlton.resourceFile.GetItem(itemID);
+                var item = singleton.resourceFile.GetItem(itemID);
                 //Debug.Log($" > {item.name} ID: {itemID}");
                 AddItem(item);
             }
@@ -273,30 +218,28 @@ public class Player : MonoBehaviourExtended
             if (i < inventory.Count)
             {
                 var item = inventory[i];
-                var itemID = singlton.resourceFile.GetItemDataID(item);
+                var itemID = ResourceFile.GetItemDataID(item);
 
-                //Debug.Log($" > {item.name} ID: {itemID}");
-                PlayerPrefs.SetInt($"inventory{i}", itemID);
+                Data.inventoryIDs[i] = itemID;
             }
             else
             {
-                //Debug.Log($" > Empty slot");
-                PlayerPrefs.SetInt($"inventory{i}", -1);
+                Data.inventoryIDs[i] = -1;
             }
         }
     }
 
     public static ShopFeedback BuyItem(Item item)
     {
-        if (coinsTotal < item.price)
+        if (Data.coinsTotal < item.price)
             return ShopFeedback.NotEnoughMoney;
 
         if (inventory.Count >= inventorySize)
             return ShopFeedback.InventoryIsFull;
 
         AddItem(item);
-        coinsTotal -= item.price;
-        PlaySound(singlton.resourceFile.sellSound);
+        Data.coinsTotal -= item.price;
+        PlaySound(singleton.resourceFile.sellSound);
         return ShopFeedback.Success;
     }
 
@@ -344,7 +287,7 @@ public class Player : MonoBehaviourExtended
 
     public static void AddCoinsTotal(int amount)
     {
-        coinsTotal += amount;
+        Data.coinsTotal += amount;
     }
 
     public static void AddCoins(int amount)
@@ -352,17 +295,21 @@ public class Player : MonoBehaviourExtended
         coins += amount;
     }
 
-    public static void StopMoving()
+    public static void StopMoving(float overTime = 0)
     {
-        Level.StopFlow();
+        Level.StopFlow(overTime);
     }
 
-    public static void ContinueMoving()
+    public static void ContinueMoving(float overTime = 0)
     {
-        Level.RunFlow();
+        Level.RunFlow(overTime);
     }
 
-    public static void Defeat()
+    public void Defeat()
+    {
+        StartCoroutine(DefeatRoutine());
+    }
+    private IEnumerator DefeatRoutine()
     {
         ClearInventory();
         SaveInventory();
@@ -370,62 +317,66 @@ public class Player : MonoBehaviourExtended
         controllEnabled = false;
         CameraController.FocusHero(1f);
 
-        coinsTotal += coins;
+        Data.coinsTotal += coins;
 
         stepsTotal += steps;
 
         UI.SlideAwayMainUI();
 
-        var newBest = stepsTotal > stepsBest;
+        var newBest = stepsTotal > Data.stepsBest;
         if (newBest)
-            stepsBest = stepsTotal;
+            Data.stepsBest = stepsTotal;
 
         StopMusic();
+
+        yield return new WaitForSecondsRealtime(1);
+
         UI.ShowDefeatUI(newBest);
-        PlayMusicOneShot(singlton.resourceFile.defeatSound);
+        PlayMusicOneShot(resourceFile.defeatSound);
     }
+
 
     #endregion
 
     #region Музыка и звуки
 
-    static void EnableMusic(bool mode)
+    public static void EnableMusic(bool mode)
     {
         if (mode)
-            singlton.audioMixer.SetFloat("MusicVolume", 0);
+            singleton.audioMixer.SetFloat("MusicVolume", 0);
         else
-            singlton.audioMixer.SetFloat("MusicVolume", -80);
+            singleton.audioMixer.SetFloat("MusicVolume", -80);
     }
 
-    static void EnableSounds(bool mode)
+    public static void EnableSounds(bool mode)
     {
         if (mode)
-            singlton.audioMixer.SetFloat("SoundsVolume", 0);
+            singleton.audioMixer.SetFloat("SoundsVolume", 0);
         else
-            singlton.audioMixer.SetFloat("SoundsVolume", -80);
+            singleton.audioMixer.SetFloat("SoundsVolume", -80);
     }
 
     public static void StopMusic()
     {
-        singlton.audioSourceMusic.Stop();
+        singleton.audioSourceMusic.Stop();
     }
 
     public static void PlayMusic(AudioClip clip)
     {
-        singlton.audioSourceMusic.loop = true;
-        singlton.audioSourceMusic.clip = clip;
-        singlton.audioSourceMusic.Play();
+        singleton.audioSourceMusic.loop = true;
+        singleton.audioSourceMusic.clip = clip;
+        singleton.audioSourceMusic.Play();
     }
 
     public static void PlayMusicOneShot(AudioClip clip)
     {
-        singlton.audioSourceMusic.loop = false;
-        singlton.audioSourceMusic.PlayOneShot(clip);
+        singleton.audioSourceMusic.loop = false;
+        singleton.audioSourceMusic.PlayOneShot(clip);
     }
 
     public static void PlaySound(AudioClip sound)
     {
-        singlton.audioSourceEffects.PlayOneShot(sound);
+        singleton.audioSourceEffects.PlayOneShot(sound);
     }
 
     #endregion
@@ -439,6 +390,11 @@ public class Player : MonoBehaviourExtended
     public static void ExitGame()
     {
         Application.Quit();
+    }
+
+    public static void ExitDungeon()
+    {
+        SceneManager.LoadScene("MainMenu");
     }
 
     #endregion

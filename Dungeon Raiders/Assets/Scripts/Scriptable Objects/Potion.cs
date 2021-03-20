@@ -6,35 +6,35 @@ using UnityEngine;
 public class Potion : Item
 {
     public bool full;
+    public UnitResourceTypes resourceType;
 
-    public HeroResources resource;
+    private Hero hero => Hero.singlton;
 
     public override void Use()
     {
-        // Ограничение на предельный ресурс
-        switch (resource)
-        {
-            case HeroResources.health:
-                if (Hero.singlton.health >= Hero.singlton.healthMax)
-                    return;
-                break;
-            case HeroResources.mana:
-                //if (Hero.singlton.mana == Hero.singlton.manaMax)
-                //    return;
-                break;
-        }
+        var resource = hero.GetResource(resourceType);
+
+        // Ограничение на предельный или отсутствующий ресурс ресурс
+        if (resource == null || resource.Value >= resource.MaxValue)
+            return;
 
         base.Use();
 
-        switch (resource)
+        switch (resourceType)
         {
-            case HeroResources.health:
+            case UnitResourceTypes.Health:
                 if (full)
-                    Hero.singlton.Heal(10);
+                    hero.Heal(hero.Health.MaxValue);
                 else
-                    Hero.singlton.Heal(1);
+                    hero.Heal(1);
                 break;
-            case HeroResources.mana:
+            case UnitResourceTypes.Mana:
+            case UnitResourceTypes.Faith:
+            case UnitResourceTypes.Fury:
+                if (full)
+                    resource.Value = resource.MaxValue;
+                else
+                    resource.Value += 1;
                 break;
         }
     }

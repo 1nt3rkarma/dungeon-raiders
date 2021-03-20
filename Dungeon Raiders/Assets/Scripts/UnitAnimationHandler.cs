@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class UnitAnimationHandler : MonoBehaviour
 {
@@ -45,6 +46,12 @@ public class UnitAnimationHandler : MonoBehaviour
     public List<StickPoint> defaultStickPoints;
     public List<Transform> stickedProjectiles;
 
+    public UnityEvent onAnimationStarted;
+    public UnityEvent onCastingStarted;
+    public UnityEvent onCast;
+    public UnityEvent onCastingEnded;
+    public UnityEvent onAnimationEnded;
+
     [Header("Debugging")]
 
     public Transform chestPoint;
@@ -53,31 +60,25 @@ public class UnitAnimationHandler : MonoBehaviour
     public Transform handLeftPoint;
     public Transform overheadPoint;
 
-    public bool animEventStart = false;
-    public bool animEventCastStart = false;
-    public bool animEventCast= false;
-    public bool animEventCastEnd = false;
-    public bool animEventEnd = false;
-
     public void EventStart()
     {
-        animEventStart = true;
+        onAnimationStarted.Invoke();
     }
     public void EventCastStart()
     {
-        animEventCastStart = true;
+        onCastingStarted.Invoke();
     }
     public void EventCast()
     {
-        animEventCast = true;
+        onCast.Invoke();
     }
     public void EventCastEnd()
     {
-        animEventCastEnd = true;
+        onCastingEnded.Invoke();
     }
     public void EventEnd()
     {
-        animEventEnd = true;
+        onAnimationEnded.Invoke();
     }
 
     private void Start()
@@ -104,7 +105,7 @@ public class UnitAnimationHandler : MonoBehaviour
             foreach (var variation in group.meshes)
                 chances.Add(variation.basicChance);
 
-            var index = MathUtilities.GetRandomIndexFromListOfChances(chances);
+            var index = MathUtils.GetRandomIndexFromListOfChances(chances);
 
             foreach (var variation in group.meshes)
                 if (variation == group.meshes[index] && variation.meshObject != null)
@@ -117,12 +118,6 @@ public class UnitAnimationHandler : MonoBehaviour
     public void ClearEventFalgs()
     {
         DisableWeaponTrail();
-
-        animEventStart = false;
-        animEventEnd = false;
-        animEventCastStart = false;
-        animEventCast = false;
-        animEventCastEnd = false;
     }
 
     public void PlayAnimation(string tag)
@@ -158,13 +153,13 @@ public class UnitAnimationHandler : MonoBehaviour
             animator.SetInteger("index", index);
         }
 
-        Debug.Log($"SETTING {tag} TRIGGER ON ANIMATOR {transform.root.name}");
+        //Debug.Log($"SETTING {tag} TRIGGER ON ANIMATOR {transform.root.name}");
         animator.SetTrigger(tag);
     }
 
     public void SetFlag(string flag, bool value = true)
     {
-        Debug.Log($"SETTING {flag} BOOL to {value} ON ANIMATOR {transform.root.name}");
+        //Debug.Log($"SETTING {flag} BOOL to {value} ON ANIMATOR {transform.root.name}");
 
         animator.SetBool(flag, value);
     }

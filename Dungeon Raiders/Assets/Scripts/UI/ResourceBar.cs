@@ -5,19 +5,44 @@ using UnityEngine.UI;
 
 public class ResourceBar : MonoBehaviour
 {
-    public Image fill;
+    public Image fillImage;
+    public Image tintImage;
 
     [Range(0,1)]
     public float value = 1;
 
-    public void SetValue(float value)
+    DoTweenImageFiller fillFiller;
+    DoTweenImageFiller tintFiller;
+
+    private void Awake()
     {
-        this.value = Mathf.Clamp(value,0,1);
-        SetFill(this.value);
+        if (fillImage)
+            fillFiller = new DoTweenImageFiller(fillImage);
+        if (tintImage)
+            tintFiller = new DoTweenImageFiller(tintImage);
     }
 
-    public void SetFill(float value)
+    private void OnDestroy()
     {
-        fill.fillAmount = value;
+        fillFiller?.Stop();
+        tintFiller?.Stop();
+    }
+
+    public void SetValue(float value)
+    {
+        this.value = Mathf.Clamp01(value);
+
+        if (fillImage)
+            fillImage.fillAmount = value;
+        if (tintImage)
+            tintImage.fillAmount = value;
+    }
+
+    public void SetValue(float value, float fillTime, float tintTime)
+    {
+        this.value = Mathf.Clamp01(value);
+
+        fillFiller?.Fill(fillImage.fillAmount, value, fillTime);
+        tintFiller?.Fill(tintImage.fillAmount, value, tintTime);
     }
 }

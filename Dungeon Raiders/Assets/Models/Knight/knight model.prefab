@@ -275,6 +275,7 @@ SkinnedMeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -607,6 +608,7 @@ SkinnedMeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -986,6 +988,7 @@ TrailRenderer:
   m_LightProbeUsage: 0
   m_ReflectionProbeUsage: 0
   m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -1010,7 +1013,7 @@ TrailRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Time: 0.15
+  m_Time: 0.1
   m_Parameters:
     serializedVersion: 3
     widthMultiplier: 1
@@ -1019,7 +1022,7 @@ TrailRenderer:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: 0.56723034
+        value: 0.25281537
         inSlope: -0.3312219
         outSlope: -0.3312219
         tangentMode: 0
@@ -1029,11 +1032,11 @@ TrailRenderer:
       - serializedVersion: 3
         time: 1
         value: 0
-        inSlope: -0.28374335
-        outSlope: -0.28374335
+        inSlope: -0.17752431
+        outSlope: -0.17752431
         tangentMode: 0
         weightedMode: 0
-        inWeight: 0.14666665
+        inWeight: 0.09839356
         outWeight: 0
       m_PreInfinity: 2
       m_PostInfinity: 2
@@ -1057,7 +1060,7 @@ TrailRenderer:
       ctime6: 0
       ctime7: 0
       atime0: 0
-      atime1: 23130
+      atime1: 10409
       atime2: 64571
       atime3: 64571
       atime4: 0
@@ -1067,7 +1070,7 @@ TrailRenderer:
       m_Mode: 0
       m_NumColorKeys: 2
       m_NumAlphaKeys: 3
-    numCornerVertices: 0
+    numCornerVertices: 15
     numCapVertices: 0
     alignment: 0
     textureMode: 0
@@ -1199,6 +1202,7 @@ SkinnedMeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:

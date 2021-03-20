@@ -16,7 +16,8 @@ public class TutorialUI : MonoBehaviourExtended
 
     public int phaseIndex = -1;
     public List<TutorialPhase> phases;
-    public TutorialPhase phase { get => phases[phaseIndex]; }
+    public TutorialPhase Phase { get => phases[phaseIndex]; }
+    private Hero hero => Hero.singlton;
 
     public int actionsCount;
     public int actionsTotal
@@ -66,33 +67,33 @@ public class TutorialUI : MonoBehaviourExtended
     protected override void OnUnitJump(Unit unit)
     {
         if (unit is Hero)
-            if (phase.catchAction == PlayerActions.HeroJumps)
+            if (Phase.catchAction == PlayerActions.HeroJumps)
                 CountAction();
     }
 
     protected override void OnUnitLeap(Unit unit, LeapDirections direction)
     {
         if (unit is Hero)
-            if (phase.catchAction == PlayerActions.HeroLeaps)
+            if (Phase.catchAction == PlayerActions.HeroLeaps)
                 CountAction();
     }
 
     protected override void OnUnitAttack(Unit unit)
     {
         if (unit is Hero)
-            if (phase.catchAction == PlayerActions.HeroAttacks)
+            if (Phase.catchAction == PlayerActions.HeroAttacks)
                 CountAction();
     }
 
     protected override void OnSwipe(SwipeDirections direction)
     {
-        if (phase.catchAction == PlayerActions.AnyInput)
+        if (Phase.catchAction == PlayerActions.AnyInput)
             CountAction();
     }
 
     protected override void OnStationary()
     {
-        if (phase.catchAction == PlayerActions.AnyInput)
+        if (Phase.catchAction == PlayerActions.AnyInput)
             CountAction();
     }
 
@@ -101,7 +102,7 @@ public class TutorialUI : MonoBehaviourExtended
         if (!isBusy)
         {
             actionsCount++;
-            if (actionsCount >= phases[phaseIndex].actionsCount)
+            if (actionsCount >= Phase.actionsCount)
                 SwitchPhase();
         }
     }
@@ -116,7 +117,7 @@ public class TutorialUI : MonoBehaviourExtended
 
         if (phaseIndex < phases.Count)
         {
-            textNext.text = phases[phaseIndex].text;
+            textNext.text = Phase.text;
             animatorScreen.SetTrigger("switchScreen");
         }
         else
@@ -128,6 +129,9 @@ public class TutorialUI : MonoBehaviourExtended
     void SwitchPhase()
     {
         SwitchPhase(phaseIndex + 1);
+
+        if (phaseIndex < phases.Count && Phase.IgnoreHeroType(hero))
+            SwitchPhase();
     }
 
     public void OnNewScreen()
@@ -136,18 +140,18 @@ public class TutorialUI : MonoBehaviourExtended
 
         textMain.text = phases[phaseIndex].text;
 
-        if (phase.forceHeroIngnorance)
+        if (Phase.forceHeroIngnorance)
             Hero.singlton.isListening = false;
         else
             Hero.singlton.isListening = true;
 
-        if (phase.needTint)
-            tintGameplay.enabled = true;
+        if (Phase.needTint)
+            UI.EnableGameplayTint(0.5f);
         else
-            tintGameplay.enabled = false;
+            UI.DisableGameplayTint(0.5f);
 
-        if (phase.hintAnimationTag != "")
-            animatorVisualHint.SetTrigger(phase.hintAnimationTag);
+        if (Phase.hintAnimationTag != "")
+            animatorVisualHint.SetTrigger(Phase.hintAnimationTag);
         else
             animatorVisualHint.SetTrigger("none");
 
@@ -160,7 +164,7 @@ public class TutorialUI : MonoBehaviourExtended
         Hero.singlton.isListening = true;
         Level.EnableGeneration();
         PlayerPrefs.SetInt("tutorial", 0);
-        Player.needTutorial = false;
+        Player.Data.tutorialPassed = true;
         Player.stepsTotal = 0;
         Player.steps = 0;
         UI.ShowGameplayUI();
@@ -170,16 +174,3 @@ public class TutorialUI : MonoBehaviourExtended
 
 public enum PlayerActions { AnyInput, HeroJumps, HeroLeaps, HeroAttacks, HeroUseSkill }
 
-[System.Serializable]
-public class TutorialPhase : object
-{
-    public string label;
-    [TextArea]
-    public string text;
-    public int actionsCount;
-    public bool forceHeroIngnorance;
-    public PlayerActions catchAction;
-
-    public string hintAnimationTag;
-    public bool needTint;
-}

@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class Leap : Skill
 {
+    [Header("Specific settings")]
+
     public string leapLeftTag = "leapL";
     public string leapRightTag = "leapR";
 
@@ -13,6 +15,12 @@ public class Leap : Skill
     void Update()
     {
         OnUpdate();
+
+    }
+
+    void OnDestroy()
+    {
+        Deinitialize();
     }
 
     protected override void BeginScenario()
@@ -27,20 +35,10 @@ public class Leap : Skill
 
     protected override void CastStarted()
     {
-        Debug.Log($"Leap {direction} cast started");
-
         caster.isLeaping = true;
         StartCoroutine(TransitionRoutine(direction));
         GameEvent.InvokeUnitLeap(caster, direction);
     }
-
-    //protected override void CastEnded()
-    //{
-    //    base.CastEnded();
-
-    //    Debug.Log($"Requesting LEAP animation");
-    //    RequestAnimation("leapEnd");
-    //}
 
     IEnumerator TransitionRoutine(LeapDirections direction)
     {
@@ -78,7 +76,7 @@ public class Leap : Skill
         base.Interrupt();
         caster.isLeaping = false;
 
-        Debug.Log($"Leap {direction} cast aborted");
+        //Debug.Log($"Leap {direction} cast aborted");
     }
 }
 

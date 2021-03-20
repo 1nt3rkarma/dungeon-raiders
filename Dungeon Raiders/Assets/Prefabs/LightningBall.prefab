@@ -128,6 +128,16 @@ PrefabInstance:
       propertyPath: m_Lightmapping
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 3599351792899332644, guid: 252daadbb93421749b8e7b1657878bc2,
+        type: 3}
+      propertyPath: m_Materials.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3599351792899332646, guid: 252daadbb93421749b8e7b1657878bc2,
+        type: 3}
+      propertyPath: m_Materials.Array.size
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6159514769935237042, guid: 252daadbb93421749b8e7b1657878bc2,
         type: 3}
       propertyPath: m_Name

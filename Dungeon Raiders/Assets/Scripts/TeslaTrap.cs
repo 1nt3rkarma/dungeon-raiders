@@ -15,6 +15,20 @@ public class TeslaTrap : MonoBehaviour, IObstacle
 
     public TrapStates state;
 
+    void Awake()
+    {
+        animHandler.onCastingStarted.AddListener(OnCastStarted);
+        animHandler.onCast.AddListener(OnCast);
+        animHandler.onCastingEnded.AddListener(OnCastEnded);
+    }
+
+    void OnDestroy()
+    {
+        animHandler.onCastingStarted.RemoveListener(OnCastStarted);
+        animHandler.onCast.RemoveListener(OnCast);
+        animHandler.onCastingEnded.RemoveListener(OnCastEnded);
+    }
+
     void Start()
     {
         activationTimer = enableDelay;
@@ -22,27 +36,11 @@ public class TeslaTrap : MonoBehaviour, IObstacle
 
     void Update()
     {
-        switch (state)
-        {
-            case TrapStates.idling:
-                if (activationTimer > 0)
-                    activationTimer -= Time.deltaTime;
-                else
-                    Begin();
-                break;
-
-            case TrapStates.casting:
-                if (CatchFlag(AnimationEvents.castStart))
-                    StartCast();
-
-                if (CatchFlag(AnimationEvents.cast))
-                    Cast();
-
-                if (CatchFlag(AnimationEvents.castEnd))
-                    EndCast();
-
-                break;
-        }
+        if (state == TrapStates.idling)
+            if (activationTimer > 0)
+                activationTimer -= Time.deltaTime;
+            else
+                Begin();
     }
 
     public void Begin()
@@ -51,11 +49,21 @@ public class TeslaTrap : MonoBehaviour, IObstacle
         state = TrapStates.casting;
     }
 
+    private void OnCastStarted()
+    {
+        if (state == TrapStates.casting)
+            StartCast();
+    }
     public void StartCast()
     {
 
     }
 
+    private void OnCast()
+    {
+        if (state == TrapStates.casting)
+            Cast();
+    }
     public void Cast()
     {
         var spawn = Instantiate(spawnPrefab, spawnPoint.position, Quaternion.identity);
@@ -63,12 +71,32 @@ public class TeslaTrap : MonoBehaviour, IObstacle
         if (ball)
         {
             ball.direction = Facing.backward;
-            ball.SwitchBlock(Level.GetBlock(transform.position));
+            var block = Level.GetBlock(transform.position);
+            //if (block == null)
+            //{
+            //    var colliders = Physics.OverlapSphere(transform.position, 0.5f);
+            //    Debug.LogWarning($"CHEKING {colliders.Length} COLLIDER(S) NEARBY...");
+            //    foreach (var c in colliders)
+            //    {
+            //        block = c.GetComponent<Block>();
+            //        if (block != null)
+            //            break;
+            //    }
+            //}
+            if (block)
+                ball.SwitchBlock(block);
+            //else
+            //    Debug.LogWarning($"COULDN'T FIND ANY BLOCKS AT {name} {transform.position}");
             spawn.transform.localPosition = Vector3.zero;
         }
         Destroy(spawn, 10);
     }
 
+    private void OnCastEnded()
+    {
+        if (state == TrapStates.casting)
+            EndCast();
+    }
     public void EndCast()
     {
         Finish();
@@ -78,43 +106,6 @@ public class TeslaTrap : MonoBehaviour, IObstacle
     {
         activationTimer = activationInterval;
         state = TrapStates.idling;
-    }
-
-    bool CatchFlag(AnimationEvents flag)
-    {
-        switch (flag)   
-        {
-            case AnimationEvents.start:
-                break;
-
-            case AnimationEvents.castStart:
-                if (animHandler.animEventCastStart)
-                {
-                    animHandler.animEventCastStart = false;
-                    return true;
-                }
-                break;
-
-            case AnimationEvents.cast:
-                if (animHandler.animEventCast)
-                {
-                    animHandler.animEventCast = false;
-                    return true;
-                }
-                break;
-
-            case AnimationEvents.castEnd:
-                if (animHandler.animEventCastEnd)
-                {
-                    animHandler.animEventCastEnd = false;
-                    return true;
-                }
-                break;
-
-            case AnimationEvents.end:
-                break;
-        }
-        return false;
     }
 }
 

@@ -6,26 +6,30 @@ public class Interactable : MonoBehaviour
 {
     public List<AudioClip> interactionSounds;
 
-    public Animator animator;
+    public InteractableAnimator animator;
     public AudioSource audioSource;
     public ParticleSystem particleSystem;
+
+    private bool interactionHappened = false;
 
     protected void OnTrigger(Collider other)
     {
         var hero = other.GetComponent<Hero>();
-        if (hero != null)
+        if (hero != null && !interactionHappened)
             if (hero.isAlive)
                 InteractWith(hero);
     }
 
     protected virtual void InteractWith(Hero hero)
     {
+        interactionHappened = true;
+
         if (particleSystem)
             particleSystem.Stop();
         PlayRandomSound(interactionSounds);
-        animator.SetTrigger("pick");
 
-        Destroy(gameObject, 1);
+        animator.RunPickUpAnimation(hero.transform);
+        Destroy(gameObject, animator.jumpDuration);
     }
 
     protected void PlayRandomSound(List<AudioClip> sounds)

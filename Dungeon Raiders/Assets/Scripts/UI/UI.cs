@@ -1,11 +1,12 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
 public class UI : MonoBehaviour
 {
-    static UI singlton;
+    static UI singleton;
     static bool fisrtLaunch = true;
 
     public DefeatUI defeatUI;
@@ -14,6 +15,11 @@ public class UI : MonoBehaviour
     public TutorialUI tutorialUI;
     public SettingsUI settingsUI;
     public ShopUI shopUI;
+
+    public Image maskGameplay;
+    public Image maskFull;
+    private DoTweenGraphicColorizer maskGameplayColorizer;
+    private DoTweenGraphicColorizer maskFullFader;
 
     private void Awake()
     {
@@ -27,57 +33,71 @@ public class UI : MonoBehaviour
         settingsUI.gameObject.SetActive(false);
         shopUI.gameObject.SetActive(false);
 
+        if (maskGameplay != null)
+            maskGameplayColorizer = new DoTweenGraphicColorizer(maskGameplay);
+        if (maskFull != null)
+            maskFullFader = new DoTweenGraphicColorizer(maskFull);
+
     }
 
     private void Start()
     {
         if (fisrtLaunch)
         {
-            CameraController.FocusHero();
             startUI.PopUp();
             fisrtLaunch = false;
         }
+
+        CameraController.FocusHero();
+
+        DisableGameplayTint();
     }
 
     void InitSinglton(UI instance)
     {
-        singlton = instance;
+        singleton = instance;
+    }
+
+    private void OnDestroy()
+    {
+        maskGameplayColorizer?.Stop();
+        maskFullFader?.Stop();
     }
 
     public static void ShowGameplayUI()
     {
-        singlton.gameplayUI.gameObject.SetActive(true);
-        singlton.gameplayUI.PopUp();
+        singleton.gameplayUI.gameObject.SetActive(true);
+        singleton.gameplayUI.PopUp();
     }
     public static void HideGameplayUI()
     {
-        singlton.gameplayUI.gameObject.SetActive(false);
+        singleton.gameplayUI.gameObject.SetActive(false);
     }
     public static void SlideAwayMainUI()
     {
-        singlton.gameplayUI.SlideAway();
+        singleton.gameplayUI.SlideAway();
     }
     public static void MarkNewLevel()
     {
-        singlton.gameplayUI.NewLevel();
+        singleton.gameplayUI.NewLevel();
     }
 
     public static void ShowDefeatUI(bool newBest)
     {
-        singlton.defeatUI.Show(newBest);
+        singleton.defeatUI.Show(newBest);
     }
     public static void HideDefeatUI()
     {
-        singlton.defeatUI.Hide();
+        singleton.defeatUI.Hide();
     }
 
     public void OnClickStart()
     {
         CameraController.ResetCamera(1);
-        Player.ContinueMoving();
+        Player.ContinueMoving(0.2f);
         Player.controllEnabled = true;
 
-        if (Player.needTutorial || Player.showHints)
+        if (!Player.Data.tutorialPassed || PlayerSettings.ShowHints)
         {
             tutorialUI.Run();
             ShowGameplayUI();
@@ -116,7 +136,61 @@ public class UI : MonoBehaviour
 
     public void OnClickExit()
     {
-        Player.SaveInventory();
-        Player.ExitGame();
+        fisrtLaunch = true;
+        Player.ExitDungeon();
+    }
+
+    public static void EnableGameplayTint(float overTime = 0)
+    {
+        if (singleton.maskGameplay.color.a == 0.5f) return;
+
+        if (overTime > 0)
+        {
+            singleton.maskGameplayColorizer.Transit(0.5f, overTime, DG.Tweening.Ease.Flash);
+        }
+        else
+        {
+            singleton.maskGameplayColorizer.SetAlpha(0.5f);
+        }
+    }
+    public static void DisableGameplayTint(float overTime = 0)
+    {
+        if (singleton.maskGameplay.color.a == 0) return;
+
+        if (overTime > 0)
+        {
+            singleton.maskGameplayColorizer.Transit(0, overTime, DG.Tweening.Ease.Flash);
+        }
+        else
+        {
+            singleton.maskGameplayColorizer.SetAlpha(0);
+        }
+    }
+
+    public static void EnableGameplayMask(float overTime = 0)
+    {
+        if (singleton.maskGameplay.color.a == 1) return;
+
+        if (overTime > 0)
+        {
+            singleton.maskGameplayColorizer.Transit(1, overTime, DG.Tweening.Ease.Flash);
+        }
+        else
+        {
+            singleton.maskGameplayColorizer.SetAlpha(1);
+        }
+    }
+    public static void DisableGameplayMask(float overTime = 0)
+    {
+        if (singleton.maskGameplay.color.a == 0) return;
+
+        if (overTime > 0)
+        {
+            singleton.maskGameplayColorizer.Transit(0, overTime, DG.Tweening.Ease.Flash);
+        }
+        else
+        {
+            singleton.maskGameplayColorizer.SetAlpha(0);
+        }
     }
 }

@@ -8,14 +8,19 @@ public class Hero : Unit
 
     [Header("Hero properties")]
 
-    public float safeEdge = 0.15f;
+    public float safeEdge = 0.18f;
 
     public bool isListening = true;
 
-    public Coroutine jumpRoutine;
+    //public Coroutine jumpRoutine;
+    bool moveIsDelayed => delayMoveRoutine != null;
+
+    Coroutine delayMoveRoutine;
 
     void Awake()
     {
+        OnAwake();
+
         InitSinglton(this);
     }
 
@@ -31,6 +36,11 @@ public class Hero : Unit
 
         if (isAlive)
             CheckGround();
+    }
+
+    private void FixedUpdate()
+    {
+        OnFixedUpdate();
     }
 
     static void InitSinglton(Hero instance)
@@ -49,7 +59,7 @@ public class Hero : Unit
 
         if (!isLeaping && !isFloating && block.isEmpty)
             if (heroZ > (blockZ - 0.5f + safeEdge) && heroZ < (blockZ + 0.5f - safeEdge))
-                TakeDamage(health, DamageType.fall, null);
+                TakeDamage(Health.Value, DamageType.fall, null);
     }
 
     void CheckFront()
@@ -62,7 +72,7 @@ public class Hero : Unit
 
         if (therIsAnObstacle && isMoving)
             Stop();
-        else if (!therIsAnObstacle && !isBusy && !isMoving)
+        else if (!therIsAnObstacle && !isBusy && !isMoving && !moveIsDelayed)
             RequireMove();
     }
 
@@ -76,7 +86,23 @@ public class Hero : Unit
     {
         animHandler.SetMoveFlag(true);
         isMoving = true;
-        Player.ContinueMoving();
+        Player.ContinueMoving(0.2f);
+    }
+
+    public void DelayMove(float delay)
+    {
+        if (delay > 0)
+        {
+            if (delayMoveRoutine != null)
+                StopCoroutine(delayMoveRoutine);
+            delayMoveRoutine = StartCoroutine(DelayMoveRoutine(delay));
+        }
+    }
+
+    IEnumerator DelayMoveRoutine(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        delayMoveRoutine = null;
     }
 
     #endregion
@@ -99,4 +125,3 @@ public class Hero : Unit
     }
 }
 
-public enum HeroResources { health, mana }

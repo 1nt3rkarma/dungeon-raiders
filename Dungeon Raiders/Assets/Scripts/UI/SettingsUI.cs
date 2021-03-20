@@ -17,16 +17,16 @@ public class SettingsUI : MonoBehaviour
     private void Start()
     {
         // Кнопка "Показывать подсказки"
-        hintButton.gameObject.SetActive(Player.showHints);
-        hintButtonDisabled.gameObject.SetActive(!Player.showHints);
+        hintButton.gameObject.SetActive(PlayerSettings.ShowHints);
+        hintButtonDisabled.gameObject.SetActive(!PlayerSettings.ShowHints);
 
         // Кнопка "Вкл. музыку"
-        musicButton.gameObject.SetActive(Player.musicOn);
-        musicButtonDisabled.gameObject.SetActive(!Player.musicOn);
+        musicButton.gameObject.SetActive(PlayerSettings.MusicOn);
+        musicButtonDisabled.gameObject.SetActive(!PlayerSettings.MusicOn);
 
         // Кнопка "Вкл. звуковые эффекты"
-        soundsButton.gameObject.SetActive(Player.soundsOn);
-        soundsButtonDisabled.gameObject.SetActive(!Player.soundsOn);
+        soundsButton.gameObject.SetActive(PlayerSettings.SoundsOn);
+        soundsButtonDisabled.gameObject.SetActive(!PlayerSettings.SoundsOn);
     }
 
     public void OnClickHints(bool mode)
@@ -34,7 +34,7 @@ public class SettingsUI : MonoBehaviour
         hintButton.gameObject.SetActive(mode);
         hintButtonDisabled.gameObject.SetActive(!mode);
 
-        Player.showHints = mode;
+        PlayerSettings.ShowHints = mode;
     }
 
     public void OnClickMusic(bool mode)
@@ -42,7 +42,7 @@ public class SettingsUI : MonoBehaviour
         musicButton.gameObject.SetActive(mode);
         musicButtonDisabled.gameObject.SetActive(!mode);
 
-        Player.musicOn = mode;
+        PlayerSettings.MusicOn = mode;
     }
 
     public void OnClickSounds(bool mode)
@@ -50,6 +50,6 @@ public class SettingsUI : MonoBehaviour
         soundsButton.gameObject.SetActive(mode);
         soundsButtonDisabled.gameObject.SetActive(!mode);
 
-        Player.soundsOn = mode;
+        PlayerSettings.SoundsOn = mode;
     }
 }

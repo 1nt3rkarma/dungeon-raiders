@@ -4,22 +4,25 @@ using UnityEngine;
 
 public class Defend : Skill
 {
+    [Header("Specific settings")]
     public string defendFlag = "isDefended";
 
-    private void Awake()
+    void Awake()
     {
         SubsribeToGameEvents();
     }
 
-    private void Start()
+    void Update()
     {
-        charges = chargesMax;
+        OnUpdate();
     }
 
-    private void OnDestroy()
+    void OnDestroy()
     {
+        Deinitialize();
         UnsubsribeToGameEvents();
     }
+
 
     protected override void OnUnitDamage(Unit unit, float damage, DamageType type, Object source)
     {

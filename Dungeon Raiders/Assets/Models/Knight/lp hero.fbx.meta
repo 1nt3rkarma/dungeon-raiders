@@ -1,7 +1,7 @@
 fileFormatVersion: 2
 guid: 0b7e6824e4609e849b129c4955f02cb4
 ModelImporter:
-  serializedVersion: 26
+  serializedVersion: 20101
   internalIDToNameTable: []
   externalObjects:
   - first:
@@ -13,7 +13,7 @@ ModelImporter:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: KnightSteel
-    second: {fileID: 2100000, guid: 9ac2cf3a8d2330a459da4e0853202542, type: 2}
+    second: {fileID: 2100000, guid: 676b9b4bd6234254c9f0df1009b5580a, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
@@ -23,9 +23,9 @@ ModelImporter:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: SwordHandBar
-    second: {fileID: 2100000, guid: 8f71614fe28b68743a49d85aa732f8ad, type: 2}
+    second: {fileID: 2100000, guid: b78fdcebec5a020429aa79ce5533a25d, type: 2}
   materials:
-    importMaterials: 1
+    materialImportMode: 1
     materialName: 0
     materialSearch: 1
     materialLocation: 1
@@ -63,11 +63,13 @@ ModelImporter:
     importBlendShapes: 1
     importCameras: 1
     importLights: 1
+    fileIdsGeneration: 1
     swapUVChannels: 0
     generateSecondaryUV: 0
     useFileUnits: 1
     keepQuads: 0
     weldVertices: 1
+    bakeAxisConversion: 0
     preserveHierarchy: 0
     skinWeightsMode: 0
     maxBonesPerVertex: 4
@@ -77,6 +79,9 @@ ModelImporter:
     secondaryUVAngleDistortion: 8
     secondaryUVAreaDistortion: 15.000001
     secondaryUVHardAngle: 88
+    secondaryUVMarginMethod: 0
+    secondaryUVMinLightmapResolution: 40
+    secondaryUVMinObjectScale: 1
     secondaryUVPackMargin: 4
     useFileScale: 1
   tangentSpace:
@@ -89,7 +94,6 @@ ModelImporter:
     normalSmoothingSource: 0
   referencedClips: []
   importAnimation: 0
-  copyAvatar: 0
   humanDescription:
     serializedVersion: 3
     human: []
@@ -107,8 +111,10 @@ ModelImporter:
     hasExtraRoot: 0
     skeletonHasParents: 1
   lastHumanDescriptionAvatarSource: {instanceID: 0}
+  autoGenerateAvatarMappingIfUnspecified: 1
   animationType: 2
   humanoidOversampling: 1
+  avatarSetup: 1
   additionalBone: 0
   userData: 
   assetBundleName: 

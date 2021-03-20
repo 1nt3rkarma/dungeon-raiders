@@ -21,7 +21,7 @@ public class MonsterAI : MonoBehaviourExtended
 
             if (hero != null)
             {
-                var distance = MathUtilities.LineDistance(monster, hero);
+                var distance = MathUtils.LineDistance(monster, hero);
 
                 if (distance <= 2 && monster.isMoving)
                     OrderStop();

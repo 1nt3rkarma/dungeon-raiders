@@ -956,9 +956,9 @@ AnimatorStateTransition:
   m_Mute: 0
   m_IsExit: 0
   serializedVersion: 3
-  m_TransitionDuration: 0.17025904
-  m_TransitionOffset: 0.06407606
-  m_ExitTime: 0.8268912
+  m_TransitionDuration: 0.09426463
+  m_TransitionOffset: 0
+  m_ExitTime: 0.90026516
   m_HasExitTime: 0
   m_HasFixedDuration: 0
   m_InterruptionSource: 0
@@ -1129,9 +1129,9 @@ AnimatorStateTransition:
   m_Mute: 0
   m_IsExit: 0
   serializedVersion: 3
-  m_TransitionDuration: 0.3
-  m_TransitionOffset: 0.6
-  m_ExitTime: 0.50000006
+  m_TransitionDuration: 0.34321
+  m_TransitionOffset: 0.40555564
+  m_ExitTime: 0.6382717
   m_HasExitTime: 1
   m_HasFixedDuration: 0
   m_InterruptionSource: 0
@@ -1195,7 +1195,7 @@ AnimatorState:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Leap Right
-  m_Speed: 1
+  m_Speed: 1.2
   m_CycleOffset: 0
   m_Transitions:
   - {fileID: 7745171039794561483}
@@ -1649,7 +1649,7 @@ AnimatorState:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Leap Left
-  m_Speed: 1
+  m_Speed: 1.2
   m_CycleOffset: 0
   m_Transitions:
   - {fileID: -9213334915211934828}

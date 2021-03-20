@@ -1,13 +1,26 @@
-﻿using System.Collections;
+﻿using System.Linq;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class Unit : MonoBehaviour, IObstacle
 {
+    public string unitType;
+    public Unit UnitType => GameResourcesAccess.ResourceFile.GetUnitType(unitType);
+
     [Header("Common unit properties")]
 
-    public float health = 1;
-    public int healthMax = 1;
+    public List<Resource> resources;
+
+    public Resource Health { get; private set; }
+    public Resource Mana { get; private set; }
+    public Resource Faith { get; private set; }
+    public Resource Fury { get; private set; }
+    public Resource Supply { get; private set; }
+    public Resource GetResource(UnitResourceTypes ofType)
+    {
+        return resources.FirstOrDefault(r => r.type == ofType);
+    }
 
     public bool isDecaying = false;
     public float decayDelay = 3;
@@ -78,13 +91,11 @@ public class Unit : MonoBehaviour, IObstacle
     public bool isLeaping = false;
     public bool isMoving = true;
 
-    protected void OnStart()
+    protected void OnAwake()
     {
-        SetBlockPosition(Level.GetBlock(transform.position));
-
         foreach (var skill in skills)
         {
-            skill.caster = this;
+            skill.Initialize(this);
 
             if (skill is Attack)
                 attackSkill = (Attack) skill;
@@ -100,6 +111,51 @@ public class Unit : MonoBehaviour, IObstacle
         }
 
         ammo = ammoMax;
+
+        foreach (var r in resources)
+        {
+            switch (r.type)
+            {
+                case UnitResourceTypes.Health:
+                    Health = r;
+                    break;
+                case UnitResourceTypes.Mana:
+                    Mana = r;
+                    break;
+                case UnitResourceTypes.Faith:
+                    Faith = r;
+                    break;
+                case UnitResourceTypes.Fury:
+                    Fury = r;
+                    break;
+                default:
+                    Debug.LogWarning("Unknown resource type");
+                    break;
+            }
+
+            if (r.type != UnitResourceTypes.Health && Supply == null)
+                Supply = r;
+
+            r.Value = r.InitialValue;
+        }
+
+        //if(Supply != null)
+        //    Debug.LogWarning($"{name} supply resource type is {Supply.type}");
+        //else
+        //    Debug.LogWarning($"{name} doesn't have any secondary resorce");
+
+    }
+
+    protected void OnStart()
+    {
+        SetBlockPosition(Level.GetBlock(transform.position));
+    }
+
+    protected void OnFixedUpdate()
+    {
+        foreach (var r in resources)
+            if (r.RegenerationRate > 0)
+                r.Value += r.RegenerationRate * Time.fixedDeltaTime;
     }
 
     #region Перемещение
@@ -167,25 +223,9 @@ public class Unit : MonoBehaviour, IObstacle
 
     #region Нанесение и получение урона
 
-    public void DecHealth(float amount)
-    {
-        SetHealth(health - amount);
-    }
-
-    public void AddHealth(float amount)
-    {
-        SetHealth(health + amount);
-    }
-
-    public void SetHealth(float amount)
-    {
-        health = amount;
-        health = Mathf.Clamp(health, 0, healthMax);
-    }
-
     public void Heal(float amount)
     {
-        AddHealth(amount);
+        Health.Value += amount;
 
         animHandler.ReleaseSticked();
     }
@@ -272,9 +312,9 @@ public class Unit : MonoBehaviour, IObstacle
             return;
 
         if (!(isDefending && source is Unit && type == DamageType.common))
-            DecHealth(damage);
+            Health.Value -= damage;
 
-        if (health > 0)
+        if (Health.Value > 0)
             StartCoroutine(HitRoutine());
         else
             Die(type, source);
@@ -293,7 +333,7 @@ public class Unit : MonoBehaviour, IObstacle
             PlayRandomSound(animHandler.impactBlockSounds);
 
         // Ждем событие анимации - начало анимации
-        yield return WaitForAnimationEvent(AnimationEvents.start);
+        //yield return WaitForAnimationEvent(AnimationEvents.start);
 
         // Ждем событие анимации - конец анимации
         yield return WaitForAnimationEvent(AnimationEvents.end);
@@ -336,35 +376,30 @@ public class Unit : MonoBehaviour, IObstacle
 
     protected IEnumerator WaitForAnimationEvent(AnimationEvents eventTag)
     {
-        switch (eventTag)   
+        switch (eventTag)
         {
             case AnimationEvents.start:
-                while (!animHandler.animEventStart)
-                    yield return null;
-                animHandler.animEventStart = false;
+                animHandler.onAnimationStarted.AddListener(()=> AnimationEventHappened = true);
                 break;
             case AnimationEvents.end:
-                while (!animHandler.animEventEnd)
-                    yield return null;
-                animHandler.animEventEnd = false;
+                animHandler.onAnimationEnded.AddListener(() => AnimationEventHappened = true);
                 break;
             case AnimationEvents.castStart:
-                while (!animHandler.animEventCastStart)
-                    yield return null;
-                animHandler.animEventCastStart = false;
+                animHandler.onCastingStarted.AddListener(() => AnimationEventHappened = true);
                 break;
             case AnimationEvents.cast:
-                while (!animHandler.animEventCast)
-                    yield return null;
-                animHandler.animEventCast = false;
+                animHandler.onCast.AddListener(() => AnimationEventHappened = true);
                 break;
             case AnimationEvents.castEnd:
-                while (!animHandler.animEventCastEnd)
-                    yield return null;
-                animHandler.animEventCastEnd = false;
+                animHandler.onAnimationEnded.AddListener(() => AnimationEventHappened = true);
                 break;
         }
+
+        while (!AnimationEventHappened)
+            yield return null;
+        AnimationEventHappened = false;
     }
+    private bool AnimationEventHappened = false;
 
     protected void InterruptRoutines()
     {
@@ -442,3 +477,26 @@ public enum Facing { forward = 1, backward = -1 }
 public enum DamageType { common, fall, fire, frost, electro }
 
 public interface IObstacle { }
+
+public enum UnitResourceTypes { Health, Mana, Faith, Fury }
+
+[System.Serializable]
+public class Resource
+{
+    [SerializeField] float value = 1;
+
+    [Tooltip("Purely for inspector")]
+    public string label;
+
+    public UnitResourceTypes type;
+    public float Value
+    {
+        get => value;
+
+        set => this.value = Mathf.Clamp(value, 0, MaxValue);
+    }
+    public int MaxValue = 1;
+    public float Percentage => value / MaxValue;
+    public float RegenerationRate = 0.1f;
+    public float InitialValue = 1;
+}

@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Jump : Skill
 {
+    [Header("Specific settings")]
     public string jumpStartTag = "jumpUp";
     public string jumpEndTag = "jumpDown";
 
@@ -12,10 +13,13 @@ public class Jump : Skill
         OnUpdate();
     }
 
+    void OnDestroy()
+    {
+        Deinitialize();
+    }
+
     protected override void BeginScenario()
     {
-        //Debug.Log("Запрашиваем анимацию прыжка");
-
         base.BeginScenario();
         RequestAnimation(jumpStartTag);
     }

@@ -14,7 +14,7 @@ public class UserTouchController : MonoBehaviour
 
     [Tooltip("Minimum distance of the swipe to count this action")]
     public float swipeSensitivity = 0.01f;
-    private float minPixelDelta;
+    public float minPixelDelta;
 
     private Vector2 touchPosDown;
     private Vector2 touchPosUp;
@@ -54,9 +54,9 @@ public class UserTouchController : MonoBehaviour
                     {
                         SwipeDirections direction;
                         if (IsoMode)
-                            direction = GetSwipeDirectionIsometric(touchPosDown, touchPosUp);
+                            direction = GetSwipeDirectionIsometric(touchPosDown, touchPosUp, minPixelDelta);
                         else
-                            direction = GetSwipeDirection(touchPosDown, touchPosUp);
+                            direction = GetSwipeDirection(touchPosDown, touchPosUp, minPixelDelta, swipeSensitivity);
 
                         if (direction != SwipeDirections.None)
                             CatchSwipe(direction);
@@ -67,9 +67,9 @@ public class UserTouchController : MonoBehaviour
                     {
                         SwipeDirections direction;
                         if (IsoMode)
-                            direction = GetSwipeDirectionIsometric(touchPosDown, touchPosUp);
+                            direction = GetSwipeDirectionIsometric(touchPosDown, touchPosUp, minPixelDelta);
                         else
-                            direction = GetSwipeDirection(touchPosDown, touchPosUp);
+                            direction = GetSwipeDirection(touchPosDown, touchPosUp, minPixelDelta, swipeSensitivity);
 
                         if (direction != SwipeDirections.None)
                             CatchSwipe(direction);
@@ -126,7 +126,7 @@ public class UserTouchController : MonoBehaviour
         GameEvent.InvokeSwipe(direction);
     }
 
-    SwipeDirections GetSwipeDirection(Vector2 positionDown, Vector2 positionUp)
+    public static SwipeDirections GetSwipeDirection(Vector2 positionDown, Vector2 positionUp, float minPixelDelta, float swipeSensitivity)
     {
         var deltaVertical = Mathf.Abs(positionUp.y - positionDown.y);
         var deltaHorizontal = Mathf.Abs(positionUp.x - positionDown.x);
@@ -153,7 +153,7 @@ public class UserTouchController : MonoBehaviour
         }
     }
 
-    SwipeDirections GetSwipeDirectionIsometric(Vector2 positionDown, Vector2 positionUp)
+    public static SwipeDirections GetSwipeDirectionIsometric(Vector2 positionDown, Vector2 positionUp, float minPixelDelta)
     {
         var angle = Isometrics.GetSwipeAngle(positionDown, positionUp);
         var sqrDelta = Vector2.SqrMagnitude(positionUp - positionDown);
@@ -163,12 +163,12 @@ public class UserTouchController : MonoBehaviour
         {
             if (angle >= Isometrics.angleFR && angle <= Isometrics.angleFL)
                 return SwipeDirections.Up;
-            else if (angle > Isometrics.angleFL && angle < Isometrics.angleBL)
+            else if (angle > Isometrics.angleFL && angle <= Isometrics.angleBL)
                 return SwipeDirections.Left;
-            else if (angle < Isometrics.angleFR && angle > Isometrics.angleBR)
-                return SwipeDirections.Right;
-            else
+            else if (angle > Isometrics.angleBL && angle <= Isometrics.angleBR)
                 return SwipeDirections.Down;
+            else /*if (angle > Isometrics.angleBR || angle < Isometrics.angleFR)*/
+                return SwipeDirections.Right;
         }
         else
         {

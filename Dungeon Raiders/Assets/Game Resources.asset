@@ -19,3 +19,7 @@ MonoBehaviour:
   itemDatabase:
   - {fileID: 11400000, guid: d44866549fca37042b6fab280251f738, type: 2}
   - {fileID: 11400000, guid: ad89d5632c415444c976088e23ba718f, type: 2}
+  unitTypes:
+  - {fileID: 6661492324085241583, guid: 87d9721add3146c42889c656ad07d558, type: 3}
+  - {fileID: 3235203054002112806, guid: 45ddf86124576ef4fabdd5aea7cec700, type: 3}
+  - {fileID: 365781061841994799, guid: 4b254491ce863d443b6f9aae27e917f3, type: 3}

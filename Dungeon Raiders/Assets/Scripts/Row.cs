@@ -6,6 +6,26 @@ public class Row : MonoBehaviour
 {
     public List<Block> blocks;
     public List<MeshRenderer> renderers;
+    public Transform decorationPivot;
+
+    /// <summary>
+    /// Does this row have any empty blocks?
+    /// </summary>
+    public bool ContainsEmpty
+    {
+        get
+        {
+            foreach (var block in blocks)
+                if (block.isEmpty)
+                    return true;
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Is block which borders wall empty?
+    /// </summary>
+    public bool ContainsEmptyBorder => blocks[0].isEmpty;
 
     public void SetPosition(int z)
     {

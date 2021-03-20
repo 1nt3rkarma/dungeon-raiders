@@ -81,8 +81,43 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc98585e13c521443bb595f8253d52c3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  health: 1
-  healthMax: 1
+  unitType: zombie
+  resources:
+  - label: Health
+    type: 0
+    MaxValue: 1
+    RegenerationRate: 0
+    InitialValue: 1
+  Health:
+    label: 
+    type: 0
+    MaxValue: 1
+    RegenerationRate: 0.1
+    InitialValue: 1
+  Mana:
+    label: 
+    type: 0
+    MaxValue: 1
+    RegenerationRate: 0.1
+    InitialValue: 1
+  Faith:
+    label: 
+    type: 0
+    MaxValue: 1
+    RegenerationRate: 0.1
+    InitialValue: 1
+  Fury:
+    label: 
+    type: 0
+    MaxValue: 1
+    RegenerationRate: 0.1
+    InitialValue: 1
+  Supply:
+    label: 
+    type: 0
+    MaxValue: 1
+    RegenerationRate: 0.1
+    InitialValue: 1
   isDecaying: 1
   decayDelay: 2
   leapDuration: 2

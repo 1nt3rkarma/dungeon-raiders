@@ -21,7 +21,7 @@ public class RandomObject : MonoBehaviour
 
     public void Generate()
     {
-        var index = MathUtilities.GetRandomIndexFromListOfChances(chances);
+        var index = MathUtils.GetRandomIndexFromListOfChances(chances);
         if (index >= 0)
         {
             var randomType = typesList[index];

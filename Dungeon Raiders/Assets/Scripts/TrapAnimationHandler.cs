@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class TrapAnimationHandler : MonoBehaviour
 {
@@ -12,9 +13,11 @@ public class TrapAnimationHandler : MonoBehaviour
     public List<AudioClip> activationSounds;
     public AudioSource audioSource;
 
-    public bool animEventCastStart;
-    public bool animEventCast;
-    public bool animEventCastEnd;
+    public UnityEvent onAnimationStarted;
+    public UnityEvent onCastingStarted;
+    public UnityEvent onCast;
+    public UnityEvent onCastingEnded;
+    public UnityEvent onAnimationEnded;
 
     public void PlayActivationAnimation()
     {
@@ -45,14 +48,14 @@ public class TrapAnimationHandler : MonoBehaviour
 
     public void EventCastStart()
     {
-        animEventCastStart = true;
+        onCastingStarted.Invoke();
     }
     public void EventCast()
     {
-        animEventCast = true;
+        onCast.Invoke();
     }
     public void EventCastEnd()
     {
-        animEventCastEnd = true;
+        onCastingEnded.Invoke();
     }
 }

@@ -16,8 +16,8 @@ public class SkeletonAI : MonsterAI
         if (hero != null)
             if (hero.isAlive && skeleton.ammo > 0)
             {
-                var delta = MathUtilities.LineDelta(skeleton, hero);
-                var distance = MathUtilities.LineDistance(skeleton, hero);
+                var delta = MathUtils.LineDelta(skeleton, hero);
+                var distance = MathUtils.LineDistance(skeleton, hero);
 
                 var shootDistance = this.shootDistance;
                 if (shootLineFactor)

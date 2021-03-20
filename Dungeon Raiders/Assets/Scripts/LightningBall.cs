@@ -31,11 +31,23 @@ public class LightningBall : MonoBehaviour
     public Vector3 bounceParticlesPosition;
     public Vector3 bounceParticlesRotation;
 
-    Coroutine moveRoutine;
+    DoTweenTransformer localMover;
+    private bool fallPredicted;
+
+    private void Awake()
+    {
+        localMover = new DoTweenTransformer(transform);
+    }
+
+    private void OnDestroy()
+    {
+        localMover?.Stop();
+    }
 
     public void PlayBubbles()
     {
-        bubblesParticles.Play();
+        if (!fallPredicted)
+            bubblesParticles.Play();
     }
 
     public void PlayBounceEffect()
@@ -65,53 +77,34 @@ public class LightningBall : MonoBehaviour
     }
     public void Bounce(bool hit)
     {
-        if (moveRoutine != null)
-            StopCoroutine(moveRoutine);
-
         if (block != null)
         {
-            if (!block.isEmpty)
+            if (hit)
+                PlayBounceEffect();
+            var nextBlock = GetRandomNextBlock();
+            if (nextBlock != null)
             {
-                if (hit)
-                    PlayBounceEffect();
-                var nextBlock = GetRandomNextBlock();
-                if (nextBlock != null)
-                    moveRoutine = StartCoroutine(MoveRoutine(nextBlock));
-            }
-            else
-            {
-                collider.enabled = false;
-                animator.SetTrigger("fall");
-                Destroy(gameObject, 0.5f);
+                fallPredicted = nextBlock.isEmpty;
+                if (fallPredicted)
+                    animator.SetTrigger("fall");
+                MoveTo(nextBlock);
             }
         }
         else
             Destroy(gameObject);
     }
+    public void Fall()
+    {
+        collider.enabled = false;
+        Destroy(gameObject, 1f);
+    }
 
-    IEnumerator MoveRoutine(Block targetBlock)
+    void MoveTo(Block targetBlock)
     {
         SwitchBlock(targetBlock);
-        Vector3 direction = (int)this.direction * transform.localPosition;
-        float distance = Vector3.Magnitude(direction);
-        float speed = distance / moveDuration;
-
-        while (distance > 0.1f && targetBlock != null)
-        {
-            yield return null;
-            direction = (int)this.direction * transform.localPosition;
-            distance = Vector3.Magnitude(transform.localPosition);
-            direction.Normalize();
-            transform.localPosition += direction * speed * Time.deltaTime;
-        }
-
-        if (targetBlock == null)
-            Destroy(gameObject);
-
-        transform.localPosition = Vector3.zero;
-        moveRoutine = null;
+        localMover.MoveLocal(Vector3.zero, moveDuration);
     }
-    
+
     Block GetRandomNextBlock()
     {
         int rowIndex = this.block.GetRowIndex() + (int)direction;
@@ -160,7 +153,7 @@ public class LightningBall : MonoBehaviour
         }
 
         unit.TakeDamage(damage, DamageType.electro, this);
-        Destroy(effect, 3);
-        Destroy(gameObject);
+        Destroy(effect.gameObject, 3);
+        Destroy(this.gameObject);
     }
 }

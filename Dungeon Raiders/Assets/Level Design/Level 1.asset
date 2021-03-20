@@ -21,8 +21,8 @@ MonoBehaviour:
     gapBasicChance: 0.1
     allowRowGap: 1
     gapRowChance: 0.7
-    gapMinInterval: 11
-    gapMaxInterval: 13
+    gapMinInterval: 10
+    gapMaxInterval: 14
     gapSplitChance: 0.5
     gapMinLength: 2
     gapMaxLength: 3

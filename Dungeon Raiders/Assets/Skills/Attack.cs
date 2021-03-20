@@ -8,6 +8,10 @@ public class Attack : Skill
     {
         OnUpdate();
     }
+    void OnDestroy()
+    {
+        Deinitialize();
+    }
 
     protected override void Cast()
     {
@@ -18,7 +22,6 @@ public class Attack : Skill
     {
         base.BeginScenario();
 
-        Debug.Log($"Requesting ATTACK animation");
         RequestAnimation(animationTagCast);
     }
 

@@ -21,7 +21,7 @@ public class ShopUI : MonoBehaviour
 
     void Update()
     {
-        coinsText.text = Player.coinsTotal.ToString();
+        coinsText.text = Player.Data.coinsTotal.ToString();
     }
 
     public void Init(List<Item> items)

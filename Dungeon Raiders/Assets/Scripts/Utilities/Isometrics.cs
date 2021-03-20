@@ -19,16 +19,6 @@ public class Isometrics : MonoBehaviour
     public Transform borderBRPoint;
     public Transform borderBLPoint;
 
-    public Transform SwipeDownPosition;
-    public Transform SwipeUpPosition;
-    public Transform SwipeAxisPosition;
-
-    [Space]
-    public Vector2 swipeDownPos;
-    public Vector2 swipeUpPos;
-    public Vector2 swipeAxisPos;
-    public float angleSwipeToAxis;
-
     [Space]
     public Vector2 isoCenterPos;
     public Vector2 isoAxisPos;
@@ -40,8 +30,24 @@ public class Isometrics : MonoBehaviour
     [Space]
     public float angleBorderFR;
     public float angleBorderFL;
-    public float angleBorderBR;
     public float angleBorderBL;
+    public float angleBorderBR;
+
+    [Header("Debugging")]
+
+    public bool isDebugging;
+
+    public float minPixelDelta = 1.26f;
+
+    public Transform SwipeDownPosition;
+    public Transform SwipeUpPosition;
+
+    [Space]
+    public Vector2 swipeDownPos;
+    public Vector2 swipeUpPos;
+    public Vector2 swipeAxisPos;
+    public float angleSwipeToAxis;
+    public SwipeDirections direction;
 
     void Awake()
     {
@@ -53,6 +59,12 @@ public class Isometrics : MonoBehaviour
         UpdatePerspective();
     }
 
+    private void Update()
+    {
+        if (isDebugging)
+            DebugUpdate();
+    }
+
     public void UpdatePerspective()
     {
         var axisCenterScreen = camera.WorldToScreenPoint(zeroPoint.position);
@@ -61,10 +73,6 @@ public class Isometrics : MonoBehaviour
         var borderBRScreen = camera.WorldToScreenPoint(borderBRPoint.position);
         var borderBLScreen = camera.WorldToScreenPoint(borderBLPoint.position);
 
-        var swipeDownScreen = camera.WorldToScreenPoint(SwipeDownPosition.position);
-        var swipeUpScreen = camera.WorldToScreenPoint(SwipeUpPosition.position);
-        var swipeAxisScreen = camera.WorldToScreenPoint(SwipeAxisPosition.position);
-
         isoCenterPos = new Vector2(axisCenterScreen.x, axisCenterScreen.y);
         isoAxisPos = isoCenterPos + 10 * Vector2.right;
         borderFRPos = new Vector2(borderFRScreen.x, borderFRScreen.y);
@@ -72,29 +80,42 @@ public class Isometrics : MonoBehaviour
         borderBRPos = new Vector2(borderBRScreen.x, borderBRScreen.y);
         borderBLPos = new Vector2(borderBLScreen.x, borderBLScreen.y);
 
+        Vector2 isoAxisDirection = isoAxisPos - isoCenterPos;
+        Vector2 borderFRDirection = borderFRPos - isoCenterPos;
+        angleBorderFR = Vector2.SignedAngle(isoAxisDirection, borderFRDirection);
+        angleBorderFR = MathUtils.SignedTo360(angleBorderFR);
+
+        Vector2 borderFLDirection = borderFLPos - isoCenterPos;
+        angleBorderFL = Vector2.SignedAngle(isoAxisDirection, borderFLDirection);
+        angleBorderFL = MathUtils.SignedTo360(angleBorderFL);
+
+        Vector2 borderBRDirection = borderBRPos - isoCenterPos;
+        angleBorderBR = Vector2.SignedAngle(isoAxisDirection, borderBRDirection);
+        angleBorderBR = MathUtils.SignedTo360(angleBorderBR);
+
+        Vector2 borderBLDirection = borderBLPos - isoCenterPos;
+        angleBorderBL = Vector2.SignedAngle(isoAxisDirection, borderBLDirection);
+        angleBorderBL = MathUtils.SignedTo360(angleBorderBL);
+    }
+
+    public void DebugUpdate()
+    {
+        var swipeDownScreen = camera.WorldToScreenPoint(SwipeDownPosition.position);
+        var swipeUpScreen = camera.WorldToScreenPoint(SwipeUpPosition.position);
+
         swipeDownPos = new Vector2(swipeDownScreen.x, swipeDownScreen.y);
         swipeUpPos = new Vector2(swipeUpScreen.x, swipeUpScreen.y);
-        swipeAxisPos = new Vector2(swipeAxisScreen.x, swipeAxisScreen.y);
+        swipeAxisPos = new Vector2(swipeDownScreen.x + 10, swipeDownScreen.y);
 
         Vector2 swipeDirection = swipeUpPos - swipeDownPos;
         Vector2 swipeAxisDirection = swipeAxisPos - swipeDownPos;
         angleSwipeToAxis = Vector2.SignedAngle(swipeAxisDirection, swipeDirection);
+        angleSwipeToAxis = MathUtils.SignedTo360(angleSwipeToAxis);
 
-        Vector2 isoAxisDirection = isoAxisPos - isoCenterPos;
-        Vector2 borderFRDirection = borderFRPos - isoCenterPos;
-        angleBorderFR = Vector2.SignedAngle(isoAxisDirection, borderFRDirection);
-
-        Vector2 borderFLDirection = borderFLPos - isoCenterPos;
-        angleBorderFL = Vector2.SignedAngle(isoAxisDirection, borderFLDirection);
-
-        Vector2 borderBRDirection = borderBRPos - isoCenterPos;
-        angleBorderBR = Vector2.SignedAngle(isoAxisDirection, borderBRDirection);
-
-        Vector2 borderBLDirection = borderBLPos - isoCenterPos;
-        angleBorderBL = Vector2.SignedAngle(isoAxisDirection, borderBLDirection);
+        direction = UserTouchController.GetSwipeDirectionIsometric(swipeAxisDirection, swipeDirection, minPixelDelta);
     }
 
-    public static float GetSwipeAngle(Vector2 positionDown, Vector2 positionUp)
+    public static float GetSwipeAngle(Vector2 positionDown, Vector2 positionUp, bool signed = false)
     {
         Vector2 axisPos = positionDown + Vector2.right * 100;
 
@@ -102,7 +123,11 @@ public class Isometrics : MonoBehaviour
         Vector2 axisDirection = axisPos - positionDown;
 
         var angle = Vector2.SignedAngle(axisDirection, direction);
-        return angle;
+        if (signed)
+            return angle;
+        else
+            return MathUtils.SignedTo360(angle);
+
     }
 
     private void OnDrawGizmosSelected()

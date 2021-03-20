@@ -55,6 +55,8 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 0
   m_ReflectionProbeUsage: 0
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -79,6 +81,7 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1001 &3599351792879647814
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -136,6 +139,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 10800000, guid: 687cf67b640760d4b81d96852763fcdf, type: 3}
       propertyPath: m_Intensity
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 10800000, guid: 687cf67b640760d4b81d96852763fcdf, type: 3}
+      propertyPath: m_RenderMode
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 19800000, guid: 687cf67b640760d4b81d96852763fcdf, type: 3}

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public static class MathUtilities
+public static class MathUtils
 {
     public static int GetRandomIndexFromListOfChances(List<float> chances)
     {
@@ -36,5 +36,16 @@ public static class MathUtilities
     public static int LineDelta(Unit fromUnit, Unit toUnit)
     {
         return fromUnit.block.GetRowIndex() - toUnit.block.GetRowIndex();
+    }
+
+    /// <summary>
+    /// Converts angle from [-180; 180] to [0; 360]
+    /// </summary>
+    public static float SignedTo360(float signedAngle)
+    {
+        if (signedAngle < 0)
+            return 360 + signedAngle;
+        else
+            return signedAngle;
     }
 }
